@@ -1,0 +1,157 @@
+.login-container {
+  max-width: 450px;
+  margin: 0 auto;
+  padding: 20px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.logo-section {
+  text-align: center;
+  margin-bottom: 30px;
+  
+  .logo {
+    width: 100px;
+    height: auto;
+    margin-bottom: 15px;
+  }
+  
+  h2 {
+    color: var(--ion-color-primary);
+    font-weight: 600;
+    margin: 10px 0 5px;
+  }
+  
+  p {
+    color: var(--ion-color-medium);
+    margin: 0;
+  }
+}
+
+.login-form {
+  ion-item {
+    --padding-start: 0;
+    --inner-padding-end: 0;
+    margin-bottom: 15px;
+    --border-radius: 8px;
+    --background: var(--ion-color-light);
+    
+    ion-icon {
+      color: var(--ion-color-medium);
+      margin-right: 10px;
+    }
+  }
+  
+  .remember-item {
+    --min-height: 40px;
+    margin-bottom: 20px;
+    
+    ion-checkbox {
+      margin-right: 10px;
+      --size: 18px;
+    }
+  }
+}
+
+.login-button {
+  --border-radius: 8px;
+  height: 50px;
+  font-weight: 600;
+  margin: 10px 0;
+}
+
+.forgot-password {
+  text-align: center;
+  margin: 15px 0;
+  
+  ion-button {
+    --color: var(--ion-color-medium);
+    font-size: 0.9rem;
+  }
+}
+
+.separator {
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+  color: var(--ion-color-medium);
+  
+  &::before, &::after {
+    content: "";
+    flex: 1;
+    border-bottom: 1px solid var(--ion-color-light-shade);
+  }
+  
+  span {
+    padding: 0 15px;
+  }
+}
+
+.social-login {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin: 20px 0;
+  
+  .social-button {
+    --border-radius: 50%;
+    --padding-start: 0;
+    --padding-end: 0;
+    width: 50px;
+    height: 50px;
+    --background: var(--ion-color-light);
+    
+    ion-icon {
+      font-size: 1.5rem;
+    }
+  }
+}
+
+.register-section {
+  text-align: center;
+  margin-top: 20px;
+  
+  p {
+    color: var(--ion-color-medium);
+    margin-bottom: 5px;
+  }
+  
+  ion-button {
+    --color: var(--ion-color-primary);
+    font-weight: 600;
+  }
+}
+
+/* Efectos para accesibilidad */
+ion-button:focus, ion-item:focus {
+  outline: 2px solid var(--ion-color-primary-shade);
+  outline-offset: 2px;
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.login-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: space-between;
+}
+ion-toolbar {
+  --min-height: 60px;
+  
+  ion-button {
+    --padding-start: 0;
+    --padding-end: 0;
+  }
+}

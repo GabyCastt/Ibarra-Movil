@@ -1,27 +1,265 @@
-#container {
-  text-align: center;
-
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
+/* Variables de color */
+:host {
+  --primary-color: #2c5fa8;  // Azul institucional
+  --secondary-color: #f7931e; // Naranja complementario
+  --light-color: #f8f9fa;
+  --dark-color: #343a40;
+  --success-color: #28a745;
 }
 
-#container strong {
-  font-size: 20px;
-  line-height: 26px;
+/* Estructura general */
+.home-content {
+  --background: #f5f5f5;
 }
 
-#container p {
-  font-size: 16px;
-  line-height: 22px;
-
-  color: #8c8c8c;
-
-  margin: 0;
+/* Header */
+.app-title {
+  .title-content {
+    display: flex;
+    align-items: center;
+    
+    .header-logo {
+      height: 28px;
+      margin-right: 10px;
+    }
+    
+    span {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+  }
 }
 
-#container a {
-  text-decoration: none;
+.user-button {
+  ion-icon {
+    font-size: 1.8rem;
+  }
+}
+
+/* Hero banner */
+.hero-banner {
+  position: relative;
+  height: 180px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  
+  .banner-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .banner-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+  }
+  
+  .banner-text {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    color: white;
+    z-index: 1;
+    
+    h1 {
+      font-size: 1.8rem;
+      font-weight: bold;
+      margin: 0;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+    }
+    
+    p {
+      margin: 5px 0 0;
+      font-size: 1rem;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    }
+  }
+}
+
+/* Barra de búsqueda */
+.home-searchbar {
+  padding: 0 16px 16px;
+  --background: white;
+  --border-radius: 12px;
+  --box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Slider de categorías */
+.categories-slider {
+  padding: 8px 0 16px;
+  
+  .category-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 10px;
+    
+    .category-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 8px;
+      
+      ion-icon {
+        font-size: 1.8rem;
+        color: white;
+      }
+    }
+    
+    span {
+      font-size: 0.8rem;
+      text-align: center;
+      color: var(--dark-color);
+    }
+  }
+}
+
+/* Encabezados de sección */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 16px;
+  margin: 20px 0 10px;
+  
+  h2 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--primary-color);
+  }
+}
+
+/* Slider de emprendimientos destacados */
+.featured-slider {
+  padding-bottom: 10px;
+  
+  .business-card {
+    width: 220px;
+    height: 200px;
+    position: relative;
+    margin: 0 5px;
+    
+    img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+    }
+    
+    .business-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background-color: var(--secondary-color);
+      color: white;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      font-weight: bold;
+      z-index: 1;
+    }
+    
+    ion-card-header {
+      padding: 10px;
+      
+      ion-card-title {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 5px;
+      }
+      
+      ion-card-subtitle {
+        font-size: 0.8rem;
+        display: flex;
+        align-items: center;
+        
+        ion-icon {
+          margin-right: 3px;
+          font-size: 0.9rem;
+        }
+      }
+    }
+  }
+}
+
+/* Sección de eventos */
+.events-container {
+  display: flex;
+  overflow-x: auto;
+  padding: 0 10px 10px;
+  gap: 10px;
+  
+  .event-card {
+    min-width: 260px;
+    margin: 0;
+    
+    img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+    }
+    
+    ion-card-header {
+      padding: 10px;
+      
+      ion-card-title {
+        font-size: 1rem;
+        font-weight: 600;
+      }
+      
+      ion-card-subtitle {
+        font-size: 0.8rem;
+        display: flex;
+        align-items: center;
+        
+        ion-icon {
+          margin-right: 3px;
+          font-size: 0.9rem;
+        }
+      }
+    }
+  }
+}
+
+/* Acceso rápido */
+.quick-access {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  
+  ion-button {
+    --border-color: var(--primary-color);
+    --color: var(--primary-color);
+    margin: 0;
+    
+    ion-icon {
+      font-size: 1.2rem;
+    }
+  }
+}
+
+/* Efectos de accesibilidad */
+ion-button:focus, .category-item:focus, .business-card:focus {
+  outline: 2px solid var(--secondary-color);
+  outline-offset: 2px;
+}
+
+/* Texto aumentado para modo accesibilidad */
+@media (prefers-contrast: more) {
+  :host {
+    --primary-color: #0047ab;
+    --secondary-color: #ff8c00;
+  }
+  
+  .hero-banner .banner-text {
+    text-shadow: 2px 2px 4px black;
+  }
 }

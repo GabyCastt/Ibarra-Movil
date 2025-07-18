@@ -1,20 +1,128 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Blank
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button>
+        <ion-icon slot="icon-only" name="location-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    
+    <ion-title class="app-title">
+      <div class="title-content">
+        <img src="assets/icon/logo-GAD-IBARRA.png" alt="Logo GAD Ibarra" class="header-logo">
+        <span>Municipalidad de Ibarra</span>
+      </div>
     </ion-title>
+    
+    <ion-buttons slot="end">
+      <ion-button (click)="openLogin()" class="user-button">
+        <ion-icon name="person-circle-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content [fullscreen]="true" class="home-content">
+  <!-- Banner superior -->
+  <div class="hero-banner">
+    <div class="banner-overlay"></div>
+    <img src="assets/icon/ibarra-banner.jpg" alt="Ibarra ciudad" class="banner-image">
+    <div class="banner-text">
+      <h1>Orgullo Ecuatoriano</h1>
+      <p>Descubre los emprendimientos de tu ciudad</p>
+    </div>
+  </div>
 
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
+  <!-- Barra de búsqueda -->
+  <ion-searchbar 
+    placeholder="Buscar emprendimientos..." 
+    animated
+    class="home-searchbar"
+    (ionInput)="searchItems($event)">
+  </ion-searchbar>
+
+  <!-- Sección de categorías con scroll horizontal -->
+  <div class="section-header">
+    <h2>Categorías</h2>
+  </div>
+  
+  <div class="scroll-container">
+    <ion-grid class="scroll-grid">
+      <ion-row class="ion-nowrap">
+        <ion-col *ngFor="let category of categories" size="auto">
+          <div class="category-item" (click)="openCategory(category)">
+            <div class="category-icon" [style.background-color]="category.color">
+              <ion-icon [name]="category.icon"></ion-icon>
+            </div>
+            <span>{{category.name}}</span>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+
+  <!-- Emprendimientos destacados con scroll horizontal -->
+  <div class="section-header">
+    <h2>Destacados</h2>
+    <ion-button fill="clear" size="small" (click)="seeAll('featured')">
+      Ver todos
+      <ion-icon slot="end" name="chevron-forward-outline"></ion-icon>
+    </ion-button>
+  </div>
+  
+  <div class="scroll-container">
+    <ion-grid class="scroll-grid">
+      <ion-row class="ion-nowrap">
+        <ion-col *ngFor="let business of featuredBusinesses" size="auto">
+          <ion-card class="business-card" (click)="openBusiness(business)">
+            <div class="business-badge" *ngIf="business.badge">
+              {{business.badge}}
+            </div>
+            <img src="assets/icon/ArteAndino.jpg" [alt]="business.name">
+            <ion-card-header>
+              <ion-card-title>{{business.name}}</ion-card-title>
+              <ion-card-subtitle>
+                <ion-icon name="location-outline"></ion-icon>
+                {{business.location}}
+              </ion-card-subtitle>
+            </ion-card-header>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+
+  <!-- Próximos eventos -->
+  <div class="section-header">
+    <h2>Eventos</h2>
+    <ion-button fill="clear" size="small" (click)="seeAll('events')">
+      Ver todos
+      <ion-icon slot="end" name="chevron-forward-outline"></ion-icon>
+    </ion-button>
+  </div>
+  
+  <div class="events-container">
+    <ion-card *ngFor="let event of upcomingEvents" class="event-card" (click)="openEvent(event)">
+      <img src="assets/icon/Eventos.jpg" [alt]="event.title">
+      <ion-card-header>
+        <ion-card-title>{{event.title}}</ion-card-title>
+        <ion-card-subtitle>
+          <ion-icon name="calendar-outline"></ion-icon>
+          {{event.date}}
+        </ion-card-subtitle>
+      </ion-card-header>
+    </ion-card>
+  </div>
+
+  <!-- Acceso rápido -->
+  <div class="quick-access">
+    <ion-button expand="block" fill="outline" (click)="navigateTo('map')">
+      <ion-icon slot="start" name="map-outline"></ion-icon>
+      Mapa de emprendimientos
+    </ion-button>
+    
+    <ion-button expand="block" fill="outline" (click)="navigateTo('register')">
+      <ion-icon slot="start" name="business-outline"></ion-icon>
+      Registrar mi emprendimiento
+    </ion-button>
   </div>
 </ion-content>

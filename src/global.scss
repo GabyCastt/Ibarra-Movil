@@ -35,3 +35,266 @@
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import '@ionic/angular/css/palettes/dark.system.css';
+/* Estilos generales */
+.header-logo {
+  height: 28px;
+  margin-right: 10px;
+}
+
+.app-title .title-content {
+  display: flex;
+  align-items: center;
+  
+  span {
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+}
+
+.user-button ion-icon {
+  font-size: 1.8rem;
+}
+
+/* Hero banner */
+.hero-banner {
+  position: relative;
+  height: 180px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  
+  .banner-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .banner-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+  }
+  
+  .banner-text {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    color: white;
+    z-index: 1;
+    
+    h1 {
+      font-size: 1.8rem;
+      font-weight: bold;
+      margin: 0;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+    }
+    
+    p {
+      margin: 5px 0 0;
+      font-size: 1rem;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    }
+  }
+}
+
+/* Barra de búsqueda */
+.home-searchbar {
+  padding: 0 16px 16px;
+  --background: white;
+  --border-radius: 12px;
+  --box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Secciones */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 16px;
+  margin: 20px 0 10px;
+  
+  h2 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--ion-color-primary);
+  }
+}
+
+/* Scroll horizontal */
+.scroll-container {
+  overflow-x: auto;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 16px;
+}
+
+.scroll-grid {
+  width: auto;
+  display: inline-block;
+}
+
+.ion-nowrap {
+  flex-wrap: nowrap;
+}
+
+ion-col[size="auto"] {
+  flex: 0 0 auto;
+  width: auto;
+}
+
+/* Categorías */
+.category-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 10px;
+  width: 80px;
+  
+  .category-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+    
+    ion-icon {
+      font-size: 1.8rem;
+      color: white;
+    }
+  }
+  
+  span {
+    font-size: 0.8rem;
+    text-align: center;
+    color: var(--ion-color-dark);
+    white-space: normal;
+    display: inline-block;
+    width: 100%;
+  }
+}
+
+/* Tarjetas de negocios */
+.business-card {
+  width: 220px;
+  height: 200px;
+  margin: 0 8px;
+  position: relative;
+  
+  img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+  }
+  
+  .business-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: var(--ion-color-secondary);
+    color: white;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    z-index: 1;
+  }
+  
+  ion-card-header {
+    padding: 10px;
+    
+    ion-card-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+    
+    ion-card-subtitle {
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      
+      ion-icon {
+        margin-right: 3px;
+        font-size: 0.9rem;
+      }
+    }
+  }
+}
+
+/* Eventos */
+.events-container {
+  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.event-card {
+  margin: 0;
+  
+  img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+  }
+  
+  ion-card-header {
+    padding: 10px;
+    
+    ion-card-title {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+    
+    ion-card-subtitle {
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      
+      ion-icon {
+        margin-right: 3px;
+        font-size: 0.9rem;
+      }
+    }
+  }
+}
+
+/* Acceso rápido */
+.quick-access {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  
+  ion-button {
+    --border-color: var(--ion-color-primary);
+    --color: var(--ion-color-primary);
+    margin: 0;
+    
+    ion-icon {
+      font-size: 1.2rem;
+    }
+  }
+  .login-modal {
+  --width: 100%;
+  --height: auto;
+  --border-radius: 16px 16px 0 0;
+  --box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+
+  &::part(content) {
+    border-radius: 16px 16px 0 0;
+  }
+
+  ion-content {
+    --padding-top: 20px;
+    --padding-bottom: 20px;
+    --padding-start: 20px;
+    --padding-end: 20px;
+  }
+}
+}

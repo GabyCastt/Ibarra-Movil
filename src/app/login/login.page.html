@@ -1,0 +1,114 @@
+<!-- Cabecera principal -->
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <!-- Botón de cerrar (solo visible en modal) -->
+    <ion-buttons *ngIf="isModal" slot="end">
+      <ion-button (click)="cancelLogin()" aria-label="Cerrar login">
+        <ion-icon name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title class="ion-text-center">Bienvenido</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <!-- Contenedor principal -->
+  <div class="login-container">
+    
+    <!-- Sección de logo y título -->
+    <header class="logo-section">
+      <img src="assets/icon/logo-GAD-IBARRA.png" alt="Logo GAD Ibarra" class="logo" width="120" height="120">
+      <h1 class="app-title">Municipalidad de Ibarra</h1>
+      <p class="app-subtitle">Accede a tu cuenta para continuar</p>
+    </header>
+
+    <!-- Formulario de login -->
+    <main class="form-section">
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+        <!-- Grupo de campos del formulario -->
+        <fieldset class="form-fields">
+          <!-- Campo email -->
+          <ion-item lines="full" class="form-item">
+            <ion-icon name="mail-outline" slot="start"></ion-icon>
+            <ion-label position="floating">Correo electrónico</ion-label>
+            <ion-input 
+              type="email" 
+              formControlName="email"
+              autocomplete="email"
+              inputmode="email"
+              required>
+            </ion-input>
+          </ion-item>
+
+          <!-- Campo contraseña -->
+          <ion-item lines="full" class="form-item">
+            <ion-icon name="lock-closed-outline" slot="start"></ion-icon>
+            <ion-label position="floating">Contraseña</ion-label>
+            <ion-input 
+              type="password" 
+              formControlName="password"
+              autocomplete="current-password"
+              required>
+            </ion-input>
+          </ion-item>
+
+          <!-- Recordar credenciales -->
+          <ion-item lines="none" class="remember-item">
+            <ion-checkbox slot="start" formControlName="remember" aria-label="Recordar mis datos"></ion-checkbox>
+            <ion-label>Recordar mis datos</ion-label>
+          </ion-item>
+        </fieldset>
+
+        <!-- Acciones principales -->
+        <div class="form-actions">
+          <ion-button 
+            expand="block" 
+            type="submit" 
+            [disabled]="!loginForm.valid"
+            class="login-button"
+            aria-label="Iniciar sesión">
+            Iniciar Sesión
+          </ion-button>
+
+          <ion-button 
+            fill="clear" 
+            size="small" 
+            (click)="forgotPassword()"
+            class="forgot-password"
+            aria-label="Recuperar contraseña">
+            ¿Olvidaste tu contraseña?
+          </ion-button>
+        </div>
+      </form>
+
+      <!-- Separador visual -->
+      <div class="separator" aria-hidden="true">
+        <span>o</span>
+      </div>
+
+      <!-- Login con redes sociales -->
+      <section class="social-section">
+        <h2 class="visually-hidden">Iniciar sesión con redes sociales</h2>
+        <div class="social-buttons">
+          <ion-button fill="clear" class="social-button" aria-label="Iniciar con Google">
+            <ion-icon slot="icon-only" name="logo-google"></ion-icon>
+          </ion-button>
+          <ion-button fill="clear" class="social-button" aria-label="Iniciar con Facebook">
+            <ion-icon slot="icon-only" name="logo-facebook"></ion-icon>
+          </ion-button>
+        </div>
+      </section>
+    </main>
+
+    <!-- Sección de registro -->
+    <footer class="register-section">
+      <p>¿No tienes una cuenta?</p>
+      <ion-button 
+        fill="clear" 
+        (click)="goToRegister()"
+        aria-label="Registrarse">
+        Regístrate aquí
+      </ion-button>
+    </footer>
+  </div>
+</ion-content>
