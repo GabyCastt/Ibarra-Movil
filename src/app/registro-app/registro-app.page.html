@@ -1,13 +1,216 @@
 <ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>registro-app</ion-title>
+  <ion-toolbar color="danger">
+    <ion-title>Registro de Persona</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">registro-app</ion-title>
-    </ion-toolbar>
-  </ion-header>
+  <div class="header-container">
+    <div class="header-content">
+      <ion-icon name="person-circle-outline" class="header-icon"></ion-icon>
+      <h1>Registro de Persona</h1>
+      <p>Municipio de Ibarra - Sistema Municipal</p>
+    </div>
+  </div>
+
+  <div class="form-container">
+    <!-- Información Importante -->
+    <div class="info-alert">
+      <ion-icon name="information-circle-outline"></ion-icon>
+      <div class="info-content">
+        <h3>Información Importante</h3>
+        <p>Complete todos los campos marcados con * (asterisco rojo). Revise que los datos cumplan con los requisitos especificados.</p>
+      </div>
+    </div>
+
+    <form [formGroup]="registroForm" (ngSubmit)="onSubmit()">
+      <!-- Fila 1: Identificación y Nombres -->
+      <div class="form-row">
+        <div class="form-field-wrapper">
+          <ion-item class="form-field" fill="outline" [class.error-field]="hasError('identification')">
+            <ion-label position="stacked">Identificación <span class="required">*</span></ion-label>
+            <ion-input 
+              formControlName="identification" 
+              placeholder="Ej: 1234567890"
+              type="text"
+              maxlength="15">
+            </ion-input>
+          </ion-item>
+          <div class="error-message" *ngIf="hasError('identification')">
+            {{ getErrorMessage('identification') }}
+          </div>
+        </div>
+
+        <div class="form-field-wrapper">
+          <ion-item class="form-field" fill="outline" [class.error-field]="hasError('name')">
+            <ion-label position="stacked">Nombres <span class="required">*</span></ion-label>
+            <ion-input 
+              formControlName="name" 
+              placeholder="Juan Carlos"
+              type="text"
+              maxlength="50">
+            </ion-input>
+          </ion-item>
+          <div class="error-message" *ngIf="hasError('name')">
+            {{ getErrorMessage('name') }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Fila 2: Apellidos y Email -->
+      <div class="form-row">
+        <div class="form-field-wrapper">
+          <ion-item class="form-field" fill="outline" [class.error-field]="hasError('lastname')">
+            <ion-label position="stacked">Apellidos <span class="required">*</span></ion-label>
+            <ion-input 
+              formControlName="lastname" 
+              placeholder="Pérez González"
+              type="text"
+              maxlength="50">
+            </ion-input>
+          </ion-item>
+          <div class="error-message" *ngIf="hasError('lastname')">
+            {{ getErrorMessage('lastname') }}
+          </div>
+        </div>
+
+        <div class="form-field-wrapper">
+          <ion-item class="form-field" fill="outline" [class.error-field]="hasError('email')">
+            <ion-label position="stacked">Correo Electrónico <span class="required">*</span></ion-label>
+            <ion-input 
+              formControlName="email" 
+              placeholder="correo@ejemplo.com"
+              type="email">
+            </ion-input>
+          </ion-item>
+          <div class="error-message" *ngIf="hasError('email')">
+            {{ getErrorMessage('email') }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Fila 3: Teléfono y Dirección -->
+      <div class="form-row">
+        <div class="form-field-wrapper">
+          <ion-item class="form-field" fill="outline" [class.error-field]="hasError('phone')">
+            <ion-label position="stacked">Teléfono <span class="required">*</span></ion-label>
+            <ion-input 
+              formControlName="phone" 
+              placeholder="0987654321"
+              type="tel">
+            </ion-input>
+          </ion-item>
+          <div class="error-message" *ngIf="hasError('phone')">
+            {{ getErrorMessage('phone') }}
+          </div>
+        </div>
+
+        <div class="form-field-wrapper">
+          <ion-item class="form-field" fill="outline" [class.error-field]="hasError('address')">
+            <ion-label position="stacked">Dirección de Residencia <span class="required">*</span></ion-label>
+            <ion-input 
+              formControlName="address" 
+              placeholder="Av. Principal 123 y Calle Secundaria"
+              type="text">
+            </ion-input>
+          </ion-item>
+          <div class="error-message" *ngIf="hasError('address')">
+            {{ getErrorMessage('address') }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Fila 4: Usuario y Contraseña -->
+      <div class="form-row">
+        <div class="form-field-wrapper">
+          <ion-item class="form-field" fill="outline" [class.error-field]="hasError('username')">
+            <ion-label position="stacked">Usuario <span class="required">*</span></ion-label>
+            <ion-input 
+              formControlName="username" 
+              placeholder="usuario123 (5-20 caracteres)"
+              type="text"
+              maxlength="20">
+            </ion-input>
+          </ion-item>
+          <div class="error-message" *ngIf="hasError('username')">
+            {{ getErrorMessage('username') }}
+          </div>
+        </div>
+
+        <div class="form-field-wrapper">
+          <ion-item class="form-field" fill="outline" [class.error-field]="hasError('password')">
+            <ion-label position="stacked">Contraseña <span class="required">*</span></ion-label>
+            <ion-input 
+              formControlName="password" 
+              placeholder="Mínimo 8 caracteres"
+              [type]="showPassword ? 'text' : 'password'"
+              maxlength="20">
+            </ion-input>
+            <ion-button 
+              fill="clear" 
+              slot="end" 
+              (click)="togglePasswordVisibility()">
+              <ion-icon [name]="showPassword ? 'eye-off' : 'eye'"></ion-icon>
+            </ion-button>
+          </ion-item>
+          <div class="error-message" *ngIf="hasError('password')">
+            {{ getErrorMessage('password') }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Tipo de Registro -->
+      <ion-item fill="outline">
+        <ion-label position="stacked">Tipo de Registro</ion-label>
+        <ion-select 
+          [(ngModel)]="registroTipo" 
+          [ngModelOptions]="{standalone: true}"
+          placeholder="Seleccionar tipo..."
+          interface="popover">
+          <ion-select-option value="usuario">Usuario Normal</ion-select-option>
+          <ion-select-option value="admin">Administrador</ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <!-- Botones -->
+      <div class="button-container">
+        <ion-button 
+          expand="block" 
+          color="danger" 
+          type="submit" 
+          [disabled]="!registroForm.valid || isLoading"
+          class="register-button">
+          <ion-icon name="person-add" slot="start" *ngIf="!isLoading"></ion-icon>
+          <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
+          <span *ngIf="!isLoading">
+            {{ registroTipo === 'admin' ? 'Registrar Administrador' : 'Registrar Usuario' }}
+          </span>
+          <span *ngIf="isLoading">Registrando...</span>
+        </ion-button>
+
+        <ion-button 
+          expand="block" 
+          fill="outline" 
+          color="medium" 
+          (click)="limpiarFormulario()"
+          [disabled]="isLoading">
+          <ion-icon name="refresh" slot="start"></ion-icon>
+          Limpiar
+        </ion-button>
+
+        <ion-button 
+          expand="block" 
+          fill="clear" 
+          color="medium" 
+          routerLink="/home"
+          [disabled]="isLoading">
+          <ion-icon name="close" slot="start"></ion-icon>
+          Cancelar
+        </ion-button>
+      </div>
+    </form>
+  </div>
 </ion-content>
