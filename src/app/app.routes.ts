@@ -21,4 +21,8 @@ export const routes: Routes = [
     loadComponent: () => import('./registro-emprendimiento/registro-emprendimiento.page').then( m => m.RegistroEmprendimientoPage),
     canActivate: [AuthGuard]
   },
+  {
+    path: 'registro-app',
+    loadComponent: () => import('./registro-app/registro-app.page').then( m => m.RegistroAppPage)
+  },
 ];

@@ -163,7 +163,7 @@ export class LoginPage {
     if (this.isModal) {
       this.closeModal(false);
     } else {
-      this.router.navigate(['/register']);
+      this.router.navigate(['/registro-app']);
     }
   }
 

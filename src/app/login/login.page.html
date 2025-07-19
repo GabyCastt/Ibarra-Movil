@@ -1,16 +1,3 @@
-<!-- Cabecera principal -->
-<ion-header [translucent]="true">
-  <ion-toolbar color="primary">
-    <!-- Botón de cerrar (solo visible en modal) -->
-    <ion-buttons *ngIf="isModal" slot="end">
-      <ion-button (click)="cancelLogin()" aria-label="Cerrar login">
-        <ion-icon name="close-outline"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-    <ion-title class="ion-text-center">Bienvenido</ion-title>
-  </ion-toolbar>
-</ion-header>
-
 <ion-content [fullscreen]="true" class="ion-padding">
   <!-- Contenedor principal -->
   <div class="login-container">
@@ -42,8 +29,7 @@
               autocomplete="email"
               inputmode="email"
               required
-            >
-            </ion-input>
+            ></ion-input>
           </ion-item>
 
           <!-- Campo contraseña -->
@@ -55,8 +41,7 @@
               formControlName="password"
               autocomplete="current-password"
               required
-            >
-            </ion-input>
+            ></ion-input>
           </ion-item>
 
           <!-- Recordar credenciales -->
@@ -81,7 +66,16 @@
           >
             Iniciar Sesión
           </ion-button>
-
+          <footer class="register-section">
+            <p>¿No tienes una cuenta?</p>
+            <ion-button
+              fill="clear"
+              (click)="goToRegister()"
+              aria-label="Registrarse"
+            >
+              Regístrate aquí
+            </ion-button>
+          </footer>
           <ion-button
             fill="clear"
             size="small"
@@ -120,17 +114,5 @@
         </div>
       </section>
     </main>
-
-    <!-- Sección de registro -->
-    <footer class="register-section">
-      <p>¿No tienes una cuenta?</p>
-      <ion-button
-        fill="clear"
-        (click)="goToRegister()"
-        aria-label="Registrarse"
-      >
-        Regístrate aquí
-      </ion-button>
-    </footer>
   </div>
 </ion-content>
