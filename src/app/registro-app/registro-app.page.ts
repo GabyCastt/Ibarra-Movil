@@ -5,6 +5,7 @@ import { IonicModule, ToastController, LoadingController, AlertController } from
 import { Router } from '@angular/router';
 import { HttpClient, HttpClientModule, HttpErrorResponse } from '@angular/common/http';
 import { RegistroAppService, RegisterUserRequest, CreateAdminRequest } from '../services/registroo.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-registro-app',
@@ -37,17 +38,15 @@ export class RegistroAppPage implements OnInit {
 
   private initializeForm() {
     this.registroForm = this.fb.group({
-      // Campos requeridos según la API
-      identification: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(15)]],
+      // Todos los campos son requeridos según el curl que funciona
+      email: ['', [Validators.required, Validators.email]],
       name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
       lastname: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
+      identification: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(15)]],
+      phone: ['', [Validators.required, Validators.minLength(1)]],
       address: ['', [Validators.required, Validators.minLength(1)]],
       username: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(20)]],
-      password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(20)]],
-      
-      // Campos opcionales
-      email: ['', [Validators.required, Validators.email, Validators.minLength(1)]],
-      phone: ['', [Validators.required, Validators.minLength(1)]]
+      password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(20)]]
     });
   }
 
@@ -104,7 +103,7 @@ export class RegistroAppPage implements OnInit {
 
       const formData = this.registroForm.value;
       
-      // Preparar datos según el formato exacto de la API
+      // Preparar datos exactamente como el curl que funciona
       const userData = {
         email: formData.email?.trim() || '',
         name: formData.name?.trim() || '',
@@ -116,6 +115,12 @@ export class RegistroAppPage implements OnInit {
         password: formData.password?.trim() || ''
       };
 
+      // Validar que no hay campos vacíos después del trim
+      const emptyFields = Object.entries(userData).filter(([key, value]) => !value || value.length === 0);
+      if (emptyFields.length > 0) {
+        throw new Error(`Los siguientes campos están vacíos: ${emptyFields.map(([key]) => key).join(', ')}`);
+      }
+
       console.log('Datos a enviar:', userData);
       console.log('Tipo de registro:', this.registroTipo);
 
@@ -123,14 +128,16 @@ export class RegistroAppPage implements OnInit {
       
       if (this.registroTipo === 'admin') {
         console.log('Registrando como administrador...');
-        response = await this.registroService.createNewAdmin(userData as CreateAdminRequest).toPromise();
+        // Usar firstValueFrom en lugar de toPromise() que está deprecated
+        response = await firstValueFrom(this.registroService.createNewAdmin(userData as CreateAdminRequest));
         await this.showSuccessAlert(
           'Administrador Registrado',
           'El administrador ha sido registrado exitosamente en el sistema.'
         );
       } else {
         console.log('Registrando como usuario normal...');
-        response = await this.registroService.registerUser(userData as RegisterUserRequest).toPromise();
+        // Usar firstValueFrom en lugar de toPromise() que está deprecated
+        response = await firstValueFrom(this.registroService.registerUser(userData as RegisterUserRequest));
         await this.showSuccessAlert(
           'Usuario Registrado',
           'El usuario ha sido registrado exitosamente. Nota: Los usuarios nuevos vienen desactivados por defecto y deben ser habilitados por un administrador para poder iniciar sesión.'
@@ -148,10 +155,19 @@ export class RegistroAppPage implements OnInit {
       if (error instanceof HttpErrorResponse) {
         console.log('Status:', error.status);
         console.log('Error body:', error.error);
+        console.log('Error message:', error.message);
         
         switch (error.status) {
+          case 0:
+            errorMessage = 'No se puede conectar con el servidor. Verifique su conexión a internet.';
+            break;
           case 400:
             errorMessage = 'Datos inválidos. Verifique que todos los campos cumplan con los requisitos.';
+            if (error.error && typeof error.error === 'string') {
+              errorMessage = error.error;
+            } else if (error.error?.message) {
+              errorMessage = error.error.message;
+            }
             break;
           case 409:
             errorMessage = 'Ya existe un usuario con esa identificación, email o nombre de usuario.';
@@ -169,6 +185,8 @@ export class RegistroAppPage implements OnInit {
               errorMessage = error.message;
             }
         }
+      } else if (error.message) {
+        errorMessage = error.message;
       }
       
       await this.showToast(errorMessage, 'danger');

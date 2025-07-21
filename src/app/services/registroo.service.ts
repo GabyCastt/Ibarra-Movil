@@ -52,8 +52,12 @@ export class RegistroAppService {
     };
 
     console.log('Enviando datos de registro:', requestData);
-    return this.http.post(`${this.apiUrl}/users/register`, requestData, { headers });
-
+    
+    // CAMBIO CLAVE: texto plano como respuesta
+    return this.http.post(`${this.apiUrl}/users/register`, requestData, { 
+      headers,
+      responseType: 'text' // importante para que el backend pueda enviar texto plano
+    });
   }
 
   // Crear nuevo administrador
@@ -63,7 +67,7 @@ export class RegistroAppService {
       'Accept': 'application/json'
     });
 
-    // Validar que todos los campos requeridos estén presentes
+    // Validar campos requeridos estén presentes
     const requestData = {
       email: adminData.email?.trim() || '',
       name: adminData.name?.trim() || '',
@@ -76,7 +80,11 @@ export class RegistroAppService {
     };
 
     console.log('Enviando datos de admin:', requestData);
-   return this.http.post(`${this.apiUrl}/users/create-new-admin`, requestData, { headers });
-
+    
+    // CAMBIO CLAVE: texto plano como respuesta
+    return this.http.post(`${this.apiUrl}/users/create-new-admin`, requestData, { 
+      headers,
+      responseType: 'text' 
+    });
   }
 }
