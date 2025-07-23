@@ -1,3 +1,7 @@
 <ion-app>
-  <ion-router-outlet></ion-router-outlet>
+  <!-- Menú solo visible cuando autenticado -->
+  <app-side-menu *ngIf="authService.isAuthenticated()"></app-side-menu>
+  
+  <!-- Contenido principal siempre visible -->
+  <ion-router-outlet id="main-content"></ion-router-outlet>
 </ion-app>

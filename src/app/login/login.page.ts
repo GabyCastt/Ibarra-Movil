@@ -1,47 +1,18 @@
-import { CommonModule } from '@angular/common';
-import {
-  HttpClient,
-  HttpHeaders,
-  HttpClientModule,
-} from '@angular/common/http';
-import { Component, Injectable } from '@angular/core';
-import {
-  FormBuilder,
-  FormGroup,
-  Validators,
-  ReactiveFormsModule,
-  FormsModule,
-} from '@angular/forms';
+import { Component } from '@angular/core';
+import { FormBuilder, FormGroup, FormsModule, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import {
-  ModalController,
-  LoadingController,
-  AlertController,
-} from '@ionic/angular';
-import { IonicModule } from '@ionic/angular';
+import { ModalController, LoadingController, AlertController, IonicModule } from '@ionic/angular';
+import { AuthService } from '../services/auth.service';
 import { addIcons } from 'ionicons';
-import {
-  mailOutline,
-  lockClosedOutline,
-  logoGoogle,
-  logoFacebook,
-  closeOutline,
-  logOut,
-  logOutOutline,
-} from 'ionicons/icons';
+import { mailOutline, lockClosedOutline, logoGoogle, logoFacebook } from 'ionicons/icons';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
   standalone: true,
-  imports: [
-    IonicModule,
-    ReactiveFormsModule,
-    CommonModule,
-    FormsModule,
-    HttpClientModule,
-  ],
+  imports: [IonicModule, FormsModule, CommonModule, ReactiveFormsModule]
 })
 export class LoginPage {
   loginForm: FormGroup;
@@ -51,18 +22,11 @@ export class LoginPage {
     private formBuilder: FormBuilder,
     private router: Router,
     private modalCtrl: ModalController,
-    private http: HttpClient,
     private alertController: AlertController,
-    private loadingController: LoadingController
+    private loadingController: LoadingController,
+    private authService: AuthService
   ) {
-    addIcons({
-      mailOutline,
-      lockClosedOutline,
-      logoGoogle,
-      logoFacebook,
-      closeOutline,
-      logOutOutline,
-    });
+    addIcons({ mailOutline, lockClosedOutline, logoGoogle, logoFacebook });
 
     this.loginForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
@@ -79,11 +43,13 @@ export class LoginPage {
       const loading = await this.showLoading();
 
       try {
-        const response = await this.loginToApi();
+        const response = await this.authService.login(
+          this.loginForm.value.email,
+          this.loginForm.value.password
+        ).toPromise();
 
-        if (response.status) {
-          // Login exitoso
-          await this.handleSuccessfulLogin(response);
+        if (response?.status) {
+          await this.handleSuccessfulLogin();
         } else {
           await this.showError('Credenciales incorrectas');
         }
@@ -96,26 +62,11 @@ export class LoginPage {
     }
   }
 
-  private async loginToApi() {
-    const loginData = {
-      username: this.loginForm.value.email,
-      password: this.loginForm.value.password,
-    };
-
-    return this.http
-      .post<any>('http://34.10.172.54:8080/auth/login', loginData)
-      .toPromise();
-  }
-
-  private async handleSuccessfulLogin(response: any) {
-    // Guarda el token JWT y los datos del usuario
-    localStorage.setItem('jwt_token', response.jwt);
-    localStorage.setItem('user_data', JSON.stringify(response));
-
+  private async handleSuccessfulLogin() {
     if (this.isModal) {
-      this.closeModal(true, response);
+      const userData = JSON.parse(localStorage.getItem('user_data') || '{}');
+      this.closeModal(true, userData);
     } else {
-      // Verifica si hay una ruta pendiente de autenticación
       const pendingRoute = localStorage.getItem('pending_route');
       if (pendingRoute) {
         localStorage.removeItem('pending_route');

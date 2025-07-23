@@ -1,10 +1,23 @@
 /* Variables de color */
 :host {
-  --primary-color: #2c5fa8;  // Azul institucional
-  --secondary-color: #f7931e; // Naranja complementario
+  --primary-color: #D40000;  // Rojo institucional de Ibarra
+  --secondary-color: #FFD700; // Dorado complementario
+  --accent-color: #0057B8;   // Azul oscuro
+  --complementary-1: #2E8B57; // Verde bosque
+  --complementary-2: #FF8C00; // Naranja vibrante
+  --complementary-3: #9932CC; // Púrpura
   --light-color: #f8f9fa;
   --dark-color: #343a40;
-  --success-color: #28a745;
+  
+  // Colores para categorías
+  --category-1: var(--primary-color);
+  --category-2: var(--secondary-color);
+  --category-3: var(--accent-color);
+  --category-4: var(--complementary-1);
+  --category-5: var(--complementary-2);
+  --category-6: var(--complementary-3);
+  --category-7: #FF69B4;  // Rosa fuerte
+  --category-8: #00CED1;  // Turquesa
 }
 
 /* Estructura general */
@@ -88,8 +101,8 @@
   --box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* Slider de categorías */
-.categories-slider {
+/* Estilos para categorías */
+.scroll-container {
   padding: 8px 0 16px;
   
   .category-item {
@@ -97,26 +110,45 @@
     flex-direction: column;
     align-items: center;
     padding: 0 10px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    
+    &:hover {
+      transform: translateY(-5px);
+    }
     
     .category-icon {
-      width: 60px;
-      height: 60px;
+      width: 70px;
+      height: 70px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       margin-bottom: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
       
       ion-icon {
         font-size: 1.8rem;
         color: white;
+        filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.3));
       }
+      
+      // Asignación de colores por clase
+      &.category-1 { background-color: var(--category-1); }
+      &.category-2 { background-color: var(--category-2); color: black; }
+      &.category-3 { background-color: var(--category-3); }
+      &.category-4 { background-color: var(--category-4); }
+      &.category-5 { background-color: var(--category-5); }
+      &.category-6 { background-color: var(--category-6); }
+      &.category-7 { background-color: var(--category-7); }
+      &.category-8 { background-color: var(--category-8); color: black; }
     }
     
     span {
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       text-align: center;
       color: var(--dark-color);
+      font-weight: 500;
     }
   }
 }
@@ -137,15 +169,16 @@
   }
 }
 
-/* Slider de emprendimientos destacados */
-.featured-slider {
+/* Estilos para tarjetas (destacados y eventos) */
+.featured-slider,
+.events-container {
   padding-bottom: 10px;
   
-  .business-card {
+  .business-card,
+  .event-card {
     width: 220px;
-    height: 200px;
-    position: relative;
     margin: 0 5px;
+    position: relative;
     
     img {
       width: 100%;
@@ -163,47 +196,6 @@
       border-radius: 12px;
       font-size: 0.7rem;
       font-weight: bold;
-      z-index: 1;
-    }
-    
-    ion-card-header {
-      padding: 10px;
-      
-      ion-card-title {
-        font-size: 1rem;
-        font-weight: 600;
-        margin-bottom: 5px;
-      }
-      
-      ion-card-subtitle {
-        font-size: 0.8rem;
-        display: flex;
-        align-items: center;
-        
-        ion-icon {
-          margin-right: 3px;
-          font-size: 0.9rem;
-        }
-      }
-    }
-  }
-}
-
-/* Sección de eventos */
-.events-container {
-  display: flex;
-  overflow-x: auto;
-  padding: 0 10px 10px;
-  gap: 10px;
-  
-  .event-card {
-    min-width: 260px;
-    margin: 0;
-    
-    img {
-      width: 100%;
-      height: 120px;
-      object-fit: cover;
     }
     
     ion-card-header {
@@ -238,7 +230,6 @@
   ion-button {
     --border-color: var(--primary-color);
     --color: var(--primary-color);
-    margin: 0;
     
     ion-icon {
       font-size: 1.2rem;
@@ -246,16 +237,10 @@
   }
 }
 
-/* Efectos de accesibilidad */
-ion-button:focus, .category-item:focus, .business-card:focus {
-  outline: 2px solid var(--secondary-color);
-  outline-offset: 2px;
-}
-
-/* Texto aumentado para modo accesibilidad */
+/* Accesibilidad */
 @media (prefers-contrast: more) {
   :host {
-    --primary-color: #0047ab;
+    --primary-color: #D40000;
     --secondary-color: #ff8c00;
   }
   

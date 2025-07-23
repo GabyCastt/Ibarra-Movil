@@ -1,2 +1,14 @@
-// For information on how to create your own theme, please see:
-// http://ionicframework.com/docs/theming/
+// Colores oficiales de Ibarra
+:root {
+  --ion-color-primary: #d40000;       // Rojo de Ibarra
+  --ion-color-primary-rgb: 212, 0, 0;
+  --ion-color-primary-contrast: #ffffff; 
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #bb0000;  // Variación oscura
+  --ion-color-primary-tint: #d81a1a;   // Variación clara
+
+  // Colores secundarios (opcionales)
+  --ion-color-secondary: #0057b8;     // Azul
+  --ion-color-tertiary: #ffd700;      // Amarillo/dorado
+  --ion-color-success: #2e8b57;       // Verde
+}

@@ -25,4 +25,9 @@ export const routes: Routes = [
     path: 'registro-app',
     loadComponent: () => import('./registro-app/registro-app.page').then( m => m.RegistroAppPage)
   },
+  {
+    path: 'perfil',
+    loadComponent: () => import('./perfil/perfil.page').then( m => m.PerfilPage),
+    canActivate: [AuthGuard]
+  },
 ];
