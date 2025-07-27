@@ -3,11 +3,49 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/home"></ion-back-button>
     </ion-buttons>
-    <ion-title>Mis documentos</ion-title>
+    <ion-title>Mis Documentos</ion-title>
   </ion-toolbar>
 </ion-header>
 
+<ion-content [fullscreen]="true" class="ion-padding">
+  <div class="container">
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title class="ion-text-center">
+          📄 Documentos Personales
+        </ion-card-title>
+        <ion-card-subtitle class="ion-text-center">
+          Revisa y descarga tus archivos
+        </ion-card-subtitle>
+      </ion-card-header>
 
-<ion-content [fullscreen]="true">
-  
+      <ion-card-content>
+        <ion-grid>
+          <ion-row class="ion-justify-content-center">
+            <ion-col size="12" size-md="6">
+             <ion-button expand="block" color="tertiary" (click)="verIdentidad()">
+                <ion-icon name="person-circle-outline" slot="start"></ion-icon>
+                Documento de Identidad
+              </ion-button>
+            </ion-col>
+
+            <ion-col size="12" size-md="6">
+              <ion-button expand="block" color="success" (click)="verCertificado()">
+                <ion-icon name="person-circle-outline" slot="start"></ion-icon>
+                Certificado
+              </ion-button>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <ion-loading
+    [isOpen]="loading"
+    message="Cargando documento..."
+    spinner="circles"
+    translucent
+    backdropDismiss="false">
+  </ion-loading>
 </ion-content>
