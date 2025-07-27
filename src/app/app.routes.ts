@@ -30,4 +30,8 @@ export const routes: Routes = [
     loadComponent: () => import('./perfil/perfil.page').then( m => m.PerfilPage),
     canActivate: [AuthGuard]
   },
+  {
+    path: 'mis-documentos',
+    loadComponent: () => import('./mis-documentos/mis-documentos.page').then( m => m.MisDocumentosPage)
+  },
 ];
