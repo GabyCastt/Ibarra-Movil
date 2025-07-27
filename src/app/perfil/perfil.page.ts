@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { IonicModule, AlertController, LoadingController, IonBackButton } from '@ionic/angular';
+import { IonicModule, AlertController, LoadingController } from '@ionic/angular';
 import { PerfilService } from '../services/perfil.service';
 
 @Component({
@@ -9,7 +9,7 @@ import { PerfilService } from '../services/perfil.service';
   templateUrl: './perfil.page.html',
   styleUrls: ['./perfil.page.scss'],
   standalone: true,
-  imports: [CommonModule, IonicModule, FormsModule, ReactiveFormsModule, IonBackButton],
+  imports: [CommonModule, IonicModule, FormsModule, ReactiveFormsModule],
   providers: [PerfilService]
 })
 export class PerfilPage implements OnInit {
