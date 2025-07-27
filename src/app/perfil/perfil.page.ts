@@ -35,6 +35,7 @@ export class PerfilPage implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       phone: [''],
       address: [''],
+      business: [''],
       username: ['', Validators.required]
     });
   }
@@ -50,6 +51,7 @@ export class PerfilPage implements OnInit {
         email: data.email || '',
         phone: data.phone || '',
         address: data.address || '',
+        business: data.business || '',
         username: data.username || ''
       });
     }
@@ -96,6 +98,11 @@ export class PerfilPage implements OnInit {
     // });
 
     console.log('Datos de perfil a guardar', data);
+    // Guardar temporalmente en localStorage hasta conectar el endpoint
+    localStorage.setItem('user_data', JSON.stringify({
+      ...JSON.parse(localStorage.getItem('user_data') || '{}'),
+      ...data
+    }));
     loading.dismiss();
     this.isEditing = false;
   }

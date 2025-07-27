@@ -53,6 +53,12 @@
       </ion-item>
 
       <ion-item lines="full">
+        <ion-icon slot="start" name="briefcase-outline"></ion-icon>
+        <ion-label position="stacked">Emprendimiento</ion-label>
+        <ion-input formControlName="business" [readonly]="!isEditing"></ion-input>
+      </ion-item>
+
+      <ion-item lines="full">
         <ion-icon slot="start" name="person-circle"></ion-icon>
         <ion-label position="stacked">Usuario</ion-label>
         <ion-input formControlName="username" [readonly]="!isEditing"></ion-input>
@@ -64,4 +70,10 @@
       </div>
     </form>
   </ion-card>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="!isEditing">
+    <ion-fab-button color="primary" (click)="toggleEdit()">
+      <ion-icon name="create-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 </ion-content>
