@@ -12,41 +12,56 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-  <form [formGroup]="profileForm">
-    <ion-item>
-      <ion-label position="stacked">Nombres</ion-label>
-      <ion-input formControlName="name" [readonly]="!isEditing"></ion-input>
-    </ion-item>
+<ion-content [fullscreen]="true">
+  <div class="profile-header">
+    <ion-icon name="person-circle-outline" class="profile-photo"></ion-icon>
+    <h2 class="profile-name">
+      {{ profileForm.get('name')?.value }} {{ profileForm.get('lastname')?.value }}
+    </h2>
+  </div>
 
-    <ion-item>
-      <ion-label position="stacked">Apellidos</ion-label>
-      <ion-input formControlName="lastname" [readonly]="!isEditing"></ion-input>
-    </ion-item>
+  <ion-card class="profile-card">
+    <form [formGroup]="profileForm" class="profile-form">
+      <ion-item lines="full">
+        <ion-icon slot="start" name="person-outline"></ion-icon>
+        <ion-label position="stacked">Nombres</ion-label>
+        <ion-input formControlName="name" [readonly]="!isEditing"></ion-input>
+      </ion-item>
 
-    <ion-item>
-      <ion-label position="stacked">Correo electrónico</ion-label>
-      <ion-input formControlName="email" [readonly]="!isEditing"></ion-input>
-    </ion-item>
+      <ion-item lines="full">
+        <ion-icon slot="start" name="people-outline"></ion-icon>
+        <ion-label position="stacked">Apellidos</ion-label>
+        <ion-input formControlName="lastname" [readonly]="!isEditing"></ion-input>
+      </ion-item>
 
-    <ion-item>
-      <ion-label position="stacked">Teléfono</ion-label>
-      <ion-input formControlName="phone" [readonly]="!isEditing"></ion-input>
-    </ion-item>
+      <ion-item lines="full">
+        <ion-icon slot="start" name="mail-outline"></ion-icon>
+        <ion-label position="stacked">Correo electrónico</ion-label>
+        <ion-input formControlName="email" [readonly]="!isEditing"></ion-input>
+      </ion-item>
 
-    <ion-item>
-      <ion-label position="stacked">Dirección</ion-label>
-      <ion-input formControlName="address" [readonly]="!isEditing"></ion-input>
-    </ion-item>
+      <ion-item lines="full">
+        <ion-icon slot="start" name="call-outline"></ion-icon>
+        <ion-label position="stacked">Teléfono</ion-label>
+        <ion-input formControlName="phone" [readonly]="!isEditing"></ion-input>
+      </ion-item>
 
-    <ion-item>
-      <ion-label position="stacked">Usuario</ion-label>
-      <ion-input formControlName="username" [readonly]="!isEditing"></ion-input>
-    </ion-item>
+      <ion-item lines="full">
+        <ion-icon slot="start" name="location-outline"></ion-icon>
+        <ion-label position="stacked">Dirección</ion-label>
+        <ion-input formControlName="address" [readonly]="!isEditing"></ion-input>
+      </ion-item>
 
-    <div class="button-group" *ngIf="isEditing">
-      <ion-button expand="block" color="primary" (click)="saveProfile()">Guardar</ion-button>
-      <ion-button expand="block" fill="outline" color="medium" (click)="toggleEdit()">Cancelar</ion-button>
-    </div>
-  </form>
+      <ion-item lines="full">
+        <ion-icon slot="start" name="person-circle"></ion-icon>
+        <ion-label position="stacked">Usuario</ion-label>
+        <ion-input formControlName="username" [readonly]="!isEditing"></ion-input>
+      </ion-item>
+
+      <div class="button-group" *ngIf="isEditing">
+        <ion-button expand="block" color="primary" (click)="saveProfile()">Guardar</ion-button>
+        <ion-button expand="block" fill="outline" color="medium" (click)="toggleEdit()">Cancelar</ion-button>
+      </div>
+    </form>
+  </ion-card>
 </ion-content>
