@@ -37,7 +37,8 @@ import {
 export class SideMenuComponent {
   menuItems = [
     { title: 'Inicio', icon: 'home', path: '/home' },
-    { title: 'Perfil', icon: 'person', path: '/profile' },
+    // Ruta correcta para el perfil
+    { title: 'Perfil', icon: 'person', path: '/perfil' },
     { title: 'Configuración', icon: 'settings', path: '/settings' }
   ];
 
