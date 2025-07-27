@@ -39,6 +39,7 @@ export class SideMenuComponent {
     { title: 'Inicio', icon: 'home', path: '/home' },
     // Ruta correcta para el perfil
     { title: 'Perfil', icon: 'person', path: '/perfil' },
+    { title: 'Mis Documentos', icon: 'document-text', path: '/mis-documentos' },
     { title: 'Configuración', icon: 'settings', path: '/settings' }
   ];
 
