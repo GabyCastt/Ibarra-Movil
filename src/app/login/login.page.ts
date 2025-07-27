@@ -1,18 +1,35 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, Validators, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  Validators,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { Router } from '@angular/router';
-import { ModalController, LoadingController, AlertController, IonicModule } from '@ionic/angular';
+import {
+  ModalController,
+  LoadingController,
+  AlertController,
+  IonicModule,
+} from '@ionic/angular';
 import { AuthService } from '../services/auth.service';
 import { addIcons } from 'ionicons';
-import { mailOutline, lockClosedOutline, logoGoogle, logoFacebook } from 'ionicons/icons';
+import {
+  mailOutline,
+  lockClosedOutline,
+  logoGoogle,
+  logoFacebook,
+} from 'ionicons/icons';
 import { CommonModule } from '@angular/common';
+import { lastValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
   standalone: true,
-  imports: [IonicModule, FormsModule, CommonModule, ReactiveFormsModule]
+  imports: [IonicModule, FormsModule, CommonModule, ReactiveFormsModule],
 })
 export class LoginPage {
   loginForm: FormGroup;
@@ -43,19 +60,20 @@ export class LoginPage {
       const loading = await this.showLoading();
 
       try {
-        const response = await this.authService.login(
-          this.loginForm.value.email,
-          this.loginForm.value.password
-        ).toPromise();
+        const response = await lastValueFrom(
+          this.authService.login(
+            this.loginForm.value.email,
+            this.loginForm.value.password
+          )
+        );
 
-        if (response?.status) {
-          await this.handleSuccessfulLogin();
-        } else {
-          await this.showError('Credenciales incorrectas');
-        }
+        await this.handleSuccessfulLogin();
       } catch (error) {
-        console.error('Error en login:', error);
-        await this.showError('Error al conectar con el servidor');
+        const errorMessage =
+          error && typeof error === 'object' && 'message' in error
+            ? (error as any).message
+            : 'Error en el login';
+        await this.showError(errorMessage);
       } finally {
         loading.dismiss();
       }

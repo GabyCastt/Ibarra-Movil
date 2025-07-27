@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, BehaviorSubject } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { tap, catchError } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -17,23 +17,31 @@ export class AuthService {
     private http: HttpClient,
     private router: Router
   ) {
-    this.checkAuthState(); // Verifica estado al iniciar
+    this.checkAuthState();
   }
 
-  login(email: string, password: string): Observable<any> {
-    return this.http.post<any>(this.apiUrl, {
-      username: email,
-      password: password
-    }).pipe(
-      tap(response => {
-        if (response.status) {
-          this.storeAuthData(response);
-          this.authState.next(true); // Actualiza estado
-          this.router.navigate(['/home']); // Redirige al home
-        }
-      })
-    );
-  }
+login(email: string, password: string): Observable<any> {
+  return this.http.post<any>(this.apiUrl, {
+    username: email,
+    password: password
+  }).pipe(
+    tap(response => {
+      if (response?.jwt) { 
+        this.storeAuthData(response);
+        this.authState.next(true);
+      }
+    }),
+    catchError(error => {
+      let errorMsg = 'Error desconocido';
+      if (error.status === 401) {
+        errorMsg = 'Credenciales incorrectas';
+      } else if (error.status === 0) {
+        errorMsg = 'No hay conexión con el servidor';
+      }
+      throw new Error(errorMsg);
+    })
+  );
+}
 
   private storeAuthData(response: any): void {
     localStorage.setItem('jwt_token', response.jwt);
