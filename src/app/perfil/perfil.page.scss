@@ -1,0 +1,46 @@
+.profile-header {
+  text-align: center;
+  padding: 20px 0;
+  background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-primary-shade));
+  color: #fff;
+
+  .profile-photo {
+    font-size: 80px;
+  }
+
+  .profile-name {
+    margin-top: 8px;
+    font-size: 1.2rem;
+    font-weight: 600;
+  }
+}
+
+.profile-card {
+  margin: -30px 16px 16px;
+  padding: 16px;
+}
+
+.profile-form ion-item {
+  --border-radius: 8px;
+  --background: var(--ion-color-light);
+  --inner-padding-start: 12px;
+  --inner-padding-end: 12px;
+  margin-bottom: 12px;
+
+  ion-icon {
+    margin-right: 8px;
+    color: var(--ion-color-medium);
+  }
+}
+
+.button-group {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+ion-fab {
+  margin-bottom: 20px;
+  margin-right: 20px;
+}
