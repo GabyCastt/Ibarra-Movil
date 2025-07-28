@@ -3,9 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { IonicModule, ToastController, LoadingController, AlertController } from '@ionic/angular';
 import { Router } from '@angular/router';
-import { HttpClient, HttpClientModule, HttpErrorResponse } from '@angular/common/http';
-import { RegistroAppService, RegisterUserRequest, CreateAdminRequest } from '../services/registroo.service';
-import { firstValueFrom } from 'rxjs';
+import { HttpClientModule, HttpErrorResponse } from '@angular/common/http';
+import { RegistroAppService } from '../services/registroo.service';
 
 @Component({
   selector: 'app-registro-app',
@@ -13,13 +12,13 @@ import { firstValueFrom } from 'rxjs';
   styleUrls: ['./registro-app.page.scss'],
   standalone: true,
   imports: [IonicModule, CommonModule, ReactiveFormsModule, FormsModule, HttpClientModule],
-  providers: [RegistroAppService]
 })
 export class RegistroAppPage implements OnInit {
   registroForm!: FormGroup;
-  registroTipo: 'usuario' | 'admin' = 'usuario';
   showPassword = false;
   isLoading = false;
+  identityDocumentFile!: File;
+  certificateFile!: File;
 
   constructor(
     private fb: FormBuilder,
@@ -33,12 +32,11 @@ export class RegistroAppPage implements OnInit {
   }
 
   ngOnInit() {
-    console.log('Componente registro inicializado');
   }
 
   private initializeForm() {
     this.registroForm = this.fb.group({
-      // Todos los campos son requeridos según el curl que funciona
+      idType: [''],
       email: ['', [Validators.required, Validators.email]],
       name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
       lastname: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
@@ -62,8 +60,7 @@ export class RegistroAppPage implements OnInit {
 
     if (!this.registroForm.valid) {
       await this.showToast('Por favor complete todos los campos requeridos correctamente', 'warning');
-      
-      // Mostrar errores específicos
+
       const errors = [];
       if (this.registroForm.get('email')?.errors) errors.push('Email');
       if (this.registroForm.get('name')?.errors) errors.push('Nombres');
@@ -73,129 +70,52 @@ export class RegistroAppPage implements OnInit {
       if (this.registroForm.get('address')?.errors) errors.push('Dirección');
       if (this.registroForm.get('username')?.errors) errors.push('Usuario');
       if (this.registroForm.get('password')?.errors) errors.push('Contraseña');
-      
+
       if (errors.length > 0) {
         console.log('Campos con errores:', errors);
       }
-      
+
       return false;
     }
 
     return true;
   }
-
   async onSubmit() {
-    console.log('Iniciando proceso de registro...');
-    
-    if (!await this.validateForm()) {
-      console.log('Formulario no válido');
+    const isValid = await this.validateForm();
+    if (!isValid || !this.identityDocumentFile || !this.certificateFile) {
       return;
     }
 
-    const loading = await this.loadingController.create({
-      message: this.registroTipo === 'admin' ? 'Registrando administrador...' : 'Registrando usuario...',
-      spinner: 'crescent'
-    });
+    this.isLoading = true;
 
-    try {
-      this.isLoading = true;
-      await loading.present();
+    const dataJson = this.registroForm.value;
 
-      const formData = this.registroForm.value;
-      
-      // Preparar datos exactamente como el curl que funciona
-      const userData = {
-        email: formData.email?.trim() || '',
-        name: formData.name?.trim() || '',
-        lastname: formData.lastname?.trim() || '',
-        identification: formData.identification?.trim() || '',
-        phone: formData.phone?.trim() || '',
-        address: formData.address?.trim() || '',
-        username: formData.username?.trim() || '',
-        password: formData.password?.trim() || ''
-      };
+    const formData = new FormData();
+    formData.append('identityDocument', this.identityDocumentFile);
+    formData.append('certificate', this.certificateFile);
+    formData.append('data', new Blob([JSON.stringify(dataJson)], { type: 'application/json' }));
 
-      // Validar que no hay campos vacíos después del trim
-      const emptyFields = Object.entries(userData).filter(([key, value]) => !value || value.length === 0);
-      if (emptyFields.length > 0) {
-        throw new Error(`Los siguientes campos están vacíos: ${emptyFields.map(([key]) => key).join(', ')}`);
-      }
-
-      console.log('Datos a enviar:', userData);
-      console.log('Tipo de registro:', this.registroTipo);
-
-      let response;
-      
-      if (this.registroTipo === 'admin') {
-        console.log('Registrando como administrador...');
-        // Usar firstValueFrom en lugar de toPromise() que está deprecated
-        response = await firstValueFrom(this.registroService.createNewAdmin(userData as CreateAdminRequest));
-        await this.showSuccessAlert(
-          'Administrador Registrado',
-          'El administrador ha sido registrado exitosamente en el sistema.'
-        );
-      } else {
-        console.log('Registrando como usuario normal...');
-        // Usar firstValueFrom en lugar de toPromise() que está deprecated
-        response = await firstValueFrom(this.registroService.registerUser(userData as RegisterUserRequest));
-        await this.showSuccessAlert(
-          'Usuario Registrado',
-          'El usuario ha sido registrado exitosamente. Nota: Los usuarios nuevos vienen desactivados por defecto y deben ser habilitados por un administrador para poder iniciar sesión.'
-        );
-      }
-
-      console.log('Registro exitoso:', response);
-      this.limpiarFormulario();
-      
-    } catch (error: any) {
-      console.error('Error completo:', error);
-      
-      let errorMessage = 'Ocurrió un error durante el registro.';
-      
-      if (error instanceof HttpErrorResponse) {
-        console.log('Status:', error.status);
-        console.log('Error body:', error.error);
-        console.log('Error message:', error.message);
-        
-        switch (error.status) {
-          case 0:
-            errorMessage = 'No se puede conectar con el servidor. Verifique su conexión a internet.';
-            break;
-          case 400:
-            errorMessage = 'Datos inválidos. Verifique que todos los campos cumplan con los requisitos.';
-            if (error.error && typeof error.error === 'string') {
-              errorMessage = error.error;
-            } else if (error.error?.message) {
-              errorMessage = error.error.message;
-            }
-            break;
-          case 409:
-            errorMessage = 'Ya existe un usuario con esa identificación, email o nombre de usuario.';
-            break;
-          case 422:
-            errorMessage = 'Los datos enviados no son válidos. Verifique el formato de los campos.';
-            break;
-          case 500:
-            errorMessage = 'Error interno del servidor. Intente nuevamente más tarde.';
-            break;
-          default:
-            if (error.error?.message) {
-              errorMessage = error.error.message;
-            } else if (error.message) {
-              errorMessage = error.message;
-            }
+    this.registroService.post(formData).subscribe({
+      next: async () => {
+        this.isLoading = false;
+        await this.showSuccessAlert('Registro exitoso', '¡Su cuenta ha sido creada correctamente!');
+        this.registroForm.reset();
+        this.identityDocumentFile = undefined as any;
+        this.certificateFile = undefined as any;
+        this.router.navigate(['/login']);
+      },
+      error: async (err: HttpErrorResponse) => {
+        this.isLoading = false;
+        let message = 'Error en el servidor';
+        if (err.error?.message) {
+          message = err.error.message;
         }
-      } else if (error.message) {
-        errorMessage = error.message;
+        await this.showToast(message, 'danger');
+        console.error('Error en el registro:', err);
       }
-      
-      await this.showToast(errorMessage, 'danger');
-      
-    } finally {
-      this.isLoading = false;
-      await loading.dismiss();
-    }
+    });
   }
+
 
   private async showSuccessAlert(header: string, message: string) {
     const alert = await this.alertController.create({
@@ -215,9 +135,6 @@ export class RegistroAppPage implements OnInit {
   }
 
   limpiarFormulario() {
-    this.registroForm.reset();
-    this.registroTipo = 'usuario';
-    this.showPassword = false;
     console.log('Formulario limpiado');
   }
 
@@ -244,7 +161,7 @@ export class RegistroAppPage implements OnInit {
 
   getErrorMessage(fieldName: string): string {
     const field = this.registroForm.get(fieldName);
-    
+
     if (field?.errors && field.touched) {
       if (field.errors['required']) {
         return `${this.getFieldLabel(fieldName)} es requerido`;
@@ -261,7 +178,7 @@ export class RegistroAppPage implements OnInit {
         return `${this.getFieldLabel(fieldName)} no puede tener más de ${requiredLength} caracteres`;
       }
     }
-    
+
     return '';
   }
 
@@ -276,8 +193,20 @@ export class RegistroAppPage implements OnInit {
       email: 'Correo Electrónico',
       phone: 'Teléfono'
     };
-    
+
     return labels[fieldName] || fieldName;
+  }
+
+  onFileChange(event: Event, tipo: 'identityDocument' | 'certificate') {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      if (tipo === 'identityDocument') {
+        this.identityDocumentFile = file;
+      } else if (tipo === 'certificate') {
+        this.certificateFile = file;
+      }
+    }
   }
 
   hasError(fieldName: string): boolean {
