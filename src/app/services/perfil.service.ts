@@ -1,31 +1,55 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+
+export interface UpdateUserDto {
+  phone?: string;
+  email?: string;
+  address?: string;
+  username?: string;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class PerfilService {
-  // Base URL del API
   private apiUrl = 'http://34.10.172.54:8080';
 
   constructor(private http: HttpClient) {}
 
   /**
-   * Obtiene la información del perfil del usuario autenticado.
-   * Reemplazar '/users/me' con el endpoint real.
+   * Lee correctamente el token almacenado por AuthService
    */
-  getProfile(): Observable<any> {
-    // TODO: actualizar el endpoint real del perfil
-    return this.http.get(`${this.apiUrl}/users/me`);
+  private getAuthHeaders(): HttpHeaders {
+    const token = localStorage.getItem('jwt_token'); // ESTA ES LA CLAVE CORRECTA
+    return new HttpHeaders({
+      'Content-Type': 'application/json',
+      ...(token && { 'Authorization': `Bearer ${token}` })
+    });
   }
 
   /**
-   * Envía los datos modificados del perfil al backend.
-   * Reemplazar '/users/me' con el endpoint real para actualizar.
+   * Obtener perfil del usuario autenticado
    */
-  updateProfile(data: any): Observable<any> {
-    // TODO: actualizar el endpoint real para guardar cambios
-    return this.http.put(`${this.apiUrl}/users/me`, data);
+  getProfile(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/auth/whoami`, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  /**
+   * Actualiza el perfil con los datos permitidos
+   */
+  updateProfile(data: UpdateUserDto): Observable<any> {
+    const updateData: UpdateUserDto = {
+      ...(data.phone && { phone: data.phone }),
+      ...(data.email && { email: data.email }),
+      ...(data.address && { address: data.address }),
+      ...(data.username && { username: data.username })
+    };
+
+    return this.http.put(`${this.apiUrl}/users/updateUser`, updateData, {
+      headers: this.getAuthHeaders()
+    });
   }
 }

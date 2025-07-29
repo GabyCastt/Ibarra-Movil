@@ -52,11 +52,7 @@
         <ion-input formControlName="address" [readonly]="!isEditing"></ion-input>
       </ion-item>
 
-      <ion-item lines="full">
-        <ion-icon slot="start" name="briefcase-outline"></ion-icon>
-        <ion-label position="stacked">Emprendimiento</ion-label>
-        <ion-input formControlName="business" [readonly]="!isEditing"></ion-input>
-      </ion-item>
+      
 
       <ion-item lines="full">
         <ion-icon slot="start" name="person-circle"></ion-icon>
@@ -64,16 +60,9 @@
         <ion-input formControlName="username" [readonly]="!isEditing"></ion-input>
       </ion-item>
 
-      <div class="button-group" *ngIf="isEditing">
-        <ion-button expand="block" color="primary" (click)="saveProfile()">Guardar</ion-button>
-        <ion-button expand="block" fill="outline" color="medium" (click)="toggleEdit()">Cancelar</ion-button>
-      </div>
+     
     </form>
   </ion-card>
 
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="!isEditing">
-    <ion-fab-button color="primary" (click)="toggleEdit()">
-      <ion-icon name="create-outline"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
+  
 </ion-content>
