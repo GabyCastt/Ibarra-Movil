@@ -6,20 +6,29 @@ import { AuthService } from './auth.service';
   providedIn: 'root'
 })
 export class DocumentosService {
-  private userIdentityUrl = 'http://34.10.172.54:8080/users/get-identity-document';
-  private userCertificateUrl = 'http://34.10.172.54:8080/users/get-certificate';
+  private readonly baseUrl = 'http://34.10.172.54:8080/users';
+  private readonly endpoints = {
+    cedula: 'get-identity-document',
+    certificado: 'get-certificate',
+    firmado: 'get-signed-document'
+  };
 
-  constructor(private http: HttpClient, private service: AuthService) { }
-    getDocumentoPdf(tipoDocumento: string = 'cedula') {
-    const token = this.service.getToken();
-    const url = tipoDocumento === 'cedula' ? this.userIdentityUrl : this.userCertificateUrl;
-    const headers = new HttpHeaders({
+  constructor(private http: HttpClient, private authService: AuthService) {}
+
+  private getAuthHeaders(): HttpHeaders {
+    const token = this.authService.getToken();
+    return new HttpHeaders({
       'Authorization': `Bearer ${token}`
     });
+  }
+
+  getDocumentoPdf(tipoDocumento: 'cedula' | 'certificado' | 'firmado') {
+    const endpoint = this.endpoints[tipoDocumento];
+    const url = `${this.baseUrl}/${endpoint}`;
 
     return this.http.get(url, {
-      headers,
-      responseType: 'blob' 
+      headers: this.getAuthHeaders(),
+      responseType: 'blob'
     });
   }
 }

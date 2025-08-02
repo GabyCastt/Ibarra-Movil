@@ -49,4 +49,20 @@ export class MisDocumentosPage implements OnInit {
       },
     });
   }
+
+  verFirmado() {
+    this.loading = true;
+    this.documentosService.getDocumentoPdf('firmado').subscribe({
+      next: (blob) => {
+        const fileURL = URL.createObjectURL(blob);
+        window.open(fileURL);
+      },
+      error: (err) => {
+        console.error('Error al obtener el documento firmado', err);
+      },
+      complete: () => {
+        this.loading = false;
+      },
+    });
+  }
 }
