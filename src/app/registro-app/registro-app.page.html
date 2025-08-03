@@ -139,31 +139,62 @@
           </div>
         </div>
 
-        <!-- Fila 5: Archivos -->
-        <div class="form-row">
-          <div class="form-field-wrapper">
-            <ion-item class="form-field" lines="full">
-              <ion-label position="stacked">Documento de Identidad <span class="required">*</span></ion-label>
-              <input type="file" (change)="onFileChange($event, 'identityDocument')" />
-            </ion-item>
+          <!-- Fila 5: Archivos -->
+          <div class="form-row">
+                <div class="form-field-wrapper">
+                  <label id="identityDocumentLabel" class="upload-label" for="identityDocumentInput">Documento de Identidad <span class="required">*</span></label>
+                  <div class="upload-box" (dragover)="onDragOver($event)" (drop)="onDrop($event, 'identityDocument')">
+                      <ion-icon name="folder-open" class="upload-icon"></ion-icon>
+                    <p>Arrastra tus archivos aquí o haz clic para seleccionar archivos</p>
+                    <input id="identityDocumentInput" type="file" accept=".pdf,.jpg,.jpeg,.png" title="Documento de identidad (PDF, JPG o PNG, máx. 2 MB)" aria-labelledby="identityDocumentLabel identityDocumentHelp" aria-describedby="identityDocumentHelp" (change)="onFileChange($event, 'identityDocument')" />
+                  </div>
+                  <div class="file-name" *ngIf="identityDocumentFile">
+                      <ion-icon name="document-outline"></ion-icon>
+                    <span>{{ identityDocumentFile.name }}</span>
+                  </div>
+                  <div class="upload-info" id="identityDocumentHelp">
+                      <div><ion-icon name="document-text-outline"></ion-icon><span>PDF, JPG, PNG</span></div>
+                      <div><ion-icon name="cloud-upload-outline"></ion-icon><span>2 MB por archivo</span></div>
+                      <div><ion-icon name="resize-outline"></ion-icon><span>Mínimo 800x600 px</span></div>
+                  </div>
+                </div>
+
+                <div class="form-field-wrapper">
+                  <label id="certificateLabel" class="upload-label" for="certificateInput">Patente Municipal <span class="required">*</span></label>
+                  <div class="upload-box" (dragover)="onDragOver($event)" (drop)="onDrop($event, 'certificate')">
+                    <ion-icon name="folder-open" class="upload-icon"></ion-icon>
+                    <p>Arrastra tus archivos aquí o haz clic para seleccionar archivos</p>
+                    <input id="certificateInput" type="file" accept=".pdf,.jpg,.jpeg,.png" title="Patente municipal (PDF, JPG o PNG, máx. 2 MB)" aria-labelledby="certificateLabel certificateHelp" aria-describedby="certificateHelp" (change)="onFileChange($event, 'certificate')" />
+                  </div>
+                    <div class="file-name" *ngIf="certificateFile">
+                      <ion-icon name="document-outline"></ion-icon>
+                      <span>{{ certificateFile.name }}</span>
+                    </div>
+                    <div class="upload-info" id="certificateHelp">
+                      <div><ion-icon name="document-text-outline"></ion-icon><span>PDF, JPG, PNG</span></div>
+                      <div><ion-icon name="cloud-upload-outline"></ion-icon><span>2 MB por archivo</span></div>
+                      <div><ion-icon name="resize-outline"></ion-icon><span>Mínimo 800x600 px</span></div>
+                    </div>
+                </div>
           </div>
 
-          <div class="form-field-wrapper">
-            <ion-item class="form-field" lines="full">
-              <ion-label position="stacked">Patente Municipal <span class="required">*</span></ion-label>
-              <input type="file" (change)="onFileChange($event, 'certificate')" />
-            </ion-item>
-          </div>
-        </div>
-
-
-       
-        <div class="form-field-wrapper">
-  <ion-item class="form-field" lines="full">
-    <ion-label position="stacked">Acuerdo de Comercializacion <span class="required">*</span></ion-label>
-    <input type="file" (change)="onFileChange($event, 'signedDocument')" />
-  </ion-item>
-</div>
+              <div class="form-field-wrapper">
+                <label id="signedDocumentLabel" class="upload-label" for="signedDocumentInput">Acuerdo de Comercializacion <span class="required">*</span></label>
+                <div class="upload-box" (dragover)="onDragOver($event)" (drop)="onDrop($event, 'signedDocument')">
+                  <ion-icon name="folder-open" class="upload-icon"></ion-icon>
+                  <p>Arrastra tus archivos aquí o haz clic para seleccionar archivos</p>
+                  <input id="signedDocumentInput" type="file" accept=".pdf,.jpg,.jpeg,.png" title="Acuerdo de comercialización (PDF, JPG o PNG, máx. 2 MB)" aria-labelledby="signedDocumentLabel signedDocumentHelp" aria-describedby="signedDocumentHelp" (change)="onFileChange($event, 'signedDocument')" />
+                </div>
+                <div class="file-name" *ngIf="signedDocumentFile">
+                  <ion-icon name="document-outline"></ion-icon>
+                  <span>{{ signedDocumentFile.name }}</span>
+                </div>
+                <div class="upload-info" id="signedDocumentHelp">
+                  <div><ion-icon name="document-text-outline"></ion-icon><span>PDF, JPG, PNG</span></div>
+                  <div><ion-icon name="cloud-upload-outline"></ion-icon><span>2 MB por archivo</span></div>
+                  <div><ion-icon name="resize-outline"></ion-icon><span>Mínimo 800x600 px</span></div>
+                </div>
+              </div>
 
 
       </div>

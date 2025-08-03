@@ -122,6 +122,78 @@
   display: block;
 }
 
+.file-hint {
+  color: #6b7280;
+  font-size: 12px;
+  margin: 4px 0 8px 16px;
+  display: block;
+}
+
+// Upload box styles
+.upload-label {
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 4px;
+}
+
+.upload-box {
+  border: 2px dashed #d1d5db;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  background-color: #f9fafb;
+  position: relative;
+  cursor: pointer;
+
+  .upload-icon {
+    font-size: 48px;
+    color: #fbbf24;
+    margin-bottom: 8px;
+  }
+
+  input[type='file'] {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+}
+
+.upload-info {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-size: 12px;
+  color: #6b7280;
+
+  div {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  ion-icon {
+    font-size: 16px;
+  }
+}
+
+.file-name {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 8px;
+  font-size: 13px;
+  color: #374151;
+
+  ion-icon {
+    font-size: 16px;
+    margin-right: 4px;
+    color: #6b7280;
+  }
+}
+
 // Button container
 .button-container {
   margin-top: 30px;

@@ -84,7 +84,12 @@ signedDocumentFile!: File;
   }
   async onSubmit() {
     const isValid = await this.validateForm();
-    if (!isValid || !this.identityDocumentFile || !this.certificateFile) {
+    if (!isValid) {
+      return;
+    }
+
+    const filesValid = await this.validateFiles();
+    if (!filesValid) {
       return;
     }
 
@@ -111,7 +116,9 @@ signedDocumentFile!: File;
       error: async (err: HttpErrorResponse) => {
         this.isLoading = false;
         let message = 'Error en el servidor';
-        if (err.error?.message) {
+        if (err.status === 413 || err.error?.message?.includes('tamaño máximo')) {
+          message = 'El archivo supera el tamaño máximo permitido de 2 MB';
+        } else if (err.error?.message) {
           message = err.error.message;
         }
         await this.showToast(message, 'danger');
@@ -201,22 +208,107 @@ signedDocumentFile!: File;
     return labels[fieldName] || fieldName;
   }
 
-  onFileChange(event: Event, tipo: 'identityDocument' | 'certificate' | 'signedDocument') {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      const file = input.files[0];
-      if (tipo === 'identityDocument') {
-        this.identityDocumentFile = file;
-      } else if (tipo === 'certificate') {
-        this.certificateFile = file;
-        } else if (tipo === 'signedDocument') { 
-      this.signedDocumentFile = file;
-      }
+  async onFileChange(
+    event: Event | DragEvent,
+    tipo: 'identityDocument' | 'certificate' | 'signedDocument'
+  ) {
+    const input = event.target instanceof HTMLInputElement ? event.target : null;
+    const files = input?.files?.length
+      ? input.files
+      : (event as DragEvent).dataTransfer?.files;
+
+    if (!files || files.length === 0) {
+      return;
     }
+
+    const file = files[0];
+    const allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png'];
+    const extension = file.name.split('.').pop()?.toLowerCase();
+
+    if (!extension || !allowedExtensions.includes(extension)) {
+      await this.showToast('Formato de archivo no permitido. Solo PDF, JPG o PNG', 'warning');
+      if (input) { input.value = ''; }
+      this.clearFile(tipo);
+      return;
+    }
+
+    const maxSize = 2 * 1024 * 1024;
+    if (file.size > maxSize) {
+      await this.showToast('El archivo supera el tamaño máximo de 2 MB', 'warning');
+      if (input) { input.value = ''; }
+      this.clearFile(tipo);
+      return;
+    }
+
+    if (tipo === 'identityDocument') {
+      this.identityDocumentFile = file;
+    } else if (tipo === 'certificate') {
+      this.certificateFile = file;
+    } else {
+      this.signedDocumentFile = file;
+    }
+
+    await this.showToast('Archivo cargado correctamente', 'success');
+  }
+
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+  }
+
+  onDrop(event: DragEvent, tipo: 'identityDocument' | 'certificate' | 'signedDocument') {
+    event.preventDefault();
+    this.onFileChange(event, tipo);
   }
 
   hasError(fieldName: string): boolean {
     const field = this.registroForm.get(fieldName);
     return !!(field?.errors && field.touched);
+  }
+
+  private async validateFiles(): Promise<boolean> {
+    const maxSize = 2 * 1024 * 1024;
+    const allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png'];
+
+    const files = [
+      { file: this.identityDocumentFile, name: 'Documento de Identidad' },
+      { file: this.certificateFile, name: 'Patente Municipal' },
+      { file: this.signedDocumentFile, name: 'Acuerdo de Comercialización' }
+    ];
+
+    for (const item of files) {
+      if (!item.file) {
+        await this.showToast(`Debe adjuntar ${item.name}`, 'warning');
+        return false;
+      }
+
+      const extension = item.file.name.split('.').pop()?.toLowerCase();
+      if (!extension || !allowedExtensions.includes(extension)) {
+        await this.showToast(
+          `Formato de archivo no permitido en ${item.name}. Solo PDF, JPG o PNG`,
+          'warning'
+        );
+        return false;
+      }
+
+      if (item.file.size > maxSize) {
+        await this.showToast(
+          `El archivo ${item.name} supera el tamaño máximo de 2 MB`,
+          'warning'
+        );
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  private clearFile(tipo: 'identityDocument' | 'certificate' | 'signedDocument') {
+    if (tipo === 'identityDocument') {
+      this.identityDocumentFile = undefined as any;
+    } else if (tipo === 'certificate') {
+      this.certificateFile = undefined as any;
+    } else {
+      this.signedDocumentFile = undefined as any;
+    }
   }
 }
