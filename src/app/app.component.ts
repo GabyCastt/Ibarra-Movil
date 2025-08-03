@@ -7,7 +7,14 @@ import {
 import { SideMenuComponent } from './components/side-menu/side-menu.component';
 import { AuthService } from './services/auth.service';
 import { addIcons } from 'ionicons';
-import { home, business, logOut, person, document, personCircleOutline, card, personOutline, mailOutline, callOutline, briefcaseOutline, createOutline, personCircle, peopleOutline, locationOutline, ribbon } from 'ionicons/icons';
+import { home, business, logOut, person, document, personCircleOutline, card, personOutline,
+         mailOutline, callOutline, briefcaseOutline, createOutline, personCircle, peopleOutline, 
+         locationOutline, ribbon, informationCircleOutline, folderOpen, documentTextOutline, 
+         cloudUploadOutline, resizeOutline,
+         refresh,
+         close,
+         personAdd,
+         eye, } from 'ionicons/icons';
 
 @Component({
   selector: 'app-root',
@@ -23,6 +30,9 @@ import { home, business, logOut, person, document, personCircleOutline, card, pe
 })
 export class AppComponent {
   constructor(public authService: AuthService) {
-    addIcons({ home, business, card, document, logOut,  person, personCircleOutline, personOutline, mailOutline, callOutline, briefcaseOutline, createOutline, personCircle, peopleOutline, locationOutline, ribbon });
+    addIcons({ home, business, card, document, logOut,  person, personCircleOutline, personOutline, mailOutline, callOutline, briefcaseOutline, createOutline, personCircle, peopleOutline, locationOutline, ribbon,
+      informationCircleOutline, folderOpen, documentTextOutline, cloudUploadOutline, resizeOutline, refresh, close, personAdd, eye
+
+     });
   }
 }
