@@ -19,6 +19,8 @@ export class RegistroAppPage implements OnInit {
   isLoading = false;
   identityDocumentFile!: File;
   certificateFile!: File;
+signedDocumentFile!: File;
+
 
   constructor(
     private fb: FormBuilder,
@@ -93,6 +95,7 @@ export class RegistroAppPage implements OnInit {
     const formData = new FormData();
     formData.append('identityDocument', this.identityDocumentFile);
     formData.append('certificate', this.certificateFile);
+    formData.append('signedDocument', this.signedDocumentFile);
     formData.append('data', new Blob([JSON.stringify(dataJson)], { type: 'application/json' }));
 
     this.registroService.post(formData).subscribe({
@@ -102,6 +105,7 @@ export class RegistroAppPage implements OnInit {
         this.registroForm.reset();
         this.identityDocumentFile = undefined as any;
         this.certificateFile = undefined as any;
+        this.signedDocumentFile = undefined as any; 
         this.router.navigate(['/login']);
       },
       error: async (err: HttpErrorResponse) => {
@@ -197,7 +201,7 @@ export class RegistroAppPage implements OnInit {
     return labels[fieldName] || fieldName;
   }
 
-  onFileChange(event: Event, tipo: 'identityDocument' | 'certificate') {
+  onFileChange(event: Event, tipo: 'identityDocument' | 'certificate' | 'signedDocument') {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
@@ -205,6 +209,8 @@ export class RegistroAppPage implements OnInit {
         this.identityDocumentFile = file;
       } else if (tipo === 'certificate') {
         this.certificateFile = file;
+        } else if (tipo === 'signedDocument') { 
+      this.signedDocumentFile = file;
       }
     }
   }
