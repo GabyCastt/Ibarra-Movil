@@ -1,12 +1,14 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { AuthService } from './auth.service';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DocumentosService {
-  private readonly baseUrl = 'http://34.10.172.54:8080/users';
+  private readonly baseUrl = `${environment.apiUrl}/users`;
+
   private readonly endpoints = {
     cedula: 'get-identity-document',
     certificado: 'get-certificate',

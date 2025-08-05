@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 export interface UpdateUserDto {
   phone?: string;
@@ -13,7 +14,7 @@ export interface UpdateUserDto {
   providedIn: 'root'
 })
 export class PerfilService {
-  private apiUrl = 'http://34.10.172.54:8080';
+   private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
@@ -21,7 +22,7 @@ export class PerfilService {
    * Lee correctamente el token almacenado por AuthService
    */
   private getAuthHeaders(): HttpHeaders {
-    const token = localStorage.getItem('jwt_token'); // ESTA ES LA CLAVE CORRECTA
+    const token = localStorage.getItem('jwt_token'); 
     return new HttpHeaders({
       'Content-Type': 'application/json',
       ...(token && { 'Authorization': `Bearer ${token}` })

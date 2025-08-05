@@ -3,16 +3,18 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private baseUrl = 'http://34.10.172.54:8080';
-  private apiUrl = `${this.baseUrl}/auth/login`;
-  private validateEmailUrl = `${this.baseUrl}/recovery/email/validation`;
-  private validateOTPUrl = `${this.baseUrl}/recovery/otp/validation`;
-  private resetPasswordUrl = `${this.baseUrl}/recovery/password`;
+   private apiUrl = environment.apiUrl;
+
+  private loginUrl = `${this.apiUrl}/auth/login`;
+  private validateEmailUrl = `${this.apiUrl}/recovery/email/validation`;
+  private validateOTPUrl = `${this.apiUrl}/recovery/otp/validation`;
+  private resetPasswordUrl = `${this.apiUrl}/recovery/password`;
   
   private authState = new BehaviorSubject<boolean>(false);
   isAuthenticated$ = this.authState.asObservable();
@@ -25,7 +27,7 @@ export class AuthService {
   }
 
   login(email: string, password: string): Observable<any> {
-    return this.http.post<any>(this.apiUrl, {
+    return this.http.post<any>(this.loginUrl, {
       username: email,
       password: password
     }).pipe(
