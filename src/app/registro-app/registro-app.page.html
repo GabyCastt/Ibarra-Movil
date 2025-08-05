@@ -22,8 +22,10 @@
       <ion-icon name="information-circle-outline"></ion-icon>
       <div class="info-content">
         <h3>Información Importante</h3>
-        <p>Complete todos los campos marcados con * (asterisco rojo). Revise que los datos cumplan con los requisitos
-          especificados.</p>
+        <p>
+          Complete todos los campos marcados con * (asterisco rojo). Revise que
+          los datos cumplan con los requisitos especificados.
+        </p>
       </div>
     </div>
 
@@ -33,15 +35,30 @@
         <!-- Tipo de Identificación -->
         <ion-item fill="outline">
           <ion-label position="stacked">Tipo de Identificación</ion-label>
-          <ion-select formControlName="idType" placeholder="Seleccionar tipo..." interface="popover">
+          <ion-select
+            formControlName="idType"
+            placeholder="Seleccionar tipo..."
+            interface="popover"
+          >
             <ion-select-option value="CEDULA">Cédula</ion-select-option>
             <ion-select-option value="PASSAPORTE">Pasaporte</ion-select-option>
           </ion-select>
         </ion-item>
         <div class="form-field-wrapper">
-          <ion-item class="form-field" fill="outline" [class.error-field]="hasError('identification')">
-            <ion-label position="stacked">Identificación <span class="required">*</span></ion-label>
-            <ion-input formControlName="identification" placeholder="Ej: 1234567890" type="text" maxlength="15">
+          <ion-item
+            class="form-field"
+            fill="outline"
+            [class.error-field]="hasError('identification')"
+          >
+            <ion-label position="stacked"
+              >Identificación <span class="required">*</span></ion-label
+            >
+            <ion-input
+              formControlName="identification"
+              placeholder="Ej: 1234567890"
+              type="text"
+              maxlength="15"
+            >
             </ion-input>
           </ion-item>
           <div class="error-message" *ngIf="hasError('identification')">
@@ -50,9 +67,20 @@
         </div>
 
         <div class="form-field-wrapper">
-          <ion-item class="form-field" fill="outline" [class.error-field]="hasError('name')">
-            <ion-label position="stacked">Nombres <span class="required">*</span></ion-label>
-            <ion-input formControlName="name" placeholder="Juan Carlos" type="text" maxlength="50">
+          <ion-item
+            class="form-field"
+            fill="outline"
+            [class.error-field]="hasError('name')"
+          >
+            <ion-label position="stacked"
+              >Nombres <span class="required">*</span></ion-label
+            >
+            <ion-input
+              formControlName="name"
+              placeholder="Juan Carlos"
+              type="text"
+              maxlength="50"
+            >
             </ion-input>
           </ion-item>
           <div class="error-message" *ngIf="hasError('name')">
@@ -64,9 +92,20 @@
       <!-- Fila 2: Apellidos y Email -->
       <div class="form-row">
         <div class="form-field-wrapper">
-          <ion-item class="form-field" fill="outline" [class.error-field]="hasError('lastname')">
-            <ion-label position="stacked">Apellidos <span class="required">*</span></ion-label>
-            <ion-input formControlName="lastname" placeholder="Pérez González" type="text" maxlength="50">
+          <ion-item
+            class="form-field"
+            fill="outline"
+            [class.error-field]="hasError('lastname')"
+          >
+            <ion-label position="stacked"
+              >Apellidos <span class="required">*</span></ion-label
+            >
+            <ion-input
+              formControlName="lastname"
+              placeholder="Pérez González"
+              type="text"
+              maxlength="50"
+            >
             </ion-input>
           </ion-item>
           <div class="error-message" *ngIf="hasError('lastname')">
@@ -75,9 +114,19 @@
         </div>
 
         <div class="form-field-wrapper">
-          <ion-item class="form-field" fill="outline" [class.error-field]="hasError('email')">
-            <ion-label position="stacked">Correo Electrónico <span class="required">*</span></ion-label>
-            <ion-input formControlName="email" placeholder="correo@ejemplo.com" type="email">
+          <ion-item
+            class="form-field"
+            fill="outline"
+            [class.error-field]="hasError('email')"
+          >
+            <ion-label position="stacked"
+              >Correo Electrónico <span class="required">*</span></ion-label
+            >
+            <ion-input
+              formControlName="email"
+              placeholder="correo@ejemplo.com"
+              type="email"
+            >
             </ion-input>
           </ion-item>
           <div class="error-message" *ngIf="hasError('email')">
@@ -89,9 +138,19 @@
       <!-- Fila 3: Teléfono y Dirección -->
       <div class="form-row">
         <div class="form-field-wrapper">
-          <ion-item class="form-field" fill="outline" [class.error-field]="hasError('phone')">
-            <ion-label position="stacked">Teléfono <span class="required">*</span></ion-label>
-            <ion-input formControlName="phone" placeholder="0987654321" type="tel">
+          <ion-item
+            class="form-field"
+            fill="outline"
+            [class.error-field]="hasError('phone')"
+          >
+            <ion-label position="stacked"
+              >Teléfono <span class="required">*</span></ion-label
+            >
+            <ion-input
+              formControlName="phone"
+              placeholder="0987654321"
+              type="tel"
+            >
             </ion-input>
           </ion-item>
           <div class="error-message" *ngIf="hasError('phone')">
@@ -100,9 +159,19 @@
         </div>
 
         <div class="form-field-wrapper">
-          <ion-item class="form-field" fill="outline" [class.error-field]="hasError('address')">
-            <ion-label position="stacked">Dirección de Residencia <span class="required">*</span></ion-label>
-            <ion-input formControlName="address" placeholder="Av. Principal 123 y Calle Secundaria" type="text">
+          <ion-item
+            class="form-field"
+            fill="outline"
+            [class.error-field]="hasError('address')"
+          >
+            <ion-label position="stacked"
+              >Dirección <span class="required">*</span></ion-label
+            >
+            <ion-input
+              formControlName="address"
+              placeholder="Av. Principal 123 y Calle Secundaria"
+              type="text"
+            >
             </ion-input>
           </ion-item>
           <div class="error-message" *ngIf="hasError('address')">
@@ -114,9 +183,20 @@
       <!-- Fila 4: Usuario y Contraseña -->
       <div class="form-row">
         <div class="form-field-wrapper">
-          <ion-item class="form-field" fill="outline" [class.error-field]="hasError('username')">
-            <ion-label position="stacked">Usuario <span class="required">*</span></ion-label>
-            <ion-input formControlName="username" placeholder="usuario123 (5-20 caracteres)" type="text" maxlength="20">
+          <ion-item
+            class="form-field"
+            fill="outline"
+            [class.error-field]="hasError('username')"
+          >
+            <ion-label position="stacked"
+              >Usuario <span class="required">*</span></ion-label
+            >
+            <ion-input
+              formControlName="username"
+              placeholder="usuario123 (5-20 caracteres)"
+              type="text"
+              maxlength="20"
+            >
             </ion-input>
           </ion-item>
           <div class="error-message" *ngIf="hasError('username')">
@@ -125,12 +205,26 @@
         </div>
 
         <div class="form-field-wrapper">
-          <ion-item class="form-field" fill="outline" [class.error-field]="hasError('password')">
-            <ion-label position="stacked">Contraseña <span class="required">*</span></ion-label>
-            <ion-input formControlName="password" placeholder="Mínimo 8 caracteres"
-              [type]="showPassword ? 'text' : 'password'" maxlength="20">
+          <ion-item
+            class="form-field"
+            fill="outline"
+            [class.error-field]="hasError('password')"
+          >
+            <ion-label position="stacked"
+              >Contraseña <span class="required">*</span></ion-label
+            >
+            <ion-input
+              formControlName="password"
+              placeholder="Mínimo 8 caracteres"
+              [type]="showPassword ? 'text' : 'password'"
+              maxlength="20"
+            >
             </ion-input>
-            <ion-button fill="clear" slot="end" (click)="togglePasswordVisibility()">
+            <ion-button
+              fill="clear"
+              slot="end"
+              (click)="togglePasswordVisibility()"
+            >
               <ion-icon [name]="showPassword ? 'eye-off' : 'eye'"></ion-icon>
             </ion-button>
           </ion-item>
@@ -139,82 +233,218 @@
           </div>
         </div>
 
-          <!-- Fila 5: Archivos -->
-          <div class="form-row">
-                <div class="form-field-wrapper">
-                  <label id="identityDocumentLabel" class="upload-label" for="identityDocumentInput">Documento de Identidad <span class="required">*</span></label>
-                  <div class="upload-box" (dragover)="onDragOver($event)" (drop)="onDrop($event, 'identityDocument')">
-                      <ion-icon name="folder-open" class="upload-icon"></ion-icon>
-                    <p>Arrastra tus archivos aquí o haz clic para seleccionar archivos</p>
-                    <input id="identityDocumentInput" type="file" accept=".pdf,.jpg,.jpeg,.png" title="Documento de identidad (PDF, JPG o PNG, máx. 2 MB)" aria-labelledby="identityDocumentLabel identityDocumentHelp" aria-describedby="identityDocumentHelp" (change)="onFileChange($event, 'identityDocument')" />
-                  </div>
-                  <div class="file-name" *ngIf="identityDocumentFile">
-                      <ion-icon name="document-outline"></ion-icon>
-                    <span>{{ identityDocumentFile.name }}</span>
-                  </div>
-                  <div class="upload-info" id="identityDocumentHelp">
-                      <div><ion-icon name="document-text-outline"></ion-icon><span>PDF, JPG, PNG</span></div>
-                      <div><ion-icon name="cloud-upload-outline"></ion-icon><span>2 MB por archivo</span></div>
-                      <div><ion-icon name="resize-outline"></ion-icon><span>Mínimo 800x600 px</span></div>
-                  </div>
-                </div>
-
-                <div class="form-field-wrapper">
-                  <label id="certificateLabel" class="upload-label" for="certificateInput">Patente Municipal <span class="required">*</span></label>
-                  <div class="upload-box" (dragover)="onDragOver($event)" (drop)="onDrop($event, 'certificate')">
-                    <ion-icon name="folder-open" class="upload-icon"></ion-icon>
-                    <p>Arrastra tus archivos aquí o haz clic para seleccionar archivos</p>
-                    <input id="certificateInput" type="file" accept=".pdf,.jpg,.jpeg,.png" title="Patente municipal (PDF, JPG o PNG, máx. 2 MB)" aria-labelledby="certificateLabel certificateHelp" aria-describedby="certificateHelp" (change)="onFileChange($event, 'certificate')" />
-                  </div>
-                    <div class="file-name" *ngIf="certificateFile">
-                      <ion-icon name="document-outline"></ion-icon>
-                      <span>{{ certificateFile.name }}</span>
-                    </div>
-                    <div class="upload-info" id="certificateHelp">
-                      <div><ion-icon name="document-text-outline"></ion-icon><span>PDF, JPG, PNG</span></div>
-                      <div><ion-icon name="cloud-upload-outline"></ion-icon><span>2 MB por archivo</span></div>
-                      <div><ion-icon name="resize-outline"></ion-icon><span>Mínimo 800x600 px</span></div>
-                    </div>
-                </div>
+        <!-- Fila 5: Archivos -->
+        <div class="form-row">
+          <div class="form-field-wrapper">
+            <label
+              id="identityDocumentLabel"
+              class="upload-label"
+              for="identityDocumentInput"
+              >Documento de Identidad <span class="required">*</span></label
+            >
+            <div
+              class="upload-box"
+              (dragover)="onDragOver($event)"
+              (drop)="onDrop($event, 'identityDocument')"
+            >
+              <ion-icon name="folder-open" class="upload-icon"></ion-icon>
+              <p>
+                Arrastra tus archivos aquí o haz clic para seleccionar archivos
+              </p>
+              <input
+                id="identityDocumentInput"
+                type="file"
+                accept=".pdf,.jpg,.jpeg,.png"
+                title="Documento de identidad (PDF, JPG o PNG, máx. 2 MB)"
+                aria-labelledby="identityDocumentLabel identityDocumentHelp"
+                aria-describedby="identityDocumentHelp"
+                (change)="onFileChange($event, 'identityDocument')"
+              />
+            </div>
+            <div class="file-name" *ngIf="identityDocumentFile">
+              <ion-icon name="document-outline"></ion-icon>
+              <span>{{ identityDocumentFile.name }}</span>
+            </div>
+            <div class="upload-info" id="identityDocumentHelp">
+              <div>
+                <ion-icon name="document-text-outline"></ion-icon
+                ><span>PDF, JPG, PNG</span>
+              </div>
+              <div>
+                <ion-icon name="cloud-upload-outline"></ion-icon
+                ><span>2 MB por archivo</span>
+              </div>
+              <div>
+                <ion-icon name="resize-outline"></ion-icon
+                ><span>Mínimo 800x600 px</span>
+              </div>
+            </div>
           </div>
 
-              <div class="form-field-wrapper">
-                <label id="signedDocumentLabel" class="upload-label" for="signedDocumentInput">Acuerdo de Comercializacion <span class="required">*</span></label>
-                <div class="upload-box" (dragover)="onDragOver($event)" (drop)="onDrop($event, 'signedDocument')">
-                  <ion-icon name="folder-open" class="upload-icon"></ion-icon>
-                  <p>Arrastra tus archivos aquí o haz clic para seleccionar archivos</p>
-                  <input id="signedDocumentInput" type="file" accept=".pdf,.jpg,.jpeg,.png" title="Acuerdo de comercialización (PDF, JPG o PNG, máx. 2 MB)" aria-labelledby="signedDocumentLabel signedDocumentHelp" aria-describedby="signedDocumentHelp" (change)="onFileChange($event, 'signedDocument')" />
-                </div>
-                <div class="file-name" *ngIf="signedDocumentFile">
-                  <ion-icon name="document-outline"></ion-icon>
-                  <span>{{ signedDocumentFile.name }}</span>
-                </div>
-                <div class="upload-info" id="signedDocumentHelp">
-                  <div><ion-icon name="document-text-outline"></ion-icon><span>PDF, JPG, PNG</span></div>
-                  <div><ion-icon name="cloud-upload-outline"></ion-icon><span>2 MB por archivo</span></div>
-                  <div><ion-icon name="resize-outline"></ion-icon><span>Mínimo 800x600 px</span></div>
-                </div>
+          <div class="form-field-wrapper">
+            <label
+              id="certificateLabel"
+              class="upload-label"
+              for="certificateInput"
+              >Patente Municipal / Certificado Emprendedor
+              <span class="required">*</span></label
+            >
+            <div
+              class="upload-box"
+              (dragover)="onDragOver($event)"
+              (drop)="onDrop($event, 'certificate')"
+            >
+              <ion-icon name="folder-open" class="upload-icon"></ion-icon>
+              <p>
+                Arrastra tus archivos aquí o haz clic para seleccionar archivos
+              </p>
+              <input
+                id="certificateInput"
+                type="file"
+                accept=".pdf,.jpg,.jpeg,.png"
+                title="Patente municipal (PDF, JPG o PNG, máx. 2 MB)"
+                aria-labelledby="certificateLabel certificateHelp"
+                aria-describedby="certificateHelp"
+                (change)="onFileChange($event, 'certificate')"
+              />
+            </div>
+            <div class="file-name" *ngIf="certificateFile">
+              <ion-icon name="document-outline"></ion-icon>
+              <span>{{ certificateFile.name }}</span>
+            </div>
+            <div class="upload-info" id="certificateHelp">
+              <div>
+                <ion-icon name="document-text-outline"></ion-icon
+                ><span>PDF, JPG, PNG</span>
               </div>
+              <div>
+                <ion-icon name="cloud-upload-outline"></ion-icon
+                ><span>2 MB por archivo</span>
+              </div>
+              <div>
+                <ion-icon name="resize-outline"></ion-icon
+                ><span>Mínimo 800x600 px</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Nueva sección: Plantilla descargable -->
+        <div class="form-field-wrapper">
+          <label class="upload-label"
+            >Plantilla de Acuerdo de Comercializacion</label
+          >
+          <div class="download-box">
+            <ion-icon
+              name="document-attach-outline"
+              class="download-icon"
+            ></ion-icon>
+            <p>Descargue la plantilla del acuerdo de comercialización</p>
+            <ion-button
+              expand="block"
+              fill="outline"
+              color="primary"
+              (click)="downloadTemplate()"
+            >
+              <ion-icon name="download" slot="start"></ion-icon>
+              Descargar Plantilla
+            </ion-button>
+          </div>
+          <div class="upload-info">
+            <div>
+              <ion-icon name="document-text-outline"></ion-icon
+              ><span>Formato PDF</span>
+            </div>
+            <div>
+              <ion-icon name="information-circle-outline"></ion-icon
+              ><span>Complete y firme este documento</span>
+            </div>
+          </div>
+        </div>
 
-
+        <div class="form-field-wrapper">
+          <label
+            id="signedDocumentLabel"
+            class="upload-label"
+            for="signedDocumentInput"
+            >Acuerdo de Comercializacion <span class="required">*</span></label
+          >
+          <div
+            class="upload-box"
+            (dragover)="onDragOver($event)"
+            (drop)="onDrop($event, 'signedDocument')"
+          >
+            <ion-icon name="folder-open" class="upload-icon"></ion-icon>
+            <p>
+              Arrastra tus archivos aquí o haz clic para seleccionar archivos
+            </p>
+            <input
+              id="signedDocumentInput"
+              type="file"
+              accept=".pdf,.jpg,.jpeg,.png"
+              title="Acuerdo de comercialización (PDF, JPG o PNG, máx. 2 MB)"
+              aria-labelledby="signedDocumentLabel signedDocumentHelp"
+              aria-describedby="signedDocumentHelp"
+              (change)="onFileChange($event, 'signedDocument')"
+            />
+          </div>
+          <div class="file-name" *ngIf="signedDocumentFile">
+            <ion-icon name="document-outline"></ion-icon>
+            <span>{{ signedDocumentFile.name }}</span>
+          </div>
+          <div class="upload-info" id="signedDocumentHelp">
+            <div>
+              <ion-icon name="document-text-outline"></ion-icon
+              ><span>PDF, JPG, PNG</span>
+            </div>
+            <div>
+              <ion-icon name="cloud-upload-outline"></ion-icon
+              ><span>2 MB por archivo</span>
+            </div>
+            <div>
+              <ion-icon name="resize-outline"></ion-icon
+              ><span>Mínimo 800x600 px</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Botones -->
       <div class="button-container">
-        <ion-button expand="block" color="danger" type="submit" [disabled]="!registroForm.valid || isLoading"
-          class="register-button">
-          <ion-icon name="person-add" slot="start" *ngIf="!isLoading"></ion-icon>
+        <ion-button
+          expand="block"
+          color="danger"
+          type="submit"
+          [disabled]="!registroForm.valid || isLoading"
+          class="register-button"
+        >
+          <ion-icon
+            name="person-add"
+            slot="start"
+            *ngIf="!isLoading"
+          ></ion-icon>
           <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
           <span *ngIf="isLoading">Registrando...</span>
           <span *ngIf="!isLoading">Registrar</span>
         </ion-button>
 
-        <ion-button expand="block" fill="outline" color="medium" (click)="limpiarFormulario()" [disabled]="isLoading">
+        <ion-button
+          expand="block"
+          fill="outline"
+          color="medium"
+          (click)="limpiarFormulario()"
+          [disabled]="isLoading"
+        >
           <ion-icon name="refresh" slot="start"></ion-icon>
           Limpiar
         </ion-button>
 
-        <ion-button expand="block" fill="clear" color="medium" routerLink="/home" [disabled]="isLoading">
+        <ion-button
+          expand="block"
+          fill="clear"
+          color="medium"
+          routerLink="/home"
+          [disabled]="isLoading"
+        >
           <ion-icon name="close" slot="start"></ion-icon>
           Cancelar
         </ion-button>

@@ -1,17 +1,39 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { IonicModule, ToastController, LoadingController, AlertController } from '@ionic/angular';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule,
+  FormsModule,
+} from '@angular/forms';
+import {
+  IonicModule,
+  ToastController,
+  LoadingController,
+  AlertController,
+} from '@ionic/angular';
 import { Router } from '@angular/router';
-import { HttpClientModule, HttpErrorResponse } from '@angular/common/http';
+import {
+  HttpClient,
+  HttpClientModule,
+  HttpErrorResponse,
+} from '@angular/common/http';
 import { RegistroAppService } from '../services/registroo.service';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-registro-app',
   templateUrl: './registro-app.page.html',
   styleUrls: ['./registro-app.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, ReactiveFormsModule, FormsModule, HttpClientModule],
+  imports: [
+    IonicModule,
+    CommonModule,
+    ReactiveFormsModule,
+    FormsModule,
+    HttpClientModule,
+  ],
 })
 export class RegistroAppPage implements OnInit {
   registroForm!: FormGroup;
@@ -19,8 +41,7 @@ export class RegistroAppPage implements OnInit {
   isLoading = false;
   identityDocumentFile!: File;
   certificateFile!: File;
-signedDocumentFile!: File;
-
+  signedDocumentFile!: File;
 
   constructor(
     private fb: FormBuilder,
@@ -28,25 +49,61 @@ signedDocumentFile!: File;
     private toastController: ToastController,
     private loadingController: LoadingController,
     private alertController: AlertController,
-    private router: Router
+    private router: Router,
+    private http: HttpClient,
+    private sanitizer: DomSanitizer
   ) {
     this.initializeForm();
   }
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   private initializeForm() {
     this.registroForm = this.fb.group({
       idType: [''],
       email: ['', [Validators.required, Validators.email]],
-      name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
-      lastname: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
-      identification: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(15)]],
+      name: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(2),
+          Validators.maxLength(50),
+        ],
+      ],
+      lastname: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(2),
+          Validators.maxLength(50),
+        ],
+      ],
+      identification: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(2),
+          Validators.maxLength(15),
+        ],
+      ],
       phone: ['', [Validators.required, Validators.minLength(1)]],
       address: ['', [Validators.required, Validators.minLength(1)]],
-      username: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(20)]],
-      password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(20)]]
+      username: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(5),
+          Validators.maxLength(20),
+        ],
+      ],
+      password: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(8),
+          Validators.maxLength(20),
+        ],
+      ],
     });
   }
 
@@ -56,18 +113,22 @@ signedDocumentFile!: File;
 
   private async validateForm(): Promise<boolean> {
     // Marcar todos los campos como tocados para mostrar errores
-    Object.keys(this.registroForm.controls).forEach(key => {
+    Object.keys(this.registroForm.controls).forEach((key) => {
       this.registroForm.get(key)?.markAsTouched();
     });
 
     if (!this.registroForm.valid) {
-      await this.showToast('Por favor complete todos los campos requeridos correctamente', 'warning');
+      await this.showToast(
+        'Por favor complete todos los campos requeridos correctamente',
+        'warning'
+      );
 
       const errors = [];
       if (this.registroForm.get('email')?.errors) errors.push('Email');
       if (this.registroForm.get('name')?.errors) errors.push('Nombres');
       if (this.registroForm.get('lastname')?.errors) errors.push('Apellidos');
-      if (this.registroForm.get('identification')?.errors) errors.push('Identificación');
+      if (this.registroForm.get('identification')?.errors)
+        errors.push('Identificación');
       if (this.registroForm.get('phone')?.errors) errors.push('Teléfono');
       if (this.registroForm.get('address')?.errors) errors.push('Dirección');
       if (this.registroForm.get('username')?.errors) errors.push('Usuario');
@@ -101,32 +162,40 @@ signedDocumentFile!: File;
     formData.append('identityDocument', this.identityDocumentFile);
     formData.append('certificate', this.certificateFile);
     formData.append('signedDocument', this.signedDocumentFile);
-    formData.append('data', new Blob([JSON.stringify(dataJson)], { type: 'application/json' }));
+    formData.append(
+      'data',
+      new Blob([JSON.stringify(dataJson)], { type: 'application/json' })
+    );
 
     this.registroService.post(formData).subscribe({
       next: async () => {
         this.isLoading = false;
-        await this.showSuccessAlert('Registro exitoso', '¡Su cuenta ha sido creada correctamente!');
+        await this.showSuccessAlert(
+          'Registro exitoso',
+          '¡Su cuenta ha sido creada correctamente!'
+        );
         this.registroForm.reset();
         this.identityDocumentFile = undefined as any;
         this.certificateFile = undefined as any;
-        this.signedDocumentFile = undefined as any; 
+        this.signedDocumentFile = undefined as any;
         this.router.navigate(['/login']);
       },
       error: async (err: HttpErrorResponse) => {
         this.isLoading = false;
         let message = 'Error en el servidor';
-        if (err.status === 413 || err.error?.message?.includes('tamaño máximo')) {
+        if (
+          err.status === 413 ||
+          err.error?.message?.includes('tamaño máximo')
+        ) {
           message = 'El archivo supera el tamaño máximo permitido de 2 MB';
         } else if (err.error?.message) {
           message = err.error.message;
         }
         await this.showToast(message, 'danger');
         console.error('Error en el registro:', err);
-      }
+      },
     });
   }
-
 
   private async showSuccessAlert(header: string, message: string) {
     const alert = await this.alertController.create({
@@ -137,9 +206,9 @@ signedDocumentFile!: File;
           text: 'Aceptar',
           handler: () => {
             console.log('Usuario confirmó el registro exitoso');
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
 
     await alert.present();
@@ -158,9 +227,9 @@ signedDocumentFile!: File;
       buttons: [
         {
           text: 'Cerrar',
-          role: 'cancel'
-        }
-      ]
+          role: 'cancel',
+        },
+      ],
     });
 
     await toast.present();
@@ -182,11 +251,15 @@ signedDocumentFile!: File;
       }
       if (field.errors['minlength']) {
         const requiredLength = field.errors['minlength'].requiredLength;
-        return `${this.getFieldLabel(fieldName)} debe tener al menos ${requiredLength} caracteres`;
+        return `${this.getFieldLabel(
+          fieldName
+        )} debe tener al menos ${requiredLength} caracteres`;
       }
       if (field.errors['maxlength']) {
         const requiredLength = field.errors['maxlength'].requiredLength;
-        return `${this.getFieldLabel(fieldName)} no puede tener más de ${requiredLength} caracteres`;
+        return `${this.getFieldLabel(
+          fieldName
+        )} no puede tener más de ${requiredLength} caracteres`;
       }
     }
 
@@ -202,7 +275,7 @@ signedDocumentFile!: File;
       username: 'Usuario',
       password: 'Contraseña',
       email: 'Correo Electrónico',
-      phone: 'Teléfono'
+      phone: 'Teléfono',
     };
 
     return labels[fieldName] || fieldName;
@@ -212,7 +285,8 @@ signedDocumentFile!: File;
     event: Event | DragEvent,
     tipo: 'identityDocument' | 'certificate' | 'signedDocument'
   ) {
-    const input = event.target instanceof HTMLInputElement ? event.target : null;
+    const input =
+      event.target instanceof HTMLInputElement ? event.target : null;
     const files = input?.files?.length
       ? input.files
       : (event as DragEvent).dataTransfer?.files;
@@ -226,16 +300,26 @@ signedDocumentFile!: File;
     const extension = file.name.split('.').pop()?.toLowerCase();
 
     if (!extension || !allowedExtensions.includes(extension)) {
-      await this.showToast('Formato de archivo no permitido. Solo PDF, JPG o PNG', 'warning');
-      if (input) { input.value = ''; }
+      await this.showToast(
+        'Formato de archivo no permitido. Solo PDF, JPG o PNG',
+        'warning'
+      );
+      if (input) {
+        input.value = '';
+      }
       this.clearFile(tipo);
       return;
     }
 
     const maxSize = 2 * 1024 * 1024;
     if (file.size > maxSize) {
-      await this.showToast('El archivo supera el tamaño máximo de 2 MB', 'warning');
-      if (input) { input.value = ''; }
+      await this.showToast(
+        'El archivo supera el tamaño máximo de 2 MB',
+        'warning'
+      );
+      if (input) {
+        input.value = '';
+      }
       this.clearFile(tipo);
       return;
     }
@@ -255,7 +339,10 @@ signedDocumentFile!: File;
     event.preventDefault();
   }
 
-  onDrop(event: DragEvent, tipo: 'identityDocument' | 'certificate' | 'signedDocument') {
+  onDrop(
+    event: DragEvent,
+    tipo: 'identityDocument' | 'certificate' | 'signedDocument'
+  ) {
     event.preventDefault();
     this.onFileChange(event, tipo);
   }
@@ -272,7 +359,7 @@ signedDocumentFile!: File;
     const files = [
       { file: this.identityDocumentFile, name: 'Documento de Identidad' },
       { file: this.certificateFile, name: 'Patente Municipal' },
-      { file: this.signedDocumentFile, name: 'Acuerdo de Comercialización' }
+      { file: this.signedDocumentFile, name: 'Acuerdo de Comercialización' },
     ];
 
     for (const item of files) {
@@ -302,13 +389,62 @@ signedDocumentFile!: File;
     return true;
   }
 
-  private clearFile(tipo: 'identityDocument' | 'certificate' | 'signedDocument') {
+  private clearFile(
+    tipo: 'identityDocument' | 'certificate' | 'signedDocument'
+  ) {
     if (tipo === 'identityDocument') {
       this.identityDocumentFile = undefined as any;
     } else if (tipo === 'certificate') {
       this.certificateFile = undefined as any;
     } else {
       this.signedDocumentFile = undefined as any;
+    }
+  }
+
+  async downloadTemplate() {
+    try {
+      const loading = await this.loadingController.create({
+        message: 'Preparando descarga...',
+      });
+      await loading.present();
+
+      // Ruta al archivo en assets
+      const filePath = 'assets/documentos/Plantilla Acuerdo.pdf';
+
+      // Usamos el HttpClient para obtener el archivo como blob
+      this.http.get(filePath, { responseType: 'blob' }).subscribe(
+        async (blob) => {
+          await loading.dismiss();
+
+          // Crear objeto URL
+          const url = window.URL.createObjectURL(blob);
+
+          // Crear enlace temporal
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = 'Plantilla Acuerdo Comercializacion.pdf';
+
+          // Disparar el click
+          document.body.appendChild(link);
+          link.click();
+
+          // Limpiar
+          setTimeout(() => {
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(link);
+          }, 100);
+
+          await this.showToast('Descarga iniciada', 'success');
+        },
+        async (error) => {
+          await loading.dismiss();
+          console.error('Error al descargar el archivo:', error);
+          await this.showToast('Error al descargar la plantilla', 'danger');
+        }
+      );
+    } catch (error) {
+      console.error('Error en el proceso de descarga:', error);
+      await this.showToast('Error al preparar la descarga', 'danger');
     }
   }
 }

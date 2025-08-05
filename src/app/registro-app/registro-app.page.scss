@@ -318,3 +318,44 @@ ion-button[fill="clear"] {
     --color: #dc2626;
   }
 }
+
+/* Estilos para la sección de descarga */
+.download-box {
+  border: 2px dashed var(--ion-color-primary);
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  margin-bottom: 16px;
+  background-color: rgba(var(--ion-color-primary-rgb), 0.05);
+}
+
+.download-icon {
+  font-size: 48px;
+  color: var(--ion-color-primary);
+  margin-bottom: 8px;
+}
+
+.download-box p {
+  margin-bottom: 16px;
+  color: var(--ion-color-medium);
+  font-size: 14px;
+}
+
+.upload-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
+  color: var(--ion-color-medium);
+  font-size: 12px;
+
+  div {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  ion-icon {
+    font-size: 16px;
+  }
+}

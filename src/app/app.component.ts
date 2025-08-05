@@ -16,7 +16,9 @@ import { home, business, logOut, person, document, personCircleOutline, card, pe
          personAdd,
          eye,
          eyeOff,
-         documentOutline, } from 'ionicons/icons';
+         documentOutline,
+         documentAttachOutline,
+         download, } from 'ionicons/icons';
 
 @Component({
   selector: 'app-root',
@@ -33,7 +35,7 @@ import { home, business, logOut, person, document, personCircleOutline, card, pe
 export class AppComponent {
   constructor(public authService: AuthService) {
     addIcons({ home, business, card, document, logOut,  person, personCircleOutline, personOutline, mailOutline, callOutline, briefcaseOutline, createOutline, personCircle, peopleOutline, locationOutline, ribbon,
-      informationCircleOutline, folderOpen, documentTextOutline, cloudUploadOutline, resizeOutline, refresh, close, personAdd, eye, eyeOff, documentOutline
+      informationCircleOutline, folderOpen, documentTextOutline, cloudUploadOutline, resizeOutline, refresh, close, personAdd, eye, eyeOff, documentOutline, documentAttachOutline, download
 
      });
   }
