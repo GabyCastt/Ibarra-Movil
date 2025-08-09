@@ -45,7 +45,7 @@
       </div>
     </div>
 
-    
+
     <div class="form-field-wrapper">
       <ion-item class="form-field" fill="outline" [class.error-field]="hasError('identificationNumber')">
         <ion-label position="stacked">Ruc Empresa <span class="required">*</span></ion-label>
@@ -64,15 +64,14 @@
         <p>
           Arrastra tus archivos aquí o haz clic para seleccionar archivos
         </p>
-        <input id="logoFileInput" type="file" accept=".pdf,.jpg,.jpeg,.png"
-          title="Logotipo (PDF, JPG o PNG, máx. 2 MB)"
+        <input id="logoFileInput" type="file" accept=".pdf,.jpg,.jpeg,.png" title="Logotipo (PDF, JPG o PNG, máx. 2 MB)"
           aria-labelledby="logoFileLabel logoFileHelp" aria-describedby="logoFileHelp"
           (change)="onFileChange($event, 'logoFile')" />
       </div>
-        <div class="file-name" *ngIf="logoFile">
-            <ion-icon name="document-outline"></ion-icon>
-            <span>{{ logoFile.name }}</span>
-          </div>
+      <div class="file-name" *ngIf="logoFile">
+        <ion-icon name="document-outline"></ion-icon>
+        <span>{{ logoFile.name }}</span>
+      </div>
     </div>
 
     <div class="form-field-wrapper">
@@ -243,9 +242,72 @@
       </ion-item>
     </div>
 
+    <div class="form-field-wrapper">
+      <h3>Productos / Servicios</h3>
+
+      <div formArrayName="productsServices">
+        <div *ngFor="let ps of productsServices.controls; let i = index" [formGroupName]="i"
+          class="product-service-item">
+
+          <ion-item fill="outline">
+            <ion-label position="stacked">Nombre</ion-label>
+            <ion-input formControlName="name" type="text"></ion-input>
+          </ion-item>
+
+          <ion-item fill="outline">
+            <ion-label position="stacked">Descripción</ion-label>
+            <ion-textarea formControlName="description"></ion-textarea>
+          </ion-item>
+
+          <ion-item fill="outline">
+            <ion-label position="stacked">Precio</ion-label>
+            <ion-input formControlName="price" type="number" step="0.01"></ion-input>
+          </ion-item>
 
 
-    <ion-button expand="block" type="submit" [disabled]="registerBusiness.invalid">Registrar Negocio</ion-button>
+          <ion-button color="danger" fill="outline" size="small" (click)="removeProductService(i)"
+            *ngIf="productsServices.length > 1">
+            Eliminar
+          </ion-button>
+        </div>
+      </div>
+
+      <ion-button expand="block" fill="outline" (click)="addProductService()">
+        + Agregar Producto / Servicio
+      </ion-button>
+    </div>
+
+    <div class="form-field-wrapper">
+      <label id="productPhotos" class="upload-label" for="productPhotosInput">
+        Fotos de Productos
+      </label>
+      <div class="upload-box" (dragover)="onDragOver($event)" (drop)="onDrop($event, 'productPhotos')">
+        <ion-icon name="folder-open" class="upload-icon"></ion-icon>
+        <p>
+          Arrastra tus fotos aquí o haz clic para seleccionarlas
+        </p>
+        <input id="productPhotosInput" type="file" multiple accept=".jpg,.jpeg,.png"
+          title="Fotos de productos (JPG o PNG, máx. 2 MB cada una)" (change)="onFileChange($event, 'productPhotos')" />
+      </div>
+      <div class="file-name" *ngIf="productPhotos?.length">
+        <div *ngFor="let photo of productPhotos">
+          <ion-icon name="image-outline"></ion-icon>
+          <span>{{ photo.name }}</span>
+        </div>
+      </div>
+    </div>
+
+
+
+
+    <ion-button expand="block" type="submit" [disabled]="registerBusiness.invalid || isLoading">
+      <ng-container *ngIf="!isLoading">
+        Registrar Negocio
+      </ng-container>
+      <ng-container *ngIf="isLoading">
+        <ion-spinner name="crescent"></ion-spinner>
+      </ng-container>
+    </ion-button>
 
   </form>
 </ion-content>

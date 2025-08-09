@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { ToastService } from '../services/toast.service';
+import { NegocioService } from '../services/negocio.service';
 
 @Component({
   selector: 'app-registro-emprendimiento',
@@ -17,10 +18,12 @@ export class RegistroEmprendimientoPage implements OnInit {
   logoFile!: File;
   signatureFile!: File;
   cedulaFile!: File;
+  productPhotos: File[] = [];
 
   constructor(
     private fb: FormBuilder,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private negocioService: NegocioService
 
   ) { this.initializeForm(); }
 
@@ -32,6 +35,7 @@ export class RegistroEmprendimientoPage implements OnInit {
 
   private initializeForm() {
     this.registerBusiness = this.fb.group({
+      categoryId: [1],
       commercialName: ['', [Validators.required, Validators.maxLength(50)]],
       representativeName: ['', [Validators.required, Validators.maxLength(50)]],
       identificationNumber: ['', [Validators.required, Validators.pattern('^[0-9]+$'), Validators.maxLength(13)]],
@@ -41,14 +45,16 @@ export class RegistroEmprendimientoPage implements OnInit {
       description: ['', [Validators.maxLength(200)]],
       parishCommunitySector: ['', [Validators.maxLength(50)]],
       acceptsWhatsappOrders: [false],
-      deliveryService: ['', [Validators.pattern('NO|SI|BAJO_PEDIDO')]],
-      salePlace: ['', [Validators.pattern('NO|FERIAS|LOCAL_FIJO')]],
+      deliveryService: ['NO', [Validators.pattern('NO|SI|BAJO_PEDIDO')]],
+      salePlace: ['NO', [Validators.pattern('NO|FERIAS|LOCAL_FIJO')]],
       receivedUdelSupport: [false],
       udelSupportDetails: ['', [Validators.maxLength(200)]],
       registrationDate: [''],
       facebook: ['', [Validators.maxLength(50)]],
       instagram: ['', [Validators.maxLength(50)]],
       tiktok: ['', [Validators.maxLength(50)]],
+
+      productsServices: this.fb.array([this.createProductService()])
     });
   }
 
@@ -75,27 +81,96 @@ export class RegistroEmprendimientoPage implements OnInit {
     return '';
   }
 
-  async onSubmit() {
-    console.log('Formulario enviado:', this.registerBusiness.value);
-    if (this.logoFile) {
-      console.log('Archivo logoFile:', this.logoFile);
-    }
-
-    if (this.signatureFile) {
-      console.log('Archivo signatureFile:', this.signatureFile);
-    }
-
-    if (this.cedulaFile) {
-      console.log('Archivo cedulaFile:', this.cedulaFile);
-    }
+  createProductService(): FormGroup {
+    return this.fb.group({
+      name: ['', Validators.required],
+      description: ['', Validators.required],
+      price: [null, [Validators.required, Validators.min(0)]]
+    });
   }
 
-    async onFileChange(
+  get productsServices(): FormArray {
+    return this.registerBusiness.get('productsServices') as FormArray;
+  }
+
+  addProductService() {
+    this.productsServices.push(this.createProductService());
+  }
+
+  removeProductService(index: number) {
+    this.productsServices.removeAt(index);
+  }
+
+  isLoading = false;
+
+async onSubmit() {
+  if (this.validateFiles() === false) {
+    return;
+  }
+
+  const data = this.registerBusiness.value;
+  const formData = new FormData();
+  formData.append('cedulaFile', this.cedulaFile);
+  formData.append('logoFile', this.logoFile);
+  formData.append('signatureFile', this.signatureFile);
+  
+  if (this.productPhotos.length > 0) {
+    this.productPhotos.forEach((file) => {
+      formData.append('productPhotos', file);
+    });
+  }
+
+  formData.append(
+    'business',
+    new Blob([JSON.stringify(data)], { type: 'application/json' })
+  );
+
+  this.isLoading = true; // 🔹 Mostrar spinner antes del request
+
+  this.negocioService.post(formData).subscribe({
+    next: async () => {
+      await this.toastService.show('Registro exitoso', 'success');
+      this.registerBusiness.reset();
+      this.logoFile = null as any;
+      this.signatureFile = null as any;
+      this.cedulaFile = null as any;
+    },
+    error: async (error) => {
+      console.error('Error al registrar el negocio:', error);
+      await this.toastService.show('Error al registrar el negocio', 'danger');
+    },
+    complete: () => {
+      this.isLoading = false; 
+    }
+  });
+}
+
+
+  validateFiles(): boolean {
+    if (!this.logoFile) {
+      this.toastService.show('El logo es obligatorio', 'warning');
+      return false;
+    }
+    if (!this.signatureFile) {
+      this.toastService.show('La firma es obligatoria', 'warning');
+      return false;
+    }
+    if (!this.cedulaFile) {
+      this.toastService.show('La cédula es obligatoria', 'warning');
+      return false;
+    }
+    if( this.productPhotos.length === 0) {
+      this.toastService.show('Debe subir al menos una foto de producto', 'warning');
+      return false;
+    } 
+    return true;
+  }
+
+  async onFileChange(
     event: Event | DragEvent,
-    tipo: 'logoFile' | 'signatureFile' | 'cedulaFile'
+    tipo: 'logoFile' | 'signatureFile' | 'cedulaFile' | 'productPhotos'
   ) {
-    const input =
-      event.target instanceof HTMLInputElement ? event.target : null;
+    const input = event.target instanceof HTMLInputElement ? event.target : null;
     const files = input?.files?.length
       ? input.files
       : (event as DragEvent).dataTransfer?.files;
@@ -104,59 +179,63 @@ export class RegistroEmprendimientoPage implements OnInit {
       return;
     }
 
-    const file = files[0];
     const allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png'];
-    const extension = file.name.split('.').pop()?.toLowerCase();
+    const maxSize = 2 * 1024 * 1024;
 
-    if (!extension || !allowedExtensions.includes(extension)) {
-      await this.toastService.show(
-        'Formato de archivo no permitido. Solo PDF, JPG o PNG',
-        'warning'
-      );
-      if (input) {
-        input.value = '';
+    const validFiles: File[] = [];
+    for (const file of Array.from(files)) {
+      const extension = file.name.split('.').pop()?.toLowerCase();
+      if (!extension || !allowedExtensions.includes(extension)) {
+        await this.toastService.show(
+          'Formato no permitido. Solo PDF, JPG o PNG',
+          'warning'
+        );
+        continue;
       }
-      this.clearFile(tipo);
-      return;
+      if (file.size > maxSize) {
+        await this.toastService.show(
+          `El archivo ${file.name} supera los 2 MB`,
+          'warning'
+        );
+        continue;
+      }
+      validFiles.push(file);
     }
 
-    const maxSize = 2 * 1024 * 1024;
-    if (file.size > maxSize) {
-      await this.toastService.show(
-        'El archivo supera el tamaño máximo de 2 MB',
-        'warning'
-      );
-      if (input) {
-        input.value = '';
-      }
+    if (validFiles.length === 0) {
+      if (input) input.value = '';
       this.clearFile(tipo);
       return;
     }
 
     if (tipo === 'logoFile') {
-      this.logoFile = file;
+      this.logoFile = validFiles[0];
     } else if (tipo === 'signatureFile') {
-      this.signatureFile = file;
-    } else {
-      this.cedulaFile = file;
+      this.signatureFile = validFiles[0];
+    } else if (tipo === 'cedulaFile') {
+      this.cedulaFile = validFiles[0];
+    } else if (tipo === 'productPhotos') {
+      this.productPhotos = validFiles;
+    } else if (tipo === 'productPhotos') {
+      this.productPhotos = validFiles;
     }
 
-    await this.toastService.show('Archivo cargado correctamente', 'success');
-  }
-
-  onDragOver(event: DragEvent) {
-    event.preventDefault();
+    await this.toastService.show('Archivo(s) cargado(s) correctamente', 'success');
   }
 
   onDrop(
     event: DragEvent,
-    tipo: 'logoFile' | 'signatureFile' | 'cedulaFile'
+    tipo: 'logoFile' | 'signatureFile' | 'cedulaFile' | 'productPhotos'
   ) {
     event.preventDefault();
     this.onFileChange(event, tipo);
   }
 
-  private clearFile(tipo: 'logoFile' | 'signatureFile' | 'cedulaFile') {
+  onDragOver(event: DragEvent) {
+  event.preventDefault();
+}
+
+  private clearFile(tipo: 'logoFile' | 'signatureFile' | 'cedulaFile' | 'productPhotos') {
     if (tipo === 'logoFile') {
       this.logoFile = null as any;
     } else if (tipo === 'signatureFile') {
@@ -165,6 +244,6 @@ export class RegistroEmprendimientoPage implements OnInit {
       this.cedulaFile = null as any;
     }
   }
-  
+
 
 }
