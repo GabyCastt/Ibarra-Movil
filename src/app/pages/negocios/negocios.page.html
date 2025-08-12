@@ -40,17 +40,21 @@
   </ion-item>
 
   <!-- Listado de negocios -->
-  <ion-list>
-    <ion-item *ngFor="let negocio of negocios">
-      <ion-thumbnail slot="start">
-        <img [src]="negocio.logoUrl" alt="{{ negocio.commercialName }}">
-      </ion-thumbnail>
-      <ion-label>
-        <h2>{{ negocio.commercialName }}</h2>
-        <p>{{ negocio.description }}</p>
-      </ion-label>
-    </ion-item>
-  </ion-list>
+  <ion-grid class="business-grid">
+    <ion-row>
+      <ion-col size="12" size-sm="6" size-md="4" size-lg="3" *ngFor="let negocio of negocios">
+        <ion-card class="business-card" button (click)="openBusiness(negocio)">
+          <img [src]="negocio.logoUrl" alt="{{ negocio.commercialName }}" />
+          <ion-card-header>
+            <ion-card-title>{{ negocio.commercialName }}</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <p>{{ negocio.description }}</p>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 
   <ng-template #noResults>
     <div class="ion-padding" *ngIf="totalElements === 0">No hay negocios para esta categoría.</div>
@@ -58,13 +62,14 @@
 
   <!-- Paginación -->
   <div class="pagination">
-    <ion-button fill="outline" color="danger" [disabled]="paginaActual === 1" (click)="paginaAnterior()">
+    <ion-button size="small" fill="solid" color="danger" [disabled]="paginaActual === 1" (click)="paginaAnterior()">
       Anterior
     </ion-button>
 
     <span>Página {{ paginaActual }} de {{ totalPaginas }}</span>
 
-    <ion-button fill="outline" color="danger" [disabled]="paginaActual === totalPaginas" (click)="paginaSiguiente()">
+    <ion-button size="small" fill="solid" color="danger" [disabled]="paginaActual === totalPaginas"
+      (click)="paginaSiguiente()">
       Siguiente
     </ion-button>
   </div>

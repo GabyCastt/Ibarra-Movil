@@ -2,29 +2,17 @@
   <ion-toolbar color="primary">
     <ion-title class="app-title">
       <div class="title-content">
-        <img
-          src="assets/icon/logo-GAD-IBARRA.png"
-          alt="Logo GAD Ibarra"
-          class="header-logo"
-        />
+        <img src="assets/icon/logo-GAD-IBARRA.png" alt="Logo GAD Ibarra" class="header-logo" />
         <span>Municipalidad de Ibarra</span>
       </div>
     </ion-title>
 
     <ion-buttons slot="end">
-      <ion-button
-        *ngIf="!isAuthenticated"
-        (click)="openLogin()"
-        class="user-button"
-      >
+      <ion-button *ngIf="!isAuthenticated" (click)="openLogin()" class="user-button">
         <ion-icon name="person-circle-outline"></ion-icon>
       </ion-button>
 
-      <ion-button
-        *ngIf="isAuthenticated"
-        (click)="logout()"
-        class="user-button"
-      >
+      <ion-button *ngIf="isAuthenticated" (click)="logout()" class="user-button">
         <ion-icon name="log-out-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -35,11 +23,7 @@
   <!-- Banner superior -->
   <div class="hero-banner">
     <div class="banner-overlay"></div>
-    <img
-      src="assets/icon/ibarra-bannerr.jpg"
-      alt="Ibarra ciudad"
-      class="banner-image"
-    />
+    <img src="assets/icon/ibarra-bannerr.jpg" alt="Ibarra ciudad" class="banner-image" />
     <div class="banner-text">
       <h1>Orgullo Ecuatoriano</h1>
       <p>Descubre los emprendimientos de nuestra ciudad</p>
@@ -47,12 +31,8 @@
   </div>
 
   <!-- Barra de búsqueda -->
-  <ion-searchbar
-    placeholder="Buscar emprendimientos..."
-    animated
-    class="home-searchbar"
-    (ionInput)="searchItems($event)"
-  >
+  <ion-searchbar placeholder="Buscar emprendimientos..." animated class="home-searchbar"
+    (ionInput)="searchItems($event)">
   </ion-searchbar>
 
   <!-- Sección de categorías con scroll horizontal -->
@@ -116,10 +96,7 @@
   </div>
 
   <div class="events-container">
-    <ion-card
-      *ngFor="let event of upcomingEvents"
-      class="event-card"
-    >
+    <ion-card *ngFor="let event of upcomingEvents" class="event-card" (click)="openEvent(event)">
       <img src="assets/icon/Eventoss.png" [alt]="event.title" />
       <ion-card-header>
         <ion-card-title>{{event.title}}</ion-card-title>
@@ -138,12 +115,8 @@
       Mapa de emprendimientos
     </ion-button>
 
-    <ion-button
-      expand="block"
-      fill="outline"
-      (click)="navigateTo('registro-emprendimiento')"
-      [disabled]="!isAuthenticated"
-    >
+    <ion-button expand="block" fill="outline" (click)="navigateTo('registro-emprendimiento')"
+      [disabled]="!isAuthenticated">
       <ion-icon slot="start" name="business-outline"></ion-icon>
       Registrar mi emprendimiento
     </ion-button>

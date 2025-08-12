@@ -4,11 +4,12 @@ import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { NegociosService } from '../../services/negocios.service';
 import { HttpClientModule } from '@angular/common/http';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-negocios',
   templateUrl: './negocios.page.html',
-  styles: [''],
+  styleUrls: ['negocioss.page.scss'],
   standalone: true,
   imports: [CommonModule, IonicModule, FormsModule, HttpClientModule],
 })
@@ -22,11 +23,20 @@ export class NegociosPage implements OnInit {
   limite = 5;
   totalElements: number | null = null;
 
-  constructor(private negociosService: NegociosService) { }
+  constructor(private negociosService: NegociosService,
+    private route: ActivatedRoute) { }
 
   ngOnInit() {
     this.cargarCategorias();
-    this.cargarNegocios(1);
+
+    // Leer parámetro enviado desde Home
+    this.route.queryParams.subscribe(params => {
+      if (params['categoria']) {
+        this.categoriaSeleccionada = params['categoria'];
+      }
+
+      this.cargarNegocios(1);
+    });
   }
 
   cargarCategorias() {
@@ -67,6 +77,16 @@ export class NegociosPage implements OnInit {
       }, err => {
         console.error('Error cargando negocios', err);
       });
+  }
+  openBusiness(negocio: any) {
+    // Aquí defines qué pasa al hacer click en un negocio
+    // Por ejemplo, navegar a detalle o mostrar un modal
+    console.log('Negocio seleccionado:', negocio);
+
+    // Ejemplo: si tienes router, puedes navegar a una página de detalle pasando id
+    // this.router.navigate(['/detalle-negocio', negocio.id]);
+
+    // O abrir un modal, etc.
   }
 
   paginaAnterior() {

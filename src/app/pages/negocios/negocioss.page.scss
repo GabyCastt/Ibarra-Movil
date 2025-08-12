@@ -1,0 +1,48 @@
+/* negocios.page.scss */
+
+/* Contenedor de paginación fijo abajo */
+.pagination {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #fff;
+    padding: 8px 16px;
+    display: flex;
+    justify-content: center;
+    /* centra todo horizontalmente */
+    align-items: center;
+    gap: 16px;
+    /* espacio entre botones y texto */
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+    /* sombra sutil arriba */
+    z-index: 1000;
+}
+
+/* Texto de información de paginación */
+.pagination-info {
+    font-weight: 600;
+    color: #b71c1c;
+    /* rojo oscuro */
+    font-size: 14px;
+}
+
+/* Ajuste para ion-content para que no quede contenido oculto detrás de la barra */
+ion-content {
+    padding-bottom: 60px;
+    /* altura aproximada de la barra de paginación */
+}
+
+/* Opcional: mejora el espaciado entre items en la lista */
+ion-list ion-item {
+    --inner-padding-end: 12px;
+    --inner-padding-start: 12px;
+}
+
+/* Ajusta el tamaño y estilo de los botones */
+ion-button[size="small"] {
+    --padding-start: 12px;
+    --padding-end: 12px;
+    font-size: 14px;
+    font-weight: 600;
+}

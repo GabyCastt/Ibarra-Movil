@@ -18,6 +18,7 @@ import {
   hardwareChipOutline,
   medkitOutline,
   logOutOutline,
+  callOutline,
 } from 'ionicons/icons';
 import { LoginPage } from '../login/login.page';
 import { Router } from '@angular/router';
@@ -33,10 +34,22 @@ import { NegociosService } from '../services/negocios.service';
 export class HomePage implements OnInit {
   isAuthenticated = false;
   userData: any = null;
-  categories: any[] = [];
+  // Datos de ejemplo para categorías
+  categories = [
+    { id: 1, name: 'Alimentos y Bebidas', icon: 'restaurant-outline', color: '#FF6B6B' },
+    { id: 2, name: 'Gastronomía', icon: 'call-outline', color: '#52bdb6ff' },
+    { id: 3, name: 'Artesanías', icon: 'shirt-outline', color: '#45B7D1' },
+    { id: 4, name: 'Manualidades y Bisutería', icon: 'construct-outline', color: '#FFA07A' },
+    { id: 5, name: 'Salud y Cosmética Natural ', icon: 'hardware-chip-outline', color: '#A28DFF' },
+    { id: 6, name: 'Textiles y Moda', icon: 'medkit-outline', color: '#FF8A65' },
+    { id: 7, name: 'Tecnología', icon: 'medkit-outline', color: '#2b314eff' },
+    { id: 8, name: 'Decoración, Hogar y Jardinería', icon: 'medkit-outline', color: '#aac44cff' },
+    { id: 9, name: 'Servicios', icon: 'medkit-outline', color: '#50454dff' },
+    { id: 10, name: 'Otro', icon: 'medkit-outline', color: '#c27eabff' },
+  ];
 
-  // Datos estáticos para destacados
-  featuredBusinesses: any[] = [
+  // Emprendimientos destacados
+  featuredBusinesses = [
     {
       id: 1,
       name: 'Arte Andino',
@@ -195,57 +208,81 @@ export class HomePage implements OnInit {
     }
   }
 
-  private async showWelcomeAlert() {
-    const alert = await this.alertController.create({
-      header: 'Bienvenido',
-      message: `Hola, ${this.userData.nombre || this.userData.username || 'usuario'}!`,
-      buttons: ['OK'],
+  // Mostrar alerta con nombre del usuario
+  const alert = await this.alertController.create({
+    header: 'Bienvenido',
+    message: `Hola, ${this.userData.nombre || this.userData.username || 'usuario'
+      } 👋`,
+    buttons: ['OK'],
+  });
+      await alert.present();
+
+console.log('Usuario autenticado:', this.userData);
+    }
+  }
+
+logout() {
+  localStorage.removeItem('jwt_token');
+  localStorage.removeItem('user_data');
+  this.isAuthenticated = false;
+  this.userData = null;
+}
+
+openCategory(category: any) {
+  console.log('Categoría seleccionada:', category);
+
+  this.router.navigate(['/negocios'], {
+    queryParams: { categoria: category.name } // o category.id si el servicio filtra por id
+  });
+}
+
+openBusiness(business: any) {
+  console.log('Emprendimiento seleccionado:', business);
+}
+
+openEvent(event: any) {
+  console.log('Evento seleccionado:', event);
+}
+
+seeAll(type: string) {
+  console.log('Ver todos los:', type);
+}
+
+searchItems(event: any) {
+  const term = event.target.value;
+  if (term.trim() !== '') {
+    this.router.navigate(['/busqueda'], {
+      queryParams: { q: term }
     });
-    await alert.present();
   }
+}
 
-  logout() {
-    localStorage.removeItem('jwt_token');
-    localStorage.removeItem('user_data');
-    this.isAuthenticated = false;
-    this.userData = null;
+navigateTo(page: string) {
+  if (page === 'registro-emprendimiento' && !this.isAuthenticated) {
+    this.showLoginForRegister();
+  } else {
+    this.router.navigate([`/${page}`]);
   }
-
-  searchItems(event: any) {
-    const term = event.target.value;
-    if (term.trim() !== '') {
-      this.router.navigate(['/busqueda'], {
-        queryParams: { q: term }
-      });
-    }
-  }
-
-  navigateTo(page: string) {
-    if (page === 'registro-emprendimiento' && !this.isAuthenticated) {
-      this.showLoginForRegister();
-    } else {
-      this.router.navigate([`/${page}`]);
-    }
-  }
+}
 
   private async showLoginForRegister() {
-    const alert = await this.alertController.create({
-      header: 'Acceso requerido',
-      message: 'Debes iniciar sesión para registrar un emprendimiento',
-      buttons: [
-        {
-          text: 'Cancelar',
-          role: 'cancel',
+  const alert = await this.alertController.create({
+    header: 'Acceso requerido',
+    message: 'Debes iniciar sesión para registrar un emprendimiento',
+    buttons: [
+      {
+        text: 'Cancelar',
+        role: 'cancel',
+      },
+      {
+        text: 'Iniciar sesión',
+        handler: () => {
+          localStorage.setItem('pending_route', '/registro-emprendimiento');
+          this.openLogin();
         },
-        {
-          text: 'Iniciar sesión',
-          handler: () => {
-            localStorage.setItem('pending_route', '/registro-emprendimiento');
-            this.openLogin();
-          },
-        },
-      ],
-    });
-    await alert.present();
-  }
+      },
+    ],
+  });
+  await alert.present();
+}
 }
