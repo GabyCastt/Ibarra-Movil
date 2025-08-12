@@ -26,30 +26,83 @@
     </div>
   </div>
   <form [formGroup]="registerBusiness" (ngSubmit)="onSubmit()">
+    <!-- Nuevo campo de categoría agregado aquí -->
     <div class="form-field-wrapper">
-      <ion-item class="form-field" fill="outline" [class.error-field]="hasError('commercialName')">
-        <ion-label position="stacked">Actividad Comercial <span class="required">*</span></ion-label>
-        <ion-input formControlName="commercialName" type="text" maxlength="50"></ion-input>
+      <ion-item
+        class="form-field"
+        fill="outline"
+        [class.error-field]="hasError('categoryId')"
+      >
+        <ion-label position="stacked"
+          >Categoría <span class="required">*</span></ion-label
+        >
+        <ion-select formControlName="categoryId" interface="action-sheet">
+          <ion-select-option
+            *ngFor="let category of categories"
+            [value]="category.id"
+          >
+            {{ category.name }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+      <div class="error-message" *ngIf="hasError('categoryId')">
+        {{ getErrorMessage('categoryId') }}
+      </div>
+    </div>
+
+    <div class="form-field-wrapper">
+      <ion-item
+        class="form-field"
+        fill="outline"
+        [class.error-field]="hasError('commercialName')"
+      >
+        <ion-label position="stacked"
+          >Actividad Comercial <span class="required">*</span></ion-label
+        >
+        <ion-input
+          formControlName="commercialName"
+          type="text"
+          maxlength="50"
+        ></ion-input>
       </ion-item>
       <div class="error-message" *ngIf="hasError('commercialName')">
         {{ getErrorMessage('commercialName') }}
       </div>
     </div>
     <div class="form-field-wrapper">
-      <ion-item class="form-field" fill="outline" [class.error-field]="hasError('representativeName')">
-        <ion-label position="stacked">Representante Legal <span class="required">*</span></ion-label>
-        <ion-input formControlName="representativeName" type="text" maxlength="50"></ion-input>
+      <ion-item
+        class="form-field"
+        fill="outline"
+        [class.error-field]="hasError('representativeName')"
+      >
+        <ion-label position="stacked"
+          >Representante Legal <span class="required">*</span></ion-label
+        >
+        <ion-input
+          formControlName="representativeName"
+          type="text"
+          maxlength="50"
+        ></ion-input>
       </ion-item>
       <div class="error-message" *ngIf="hasError('representativeName')">
         {{ getErrorMessage('representativeName') }}
       </div>
     </div>
 
-
     <div class="form-field-wrapper">
-      <ion-item class="form-field" fill="outline" [class.error-field]="hasError('identificationNumber')">
-        <ion-label position="stacked">Ruc Empresa <span class="required">*</span></ion-label>
-        <ion-input formControlName="identificationNumber" type="text" maxlength="10"></ion-input>
+      <ion-item
+        class="form-field"
+        fill="outline"
+        [class.error-field]="hasError('identificationNumber')"
+      >
+        <ion-label position="stacked"
+          >Ruc Empresa <span class="required">*</span></ion-label
+        >
+        <ion-input
+          formControlName="identificationNumber"
+          type="text"
+          maxlength="10"
+        ></ion-input>
       </ion-item>
       <div class="error-message" *ngIf="hasError('identificationNumber')">
         {{ getErrorMessage('identificationNumber') }}
@@ -57,16 +110,25 @@
     </div>
 
     <div class="form-field-wrapper">
-      <label id="logoFile" class="upload-label" for="logoFileInput">Logo del Negocio <span
-          class="required">*</span></label>
-      <div class="upload-box" (dragover)="onDragOver($event)" (drop)="onDrop($event, 'logoFile')">
+      <label id="logoFile" class="upload-label" for="logoFileInput"
+        >Logo del Negocio <span class="required">*</span></label
+      >
+      <div
+        class="upload-box"
+        (dragover)="onDragOver($event)"
+        (drop)="onDrop($event, 'logoFile')"
+      >
         <ion-icon name="folder-open" class="upload-icon"></ion-icon>
-        <p>
-          Arrastra tus archivos aquí o haz clic para seleccionar archivos
-        </p>
-        <input id="logoFileInput" type="file" accept=".pdf,.jpg,.jpeg,.png" title="Logotipo (PDF, JPG o PNG, máx. 2 MB)"
-          aria-labelledby="logoFileLabel logoFileHelp" aria-describedby="logoFileHelp"
-          (change)="onFileChange($event, 'logoFile')" />
+        <p>Arrastra tus archivos aquí o haz clic para seleccionar archivos</p>
+        <input
+          id="logoFileInput"
+          type="file"
+          accept=".pdf,.jpg,.jpeg,.png"
+          title="Logotipo (PDF, JPG o PNG, máx. 2 MB)"
+          aria-labelledby="logoFileLabel logoFileHelp"
+          aria-describedby="logoFileHelp"
+          (change)="onFileChange($event, 'logoFile')"
+        />
       </div>
       <div class="file-name" *ngIf="logoFile">
         <ion-icon name="document-outline"></ion-icon>
@@ -75,17 +137,25 @@
     </div>
 
     <div class="form-field-wrapper">
-      <label id="signatureFile" class="upload-label" for="signatureFileInput">Firma del Representante Legal <span
-          class="required">*</span></label>
-      <div class="upload-box" (dragover)="onDragOver($event)" (drop)="onDrop($event, 'signatureFile')">
+      <label id="signatureFile" class="upload-label" for="signatureFileInput"
+        >Firma del Representante Legal <span class="required">*</span></label
+      >
+      <div
+        class="upload-box"
+        (dragover)="onDragOver($event)"
+        (drop)="onDrop($event, 'signatureFile')"
+      >
         <ion-icon name="folder-open" class="upload-icon"></ion-icon>
-        <p>
-          Arrastra tus archivos aquí o haz clic para seleccionar archivos
-        </p>
-        <input id="signatureFileInput" type="file" accept=".pdf,.jpg,.jpeg,.png"
+        <p>Arrastra tus archivos aquí o haz clic para seleccionar archivos</p>
+        <input
+          id="signatureFileInput"
+          type="file"
+          accept=".pdf,.jpg,.jpeg,.png"
           title="Firma del Representante Legal (PDF, JPG o PNG, máx. 2 MB)"
-          aria-labelledby="signatureFileLabel signatureFileHelp" aria-describedby="signatureFileHelp"
-          (change)="onFileChange($event, 'signatureFile')" />
+          aria-labelledby="signatureFileLabel signatureFileHelp"
+          aria-describedby="signatureFileHelp"
+          (change)="onFileChange($event, 'signatureFile')"
+        />
       </div>
       <div class="file-name" *ngIf="signatureFile">
         <ion-icon name="document-outline"></ion-icon>
@@ -94,17 +164,25 @@
     </div>
 
     <div class="form-field-wrapper">
-      <label id="cedulaFile" class="upload-label" for="cedulaFileInput">Cédula del Representante Legal <span
-          class="required">*</span></label>
-      <div class="upload-box" (dragover)="onDragOver($event)" (drop)="onDrop($event, 'cedulaFile')">
+      <label id="cedulaFile" class="upload-label" for="cedulaFileInput"
+        >Cédula del Representante Legal <span class="required">*</span></label
+      >
+      <div
+        class="upload-box"
+        (dragover)="onDragOver($event)"
+        (drop)="onDrop($event, 'cedulaFile')"
+      >
         <ion-icon name="folder-open" class="upload-icon"></ion-icon>
-        <p>
-          Arrastra tus archivos aquí o haz clic para seleccionar archivos
-        </p>
-        <input id="cedulaFileInput" type="file" accept=".pdf,.jpg,.jpeg,.png"
+        <p>Arrastra tus archivos aquí o haz clic para seleccionar archivos</p>
+        <input
+          id="cedulaFileInput"
+          type="file"
+          accept=".pdf,.jpg,.jpeg,.png"
           title="Cédula del Representante Legal (PDF, JPG o PNG, máx. 2 MB)"
-          aria-labelledby="cedulaFileLabel cedulaFileHelp" aria-describedby="cedulaFileHelp"
-          (change)="onFileChange($event, 'cedulaFile')" />
+          aria-labelledby="cedulaFileLabel cedulaFileHelp"
+          aria-describedby="cedulaFileHelp"
+          (change)="onFileChange($event, 'cedulaFile')"
+        />
       </div>
       <div class="file-name" *ngIf="cedulaFile">
         <ion-icon name="document-outline"></ion-icon>
@@ -113,9 +191,17 @@
     </div>
 
     <div class="form-field-wrapper">
-      <ion-item class="form-field" fill="outline" [class.error-field]="hasError('email')">
+      <ion-item
+        class="form-field"
+        fill="outline"
+        [class.error-field]="hasError('email')"
+      >
         <ion-label position="stacked">Correo Electrónico</ion-label>
-        <ion-input formControlName="email" type="email" maxlength="50"></ion-input>
+        <ion-input
+          formControlName="email"
+          type="email"
+          maxlength="50"
+        ></ion-input>
       </ion-item>
       <div class="error-message" *ngIf="hasError('email')">
         {{ getErrorMessage('email') }}
@@ -123,9 +209,17 @@
     </div>
 
     <div class="form-field-wrapper">
-      <ion-item class="form-field" fill="outline" [class.error-field]="hasError('phone')">
+      <ion-item
+        class="form-field"
+        fill="outline"
+        [class.error-field]="hasError('phone')"
+      >
         <ion-label position="stacked">Teléfono</ion-label>
-        <ion-input formControlName="phone" type="tel" maxlength="15"></ion-input>
+        <ion-input
+          formControlName="phone"
+          type="tel"
+          maxlength="15"
+        ></ion-input>
       </ion-item>
       <div class="error-message" *ngIf="hasError('phone')">
         {{ getErrorMessage('phone') }}
@@ -133,9 +227,16 @@
     </div>
 
     <div class="form-field-wrapper">
-      <ion-item class="form-field" fill="outline" [class.error-field]="hasError('parishCommunitySector')">
+      <ion-item
+        class="form-field"
+        fill="outline"
+        [class.error-field]="hasError('parishCommunitySector')"
+      >
         <ion-label position="stacked">Sector comunitario parroquial</ion-label>
-        <ion-input formControlName="parishCommunitySector" type="text"></ion-input>
+        <ion-input
+          formControlName="parishCommunitySector"
+          type="text"
+        ></ion-input>
       </ion-item>
       <div class="error-message" *ngIf="hasError('parishCommunitySector')">
         {{ getErrorMessage('parishCommunitySector') }}
@@ -143,9 +244,17 @@
     </div>
 
     <div class="form-field-wrapper">
-      <ion-item class="form-field" fill="outline" [class.error-field]="hasError('description')">
+      <ion-item
+        class="form-field"
+        fill="outline"
+        [class.error-field]="hasError('description')"
+      >
         <ion-label position="stacked">Descripción</ion-label>
-        <ion-textarea formControlName="description" placeholder="Escribe aquí..." autoGrow="true"></ion-textarea>
+        <ion-textarea
+          formControlName="description"
+          placeholder="Escribe aquí..."
+          autoGrow="true"
+        ></ion-textarea>
       </ion-item>
       <div class="error-message" *ngIf="hasError('description')">
         {{ getErrorMessage('description') }}
@@ -153,9 +262,17 @@
     </div>
 
     <div class="form-field-wrapper">
-      <ion-item class="form-field" fill="outline" [class.error-field]="hasError('website')">
+      <ion-item
+        class="form-field"
+        fill="outline"
+        [class.error-field]="hasError('website')"
+      >
         <ion-label position="stacked">Sitio Web</ion-label>
-        <ion-input formControlName="website" type="url" maxlength="100"></ion-input>
+        <ion-input
+          formControlName="website"
+          type="url"
+          maxlength="100"
+        ></ion-input>
       </ion-item>
       <div class="error-message" *ngIf="hasError('website')">
         {{ getErrorMessage('website') }}
@@ -170,9 +287,16 @@
     </div>
 
     <div class="form-field-wrapper">
-      <ion-item class="form-field" fill="outline" [class.error-field]="hasError('deliveryService')">
+      <ion-item
+        class="form-field"
+        fill="outline"
+        [class.error-field]="hasError('deliveryService')"
+      >
         <ion-label position="stacked">Servicio de Delivery</ion-label>
-        <ion-select formControlName="deliveryService" placeholder="Seleccione una opción">
+        <ion-select
+          formControlName="deliveryService"
+          placeholder="Seleccione una opción"
+        >
           <ion-select-option value="NO">No</ion-select-option>
           <ion-select-option value="SI">Si</ion-select-option>
           <ion-select-option value="BAJO_PEDIDO">Bajo Pedido</ion-select-option>
@@ -184,9 +308,16 @@
     </div>
 
     <div class="form-field-wrapper">
-      <ion-item class="form-field" fill="outline" [class.error-field]="hasError('salePlace')">
+      <ion-item
+        class="form-field"
+        fill="outline"
+        [class.error-field]="hasError('salePlace')"
+      >
         <ion-label position="stacked">Lugar de Venta</ion-label>
-        <ion-select formControlName="salePlace" placeholder="Seleccione una opción">
+        <ion-select
+          formControlName="salePlace"
+          placeholder="Seleccione una opción"
+        >
           <ion-select-option value="NO">No</ion-select-option>
           <ion-select-option value="FERIAS">Ferias</ion-select-option>
           <ion-select-option value="LOCAL_FIJO">Local Fijo</ion-select-option>
@@ -205,9 +336,17 @@
     </div>
 
     <div class="form-field-wrapper">
-      <ion-item class="form-field" fill="outline" [class.error-field]="hasError('udelSupportDetails')">
+      <ion-item
+        class="form-field"
+        fill="outline"
+        [class.error-field]="hasError('udelSupportDetails')"
+      >
         <ion-label position="stacked">Detalles del Apoyo UDEL</ion-label>
-        <ion-textarea formControlName="udelSupportDetails" placeholder="Escribe aquí..." autoGrow="true"></ion-textarea>
+        <ion-textarea
+          formControlName="udelSupportDetails"
+          placeholder="Escribe aquí..."
+          autoGrow="true"
+        ></ion-textarea>
       </ion-item>
       <div class="error-message" *ngIf="hasError('udelSupportDetails')">
         {{ getErrorMessage('udelSupportDetails') }}
@@ -217,28 +356,45 @@
     <div class="form-field-wrapper">
       <ion-item class="form-field" fill="outline">
         <ion-label position="stacked">Fecha de Registro</ion-label>
-        <ion-input formControlName="registrationDate" type="date" [value]="currentDate" readonly></ion-input>
+        <ion-input
+          formControlName="registrationDate"
+          type="date"
+          [value]="currentDate"
+          readonly
+        ></ion-input>
       </ion-item>
     </div>
 
     <div class="form-field-wrapper">
       <ion-item class="form-field" fill="outline">
         <ion-label position="stacked">Facebook</ion-label>
-        <ion-input formControlName="facebook" type="text" maxlength="100"></ion-input>
+        <ion-input
+          formControlName="facebook"
+          type="text"
+          maxlength="100"
+        ></ion-input>
       </ion-item>
     </div>
 
     <div class="form-field-wrapper">
       <ion-item class="form-field" fill="outline">
         <ion-label position="stacked">Instagram</ion-label>
-        <ion-input formControlName="instagram" type="text" maxlength="100"></ion-input>
+        <ion-input
+          formControlName="instagram"
+          type="text"
+          maxlength="100"
+        ></ion-input>
       </ion-item>
     </div>
 
     <div class="form-field-wrapper">
       <ion-item class="form-field" fill="outline">
         <ion-label position="stacked">TikTok</ion-label>
-        <ion-input formControlName="tiktok" type="text" maxlength="100"></ion-input>
+        <ion-input
+          formControlName="tiktok"
+          type="text"
+          maxlength="100"
+        ></ion-input>
       </ion-item>
     </div>
 
@@ -246,9 +402,11 @@
       <h3>Productos / Servicios</h3>
 
       <div formArrayName="productsServices">
-        <div *ngFor="let ps of productsServices.controls; let i = index" [formGroupName]="i"
-          class="product-service-item">
-
+        <div
+          *ngFor="let ps of productsServices.controls; let i = index"
+          [formGroupName]="i"
+          class="product-service-item"
+        >
           <ion-item fill="outline">
             <ion-label position="stacked">Nombre</ion-label>
             <ion-input formControlName="name" type="text"></ion-input>
@@ -261,12 +419,20 @@
 
           <ion-item fill="outline">
             <ion-label position="stacked">Precio</ion-label>
-            <ion-input formControlName="price" type="number" step="0.01"></ion-input>
+            <ion-input
+              formControlName="price"
+              type="number"
+              step="0.01"
+            ></ion-input>
           </ion-item>
 
-
-          <ion-button color="danger" fill="outline" size="small" (click)="removeProductService(i)"
-            *ngIf="productsServices.length > 1">
+          <ion-button
+            color="danger"
+            fill="outline"
+            size="small"
+            (click)="removeProductService(i)"
+            *ngIf="productsServices.length > 1"
+          >
             Eliminar
           </ion-button>
         </div>
@@ -281,13 +447,21 @@
       <label id="productPhotos" class="upload-label" for="productPhotosInput">
         Fotos de Productos
       </label>
-      <div class="upload-box" (dragover)="onDragOver($event)" (drop)="onDrop($event, 'productPhotos')">
+      <div
+        class="upload-box"
+        (dragover)="onDragOver($event)"
+        (drop)="onDrop($event, 'productPhotos')"
+      >
         <ion-icon name="folder-open" class="upload-icon"></ion-icon>
-        <p>
-          Arrastra tus fotos aquí o haz clic para seleccionarlas
-        </p>
-        <input id="productPhotosInput" type="file" multiple accept=".jpg,.jpeg,.png"
-          title="Fotos de productos (JPG o PNG, máx. 2 MB cada una)" (change)="onFileChange($event, 'productPhotos')" />
+        <p>Arrastra tus fotos aquí o haz clic para seleccionarlas</p>
+        <input
+          id="productPhotosInput"
+          type="file"
+          multiple
+          accept=".jpg,.jpeg,.png"
+          title="Fotos de productos (JPG o PNG, máx. 2 MB cada una)"
+          (change)="onFileChange($event, 'productPhotos')"
+        />
       </div>
       <div class="file-name" *ngIf="productPhotos?.length">
         <div *ngFor="let photo of productPhotos">
@@ -297,17 +471,15 @@
       </div>
     </div>
 
-
-
-
-    <ion-button expand="block" type="submit" [disabled]="registerBusiness.invalid || isLoading">
-      <ng-container *ngIf="!isLoading">
-        Registrar Negocio
-      </ng-container>
+    <ion-button
+      expand="block"
+      type="submit"
+      [disabled]="registerBusiness.invalid || isLoading"
+    >
+      <ng-container *ngIf="!isLoading"> Registrar Negocio </ng-container>
       <ng-container *ngIf="isLoading">
         <ion-spinner name="crescent"></ion-spinner>
       </ng-container>
     </ion-button>
-
   </form>
 </ion-content>

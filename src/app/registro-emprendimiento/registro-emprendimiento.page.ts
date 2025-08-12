@@ -1,9 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormArray,
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { ToastService } from '../services/toast.service';
 import { NegocioService } from '../services/negocio.service';
+import { lastValueFrom } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-registro-emprendimiento',
@@ -19,26 +28,52 @@ export class RegistroEmprendimientoPage implements OnInit {
   signatureFile!: File;
   cedulaFile!: File;
   productPhotos: File[] = [];
+  categories: any[] = []; // Nueva propiedad para almacenar categorías
 
   constructor(
     private fb: FormBuilder,
     private toastService: ToastService,
-    private negocioService: NegocioService
+    private negocioService: NegocioService,
+    private router: Router
+  ) {
+    this.initializeForm();
+  }
 
-  ) { this.initializeForm(); }
-
-  ngOnInit() {
+  async ngOnInit() {
+    await this.loadCategories(); // Cargar categorías al iniciar
     this.registerBusiness.patchValue({
       registrationDate: this.currentDate,
     });
   }
 
+  async loadCategories() {
+    try {
+      this.categories = await this.negocioService.getCategories().toPromise();
+      // Estable la primera categoría como selección por defecto
+      if (this.categories.length > 0) {
+        this.registerBusiness.patchValue({
+          categoryId: this.categories[0].id,
+        });
+      }
+    } catch (error) {
+      console.error('Error cargando categorías:', error);
+      await this.toastService.show('Error al cargar categorías', 'danger');
+    }
+  }
+
   private initializeForm() {
     this.registerBusiness = this.fb.group({
-      categoryId: [1],
+      categoryId: [null, [Validators.required]], 
       commercialName: ['', [Validators.required, Validators.maxLength(50)]],
       representativeName: ['', [Validators.required, Validators.maxLength(50)]],
-      identificationNumber: ['', [Validators.required, Validators.pattern('^[0-9]+$'), Validators.maxLength(13)]],
+      identificationNumber: [
+        '',
+        [
+          Validators.required,
+          Validators.pattern('^[0-9]+$'),
+          Validators.maxLength(13),
+        ],
+      ],
       email: ['', [Validators.email]],
       phone: ['', [Validators.pattern('^[0-9]+$'), Validators.maxLength(10)]],
       website: ['', [Validators.maxLength(50)]],
@@ -53,8 +88,7 @@ export class RegistroEmprendimientoPage implements OnInit {
       facebook: ['', [Validators.maxLength(50)]],
       instagram: ['', [Validators.maxLength(50)]],
       tiktok: ['', [Validators.maxLength(50)]],
-
-      productsServices: this.fb.array([this.createProductService()])
+      productsServices: this.fb.array([this.createProductService()]),
     });
   }
 
@@ -62,7 +96,6 @@ export class RegistroEmprendimientoPage implements OnInit {
     const control = this.registerBusiness.get(controlName);
     return !!(control && control.invalid && (control.touched || control.dirty));
   }
-
 
   getErrorMessage(controlName: string): string {
     const control = this.registerBusiness.get(controlName);
@@ -85,7 +118,7 @@ export class RegistroEmprendimientoPage implements OnInit {
     return this.fb.group({
       name: ['', Validators.required],
       description: ['', Validators.required],
-      price: [null, [Validators.required, Validators.min(0)]]
+      price: [null, [Validators.required, Validators.min(0)]],
     });
   }
 
@@ -103,48 +136,65 @@ export class RegistroEmprendimientoPage implements OnInit {
 
   isLoading = false;
 
-async onSubmit() {
-  if (this.validateFiles() === false) {
-    return;
-  }
+  async onSubmit() {
+    if (this.registerBusiness.invalid || !this.validateFiles()) {
+      await this.toastService.show(
+        'Por favor complete todos los campos requeridos',
+        'warning'
+      );
+      return;
+    }
 
-  const data = this.registerBusiness.value;
-  const formData = new FormData();
-  formData.append('cedulaFile', this.cedulaFile);
-  formData.append('logoFile', this.logoFile);
-  formData.append('signatureFile', this.signatureFile);
-  
-  if (this.productPhotos.length > 0) {
+    const formData = new FormData();
+    formData.append('cedulaFile', this.cedulaFile);
+    formData.append('logoFile', this.logoFile);
+    formData.append('signatureFile', this.signatureFile);
+
     this.productPhotos.forEach((file) => {
       formData.append('productPhotos', file);
     });
-  }
 
-  formData.append(
-    'business',
-    new Blob([JSON.stringify(data)], { type: 'application/json' })
-  );
+    formData.append(
+      'business',
+      new Blob(
+        [
+          JSON.stringify({
+            ...this.registerBusiness.value,
+            productsServices: this.registerBusiness.value.productsServices,
+          }),
+        ],
+        { type: 'application/json' }
+      )
+    );
 
-  this.isLoading = true; // 🔹 Mostrar spinner antes del request
+    this.isLoading = true;
+    try {
+      await lastValueFrom(this.negocioService.createBusiness(formData));
 
-  this.negocioService.post(formData).subscribe({
-    next: async () => {
       await this.toastService.show('Registro exitoso', 'success');
       this.registerBusiness.reset();
       this.logoFile = null as any;
       this.signatureFile = null as any;
       this.cedulaFile = null as any;
-    },
-    error: async (error) => {
-      console.error('Error al registrar el negocio:', error);
-      await this.toastService.show('Error al registrar el negocio', 'danger');
-    },
-    complete: () => {
-      this.isLoading = false; 
-    }
-  });
-}
+      this.productPhotos = [];
 
+      if (this.categories.length > 0) {
+        this.registerBusiness.patchValue({
+          categoryId: this.categories[0].id,
+        });
+      }
+
+      this.router.navigate(['/mis-negocios']);
+    } catch (error: any) {
+      console.error('Error al registrar el negocio:', error);
+      await this.toastService.show(
+        error.message || 'Error al registrar el negocio',
+        'danger'
+      );
+    } finally {
+      this.isLoading = false;
+    }
+  }
 
   validateFiles(): boolean {
     if (!this.logoFile) {
@@ -159,10 +209,13 @@ async onSubmit() {
       this.toastService.show('La cédula es obligatoria', 'warning');
       return false;
     }
-    if( this.productPhotos.length === 0) {
-      this.toastService.show('Debe subir al menos una foto de producto', 'warning');
+    if (this.productPhotos.length === 0) {
+      this.toastService.show(
+        'Debe subir al menos una foto de producto',
+        'warning'
+      );
       return false;
-    } 
+    }
     return true;
   }
 
@@ -170,7 +223,8 @@ async onSubmit() {
     event: Event | DragEvent,
     tipo: 'logoFile' | 'signatureFile' | 'cedulaFile' | 'productPhotos'
   ) {
-    const input = event.target instanceof HTMLInputElement ? event.target : null;
+    const input =
+      event.target instanceof HTMLInputElement ? event.target : null;
     const files = input?.files?.length
       ? input.files
       : (event as DragEvent).dataTransfer?.files;
@@ -220,7 +274,10 @@ async onSubmit() {
       this.productPhotos = validFiles;
     }
 
-    await this.toastService.show('Archivo(s) cargado(s) correctamente', 'success');
+    await this.toastService.show(
+      'Archivo(s) cargado(s) correctamente',
+      'success'
+    );
   }
 
   onDrop(
@@ -232,10 +289,12 @@ async onSubmit() {
   }
 
   onDragOver(event: DragEvent) {
-  event.preventDefault();
-}
+    event.preventDefault();
+  }
 
-  private clearFile(tipo: 'logoFile' | 'signatureFile' | 'cedulaFile' | 'productPhotos') {
+  private clearFile(
+    tipo: 'logoFile' | 'signatureFile' | 'cedulaFile' | 'productPhotos'
+  ) {
     if (tipo === 'logoFile') {
       this.logoFile = null as any;
     } else if (tipo === 'signatureFile') {
@@ -244,6 +303,4 @@ async onSubmit() {
       this.cedulaFile = null as any;
     }
   }
-
-
 }

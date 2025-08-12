@@ -1,0 +1,51 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Mis Negocios</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-refresher slot="fixed" (ionRefresh)="loadBusinesses(true, $event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="filters-container">
+    <ion-item>
+      <ion-label position="stacked">Filtrar por categoría</ion-label>
+      <ion-select 
+        [(ngModel)]="selectedCategory" 
+        (ionChange)="onCategoryChange()"
+        interface="action-sheet"
+      >
+        <ion-select-option value="">Todas las categorías</ion-select-option>
+        <ion-select-option *ngFor="let category of categories" [value]="category.name">
+          {{ category.name }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+  </div>
+
+  <div class="businesses-container">
+    <ng-container *ngIf="businesses.length > 0; else noBusinesses">
+  <app-business-card
+    *ngFor="let business of businesses; trackBy: trackByBusinessId"
+    [business]="business">
+  </app-business-card>
+</ng-container>
+
+    <ng-template #noBusinesses>
+      <div class="empty-state">
+        <ion-icon name="business-outline" class="empty-icon"></ion-icon>
+        <h3>No tienes negocios registrados</h3>
+        <p>Registra tu primer negocio para comenzar</p>
+        <ion-button routerLink="/registro-emprendimiento" fill="solid">
+          Registrar Negocio
+        </ion-button>
+      </div>
+    </ng-template>
+  </div>
+
+  <ion-infinite-scroll (ionInfinite)="loadMore($event)" [disabled]="!hasMoreData">
+    <ion-infinite-scroll-content loadingSpinner="bubbles"></ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+</ion-content>

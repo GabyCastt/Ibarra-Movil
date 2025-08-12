@@ -33,5 +33,9 @@ export const routes: Routes = [
   {
     path: 'mis-documentos',
     loadComponent: () => import('./mis-documentos/mis-documentos.page').then( m => m.MisDocumentosPage)
+  },  {
+    path: 'mis-negocios',
+    loadComponent: () => import('./mis-negocios/mis-negocios.page').then( m => m.MisNegociosPage)
   },
+
 ];
