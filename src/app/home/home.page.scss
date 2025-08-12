@@ -116,34 +116,23 @@
     &:hover {
       transform: translateY(-5px);
     }
-    
     .category-icon {
-      width: 70px;
-      height: 70px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 8px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-      
-      ion-icon {
-        font-size: 1.8rem;
-        color: white;
-        filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.3));
-      }
-      
-      // Asignación de colores por clase
-      &.category-1 { background-color: var(--category-1); }
-      &.category-2 { background-color: var(--category-2); color: black; }
-      &.category-3 { background-color: var(--category-3); }
-      &.category-4 { background-color: var(--category-4); }
-      &.category-5 { background-color: var(--category-5); }
-      &.category-6 { background-color: var(--category-6); }
-      &.category-7 { background-color: var(--category-7); }
-      &.category-8 { background-color: var(--category-8); color: black; }
-    }
-    
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  
+  ion-icon {
+    font-size: 1.8rem;
+    color: white;
+    filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.3));
+  }
+}
+   
     span {
       font-size: 0.85rem;
       text-align: center;

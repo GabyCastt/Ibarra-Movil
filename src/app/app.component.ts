@@ -37,6 +37,16 @@ import {
   documentAttachOutline,
   download,
   businessOutline,
+  handLeftOutline,
+  colorPaletteOutline,
+  ellipsisHorizontalOutline,
+  timeOutline,
+  starOutline,
+  storefrontOutline,
+  filterOutline,
+  pricetagOutline,
+  calendarOutline,
+  statsChartOutline
 } from 'ionicons/icons';
 
 @Component({
@@ -81,6 +91,16 @@ export class AppComponent {
       businessOutline,
       imageOutline,
       trashOutline,
+      handLeftOutline,
+      colorPaletteOutline,
+      ellipsisHorizontalOutline,
+      timeOutline,
+      starOutline,
+      storefrontOutline,
+      filterOutline,
+      pricetagOutline,
+      calendarOutline,
+      statsChartOutline
     });
   }
 }

@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule, InfiniteScrollCustomEvent } from '@ionic/angular';
 import { NegocioService } from '../services/negocio.service';
 import { AuthService } from '../services/auth.service';
-import { BusinessCardComponent } from '../components/business-card.component';
 import { Router } from '@angular/router';
 
 @Component({
@@ -12,7 +11,7 @@ import { Router } from '@angular/router';
   templateUrl: './mis-negocios.page.html',
   styleUrls: ['./mis-negocios.page.scss'],
   standalone: true,
-  imports: [CommonModule, IonicModule, FormsModule, BusinessCardComponent],
+  imports: [CommonModule, IonicModule, FormsModule],
 })
 export class MisNegociosPage implements OnInit {
   businesses: any[] = [];
@@ -111,4 +110,5 @@ export class MisNegociosPage implements OnInit {
   trackByBusinessId(index: number, business: any): number {
     return business.id;
   }
+  
 }

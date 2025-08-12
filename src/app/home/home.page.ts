@@ -18,7 +18,12 @@ import {
   hardwareChipOutline,
   medkitOutline,
   logOutOutline,
-  callOutline,
+  fastFoodOutline,
+  colorPaletteOutline,
+  homeOutline,
+  buildOutline,
+  ellipsisHorizontalOutline,
+  helpOutline
 } from 'ionicons/icons';
 import { LoginPage } from '../login/login.page';
 import { Router } from '@angular/router';
@@ -34,22 +39,10 @@ import { NegociosService } from '../services/negocios.service';
 export class HomePage implements OnInit {
   isAuthenticated = false;
   userData: any = null;
-  // Datos de ejemplo para categorías
-  categories = [
-    { id: 1, name: 'Alimentos y Bebidas', icon: 'restaurant-outline', color: '#FF6B6B' },
-    { id: 2, name: 'Gastronomía', icon: 'call-outline', color: '#52bdb6ff' },
-    { id: 3, name: 'Artesanías', icon: 'shirt-outline', color: '#45B7D1' },
-    { id: 4, name: 'Manualidades y Bisutería', icon: 'construct-outline', color: '#FFA07A' },
-    { id: 5, name: 'Salud y Cosmética Natural ', icon: 'hardware-chip-outline', color: '#A28DFF' },
-    { id: 6, name: 'Textiles y Moda', icon: 'medkit-outline', color: '#FF8A65' },
-    { id: 7, name: 'Tecnología', icon: 'medkit-outline', color: '#2b314eff' },
-    { id: 8, name: 'Decoración, Hogar y Jardinería', icon: 'medkit-outline', color: '#aac44cff' },
-    { id: 9, name: 'Servicios', icon: 'medkit-outline', color: '#50454dff' },
-    { id: 10, name: 'Otro', icon: 'medkit-outline', color: '#c27eabff' },
-  ];
+  categories: any[] = [];
 
-  // Emprendimientos destacados
-  featuredBusinesses = [
+  // Datos estáticos para destacados
+  featuredBusinesses: any[] = [
     {
       id: 1,
       name: 'Arte Andino',
@@ -116,6 +109,12 @@ export class HomePage implements OnInit {
       hardwareChipOutline,
       medkitOutline,
       logOutOutline,
+      fastFoodOutline,
+      colorPaletteOutline,
+      homeOutline,
+      buildOutline,
+      ellipsisHorizontalOutline,
+      helpOutline
     });
     this.checkAuthStatus();
   }
@@ -133,19 +132,54 @@ export class HomePage implements OnInit {
     }
   }
 
-  private async loadCategories() {
-    await this.showLoading();
-    try {
-      const categories = await this.negociosService.getCategorias().toPromise();
-      this.categories = categories || [];
-    } catch (error) {
-      console.error('Error loading categories:', error);
-      await this.showErrorAlert();
-    } finally {
-      await this.hideLoading();
-    }
+private async loadCategories() {
+  await this.showLoading();
+  try {
+    const categories = await this.negociosService.getCategorias().toPromise();
+    this.categories = (categories || []).map(category => ({
+      ...category,
+      icon: this.getCategoryIcon(category.name),
+      color: this.getCategoryColor(category.id)
+    }));
+  } catch (error) {
+    console.error('Error loading categories:', error);
+    await this.showErrorAlert();
+  } finally {
+    await this.hideLoading();
   }
+}
 
+private getCategoryIcon(categoryName: string): string {
+  const iconMap: {[key: string]: string} = {
+    'Alimentos y Bebidas': 'fast-food-outline',
+    'Gastronomía': 'restaurant-outline',
+    'Artesanías': 'color-palette-outline',
+    'Manualidades y Bisutería': 'construct-outline',
+    'Salud y Cosmética Natural': 'medkit-outline',
+    'Textiles y Moda': 'shirt-outline',
+    'Tecnología': 'hardware-chip-outline',
+    'Decoración, Hogar y Jardinería': 'home-outline',
+    'Servicios': 'build-outline',
+    'Otro': 'ellipsis-horizontal-outline'
+  };
+  return iconMap[categoryName] || 'help-outline';
+}
+
+private getCategoryColor(categoryId: number): string {
+  const colorMap: {[key: number]: string} = {
+    1: '#E53935',  // Rojo para alimentos
+    2: '#FB8C00',  // Naranja para gastronomía
+    3: '#8E24AA',  // Púrpura para artesanías
+    4: '#3949AB',  // Azul índigo para manualidades
+    5: '#43A047',  // Verde para salud
+    6: '#FDD835',  // Amarillo para textiles/moda
+    7: '#00ACC1',  // Turquesa para tecnología
+    8: '#5E35B1',  // Violeta para decoración
+    9: '#6D4C41',  // Marrón para servicios
+    10: '#757575'  // Gris para otros
+  };
+  return colorMap[categoryId] || '#607D8B';
+}
   private async showLoading() {
     this.loading = await this.loadingCtrl.create({
       message: 'Cargando...',
@@ -208,81 +242,57 @@ export class HomePage implements OnInit {
     }
   }
 
-  // Mostrar alerta con nombre del usuario
-  const alert = await this.alertController.create({
-    header: 'Bienvenido',
-    message: `Hola, ${this.userData.nombre || this.userData.username || 'usuario'
-      } 👋`,
-    buttons: ['OK'],
-  });
-      await alert.present();
+  private async showWelcomeAlert() {
+    const alert = await this.alertController.create({
+      header: 'Bienvenido',
+      message: `Hola, ${this.userData.nombre || this.userData.username || 'usuario'}!`,
+      buttons: ['OK'],
+    });
+    await alert.present();
+  }
 
-console.log('Usuario autenticado:', this.userData);
+  logout() {
+    localStorage.removeItem('jwt_token');
+    localStorage.removeItem('user_data');
+    this.isAuthenticated = false;
+    this.userData = null;
+  }
+
+  searchItems(event: any) {
+    const term = event.target.value;
+    if (term.trim() !== '') {
+      this.router.navigate(['/busqueda'], {
+        queryParams: { q: term }
+      });
     }
   }
 
-logout() {
-  localStorage.removeItem('jwt_token');
-  localStorage.removeItem('user_data');
-  this.isAuthenticated = false;
-  this.userData = null;
-}
-
-openCategory(category: any) {
-  console.log('Categoría seleccionada:', category);
-
-  this.router.navigate(['/negocios'], {
-    queryParams: { categoria: category.name } // o category.id si el servicio filtra por id
-  });
-}
-
-openBusiness(business: any) {
-  console.log('Emprendimiento seleccionado:', business);
-}
-
-openEvent(event: any) {
-  console.log('Evento seleccionado:', event);
-}
-
-seeAll(type: string) {
-  console.log('Ver todos los:', type);
-}
-
-searchItems(event: any) {
-  const term = event.target.value;
-  if (term.trim() !== '') {
-    this.router.navigate(['/busqueda'], {
-      queryParams: { q: term }
-    });
+  navigateTo(page: string) {
+    if (page === 'registro-emprendimiento' && !this.isAuthenticated) {
+      this.showLoginForRegister();
+    } else {
+      this.router.navigate([`/${page}`]);
+    }
   }
-}
-
-navigateTo(page: string) {
-  if (page === 'registro-emprendimiento' && !this.isAuthenticated) {
-    this.showLoginForRegister();
-  } else {
-    this.router.navigate([`/${page}`]);
-  }
-}
 
   private async showLoginForRegister() {
-  const alert = await this.alertController.create({
-    header: 'Acceso requerido',
-    message: 'Debes iniciar sesión para registrar un emprendimiento',
-    buttons: [
-      {
-        text: 'Cancelar',
-        role: 'cancel',
-      },
-      {
-        text: 'Iniciar sesión',
-        handler: () => {
-          localStorage.setItem('pending_route', '/registro-emprendimiento');
-          this.openLogin();
+    const alert = await this.alertController.create({
+      header: 'Acceso requerido',
+      message: 'Debes iniciar sesión para registrar un emprendimiento',
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel',
         },
-      },
-    ],
-  });
-  await alert.present();
-}
+        {
+          text: 'Iniciar sesión',
+          handler: () => {
+            localStorage.setItem('pending_route', '/registro-emprendimiento');
+            this.openLogin();
+          },
+        },
+      ],
+    });
+    await alert.present();
+  }
 }

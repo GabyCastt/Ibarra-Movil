@@ -1,23 +1,29 @@
 <ion-header>
   <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
     <ion-title>Mis Negocios</ion-title>
+    
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
+<ion-content [fullscreen]="true" class="businesses-content">
   <ion-refresher slot="fixed" (ionRefresh)="loadBusinesses(true, $event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <div class="filters-container">
-    <ion-item>
-      <ion-label position="stacked">Filtrar por categoría</ion-label>
+  <!-- Filtros -->
+  <div class="filters-section">
+    <ion-item lines="none" class="filter-item">
+      <ion-icon slot="start" name="filter-outline"></ion-icon>
       <ion-select 
         [(ngModel)]="selectedCategory" 
         (ionChange)="onCategoryChange()"
         interface="action-sheet"
+        placeholder="Filtrar por categoría"
       >
-        <ion-select-option value="">Todas las categorías</ion-select-option>
+        <ion-select-option value="">Todos mis negocios</ion-select-option>
         <ion-select-option *ngFor="let category of categories" [value]="category.name">
           {{ category.name }}
         </ion-select-option>
@@ -25,20 +31,58 @@
     </ion-item>
   </div>
 
-  <div class="businesses-container">
+  <!-- Listado de negocios -->
+  <div class="business-list">
     <ng-container *ngIf="businesses.length > 0; else noBusinesses">
-  <app-business-card
-    *ngFor="let business of businesses; trackBy: trackByBusinessId"
-    [business]="business">
-  </app-business-card>
-</ng-container>
+      <ion-card *ngFor="let business of businesses; trackBy: trackByBusinessId" 
+                class="business-card" 
+              >
+        
+        <div class="card-header">
+          <img [src]="business.logoUrl || 'assets/icon/default-business.png'" 
+               alt="{{ business.commercialName }}" 
+               class="business-image">
+          <div class="business-status" [class.active]="business.active">
+            {{ business.active ? 'Activo' : 'Inactivo' }}
+          </div>
+        </div>
+        
+        <ion-card-header>
+          <ion-card-title>{{ business.commercialName }}</ion-card-title>
+          <ion-card-subtitle>
+            <ion-icon name="pricetag-outline"></ion-icon>
+            {{ business.category || 'Sin categoría' }}
+          </ion-card-subtitle>
+        </ion-card-header>
+        
+        <ion-card-content>
+          <div class="business-meta">
+            <div class="meta-item">
+              <ion-icon name="calendar-outline"></ion-icon>
+              <span>Registrado: {{ business.createdDate | date:'mediumDate' }}</span>
+            </div>
+            <div class="meta-item">
+              <ion-icon name="stats-chart-outline"></ion-icon>
+              <span>Visitas: {{ business.views || 0 }}</span>
+            </div>
+          </div>
+          
+          <ion-button expand="block" fill="outline" size="small" class="edit-button">
+            <ion-icon slot="start" name="create-outline"></ion-icon>
+            Editar
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
+    </ng-container>
 
     <ng-template #noBusinesses>
       <div class="empty-state">
-        <ion-icon name="business-outline" class="empty-icon"></ion-icon>
+        <div class="empty-icon">
+          <ion-icon name="storefront-outline"></ion-icon>
+        </div>
         <h3>No tienes negocios registrados</h3>
-        <p>Registra tu primer negocio para comenzar</p>
-        <ion-button routerLink="/registro-emprendimiento" fill="solid">
+        <p>Comienza registrando tu primer emprendimiento</p>
+        <ion-button expand="block" routerLink="/registro-emprendimiento" fill="solid">
           Registrar Negocio
         </ion-button>
       </div>
