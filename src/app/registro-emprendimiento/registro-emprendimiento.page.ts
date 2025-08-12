@@ -66,14 +66,13 @@ export class RegistroEmprendimientoPage implements OnInit {
       categoryId: [null, [Validators.required]], 
       commercialName: ['', [Validators.required, Validators.maxLength(50)]],
       representativeName: ['', [Validators.required, Validators.maxLength(50)]],
-      identificationNumber: [
-        '',
-        [
-          Validators.required,
-          Validators.pattern('^[0-9]+$'),
-          Validators.maxLength(13),
-        ],
-      ],
+     identificationNumber: [
+  '',
+  [
+    Validators.required,
+    Validators.pattern('^[0-9]{10}$|^[0-9]{13}$'),
+  ],
+],
       email: ['', [Validators.email]],
       phone: ['', [Validators.pattern('^[0-9]+$'), Validators.maxLength(10)]],
       website: ['', [Validators.maxLength(50)]],
