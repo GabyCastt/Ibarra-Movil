@@ -1,0 +1,71 @@
+<ion-header>
+  <ion-toolbar color="danger">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Lista de Negocios</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <!-- Filtro por categoría -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Filtrar por Categoría</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-item>
+
+        <ion-select [(ngModel)]="categoriaSeleccionada" (ionChange)="cargarNegocios(1)">
+          <ion-select-option value="">Todas</ion-select-option>
+          <ion-select-option *ngFor="let cat of categorias" [value]="cat.name">
+            {{ cat.name }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Filtro de cantidad por página -->
+  <ion-item>
+    <ion-label>Items por página</ion-label>
+    <ion-select [(ngModel)]="limite" (ionChange)="cargarNegocios(1)">
+      <ion-select-option *ngFor="let opt of [2, 5, 10, 20]" [value]="opt">{{ opt }}</ion-select-option>
+    </ion-select>
+  </ion-item>
+
+  <!-- Mostrar total (cuando ya cargó) -->
+  <ion-item *ngIf="totalElements !== null">
+    <ion-label>Total de negocios: {{ totalElements }}</ion-label>
+  </ion-item>
+
+  <!-- Listado de negocios -->
+  <ion-list>
+    <ion-item *ngFor="let negocio of negocios">
+      <ion-thumbnail slot="start">
+        <img [src]="negocio.logoUrl" alt="{{ negocio.commercialName }}">
+      </ion-thumbnail>
+      <ion-label>
+        <h2>{{ negocio.commercialName }}</h2>
+        <p>{{ negocio.description }}</p>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+
+  <ng-template #noResults>
+    <div class="ion-padding" *ngIf="totalElements === 0">No hay negocios para esta categoría.</div>
+  </ng-template>
+
+  <!-- Paginación -->
+  <div class="pagination">
+    <ion-button fill="outline" color="danger" [disabled]="paginaActual === 1" (click)="paginaAnterior()">
+      Anterior
+    </ion-button>
+
+    <span>Página {{ paginaActual }} de {{ totalPaginas }}</span>
+
+    <ion-button fill="outline" color="danger" [disabled]="paginaActual === totalPaginas" (click)="paginaSiguiente()">
+      Siguiente
+    </ion-button>
+  </div>
+</ion-content>

@@ -1,0 +1,27 @@
+.negocios-content {
+    --background: #fff5f5; // Fondo suave en rojo claro
+}
+
+ion-card {
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(255, 0, 0, 0.15);
+}
+
+ion-item {
+    border-radius: 10px;
+    margin-bottom: 8px;
+    --background: #ffffff;
+}
+
+.negocio-titulo {
+    font-weight: bold;
+    color: #d32f2f; // Rojo fuerte
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin: 15px 0;
+}
