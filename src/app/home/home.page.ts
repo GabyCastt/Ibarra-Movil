@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { Component, OnInit } from '@angular/core';
+import { ModalController, LoadingController, AlertController } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, AlertController } from '@ionic/angular';
+import { IonicModule } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import {
   locationOutline,
@@ -20,81 +20,75 @@ import {
   logOutOutline,
 } from 'ionicons/icons';
 import { LoginPage } from '../login/login.page';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { NegociosService } from '../services/negocios.service';
 
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule, HttpClientModule],
+  imports: [CommonModule, FormsModule, IonicModule],
 })
-export class HomePage {
+export class HomePage implements OnInit {
   isAuthenticated = false;
   userData: any = null;
-  // Datos de ejemplo para categorías
-  categories = [
-    { id: 1, name: 'Alimentos', icon: 'restaurant-outline', color: '#FF6B6B' },
-    { id: 2, name: 'Artesanías', icon: 'brush-outline', color: '#4ECDC4' },
-    { id: 3, name: 'Textiles', icon: 'shirt-outline', color: '#45B7D1' },
-    { id: 4, name: 'Servicios', icon: 'construct-outline', color: '#FFA07A' },
-    {
-      id: 5,
-      name: 'Tecnología',
-      icon: 'hardware-chip-outline',
-      color: '#A28DFF',
-    },
-    { id: 6, name: 'Salud', icon: 'medkit-outline', color: '#FF8A65' },
-  ];
+  categories: any[] = [];
 
-  // Emprendimientos destacados
-  featuredBusinesses = [
+  // Datos estáticos para destacados
+  featuredBusinesses: any[] = [
     {
       id: 1,
-      name: 'Artesanías Andinas',
-      image: 'assets/business1.jpg',
-      location: 'Centro',
-      badge: 'Nuevo',
+      name: 'Arte Andino',
+      location: 'Centro de Ibarra',
+      logoUrl: 'assets/icon/ArteAndino.jpg',
+      description: 'Artesanías locales y productos tradicionales'
     },
     {
       id: 2,
-      name: 'Dulces Tradicionales',
-      image: 'assets/business2.jpg',
-      location: 'San Francisco',
+      name: 'Café del Río',
+      location: 'Malecón de Ibarra',
+      logoUrl: 'assets/icon/CafeDelRio.jpg',
+      description: 'Café orgánico y gastronomía local'
     },
     {
       id: 3,
-      name: 'Tejidos El Alpaca',
-      image: 'assets/business3.jpg',
-      location: 'La Victoria',
-      badge: 'Popular',
-    },
+      name: 'Moda Imbabura',
+      location: 'Calle Flores',
+      logoUrl: 'assets/icon/ModaImbabura.jpg',
+      description: 'Ropa y accesorios de diseño local'
+    }
   ];
 
-  // Próximos eventos
-  upcomingEvents = [
+  // Datos estáticos para eventos
+  upcomingEvents: any[] = [
     {
       id: 1,
       title: 'Feria de Emprendedores',
-      image: 'assets/event1.jpg',
-      date: '15 Oct 2023',
+      date: '2023-12-15',
+      location: 'Plaza de Ponchos',
+      imageUrl: 'assets/icon/FeriaEmprendedores.jpg',
+      description: 'Evento anual para emprendedores locales'
     },
     {
       id: 2,
       title: 'Taller de Marketing Digital',
-      image: 'assets/event2.jpg',
-      date: '22 Oct 2023',
-    },
+      date: '2023-12-20',
+      location: 'Centro de Convenciones',
+      imageUrl: 'assets/icon/TallerMarketing.jpg',
+      description: 'Aprende a promocionar tu negocio en línea'
+    }
   ];
+
+  private loading: HTMLIonLoadingElement | null = null;
 
   constructor(
     private modalCtrl: ModalController,
-    private http: HttpClient,
     private alertController: AlertController,
-    private router: Router
+    private router: Router,
+    private negociosService: NegociosService,
+    private loadingCtrl: LoadingController
   ) {
-    this.checkAuthStatus();
     addIcons({
       locationOutline,
       personCircleOutline,
@@ -110,15 +104,75 @@ export class HomePage {
       medkitOutline,
       logOutOutline,
     });
+    this.checkAuthStatus();
+  }
+
+  async ngOnInit() {
+    await this.loadCategories();
   }
 
   private checkAuthStatus() {
     const token = localStorage.getItem('jwt_token');
     this.isAuthenticated = !!token;
-
     if (token) {
       const userData = localStorage.getItem('user_data');
       this.userData = userData ? JSON.parse(userData) : null;
+    }
+  }
+
+  private async loadCategories() {
+    await this.showLoading();
+    try {
+      const categories = await this.negociosService.getCategorias().toPromise();
+      this.categories = categories || [];
+    } catch (error) {
+      console.error('Error loading categories:', error);
+      await this.showErrorAlert();
+    } finally {
+      await this.hideLoading();
+    }
+  }
+
+  private async showLoading() {
+    this.loading = await this.loadingCtrl.create({
+      message: 'Cargando...',
+      spinner: 'crescent'
+    });
+    await this.loading.present();
+  }
+
+  private async hideLoading() {
+    if (this.loading) {
+      await this.loading.dismiss();
+      this.loading = null;
+    }
+  }
+
+  private async showErrorAlert() {
+    const alert = await this.alertController.create({
+      header: 'Error',
+      message: 'No se pudieron cargar las categorías.',
+      buttons: ['OK']
+    });
+    await alert.present();
+  }
+
+  openCategory(category: any) {
+    this.router.navigate(['/negocios'], {
+      queryParams: { categoria: category.name },
+      state: { categoryName: category.name }
+    });
+  }
+
+  openBusiness(business: any) {
+    this.router.navigate(['/negocio-detalle', business.id]);
+  }
+
+  seeAll(type: string) {
+    if (type === 'featured') {
+      this.router.navigate(['/negocios']);
+    } else if (type === 'events') {
+      this.router.navigate(['/eventos']);
     }
   }
 
@@ -137,19 +191,17 @@ export class HomePage {
     if (data?.authenticated) {
       this.isAuthenticated = true;
       this.userData = data.userData;
-
-      // Mostrar alerta con nombre del usuario
-      const alert = await this.alertController.create({
-        header: 'Bienvenido',
-        message: `Hola, ${
-          this.userData.nombre || this.userData.username || 'usuario'
-        } 👋`,
-        buttons: ['OK'],
-      });
-      await alert.present();
-
-      console.log('Usuario autenticado:', this.userData);
+      await this.showWelcomeAlert();
     }
+  }
+
+  private async showWelcomeAlert() {
+    const alert = await this.alertController.create({
+      header: 'Bienvenido',
+      message: `Hola, ${this.userData.nombre || this.userData.username || 'usuario'}!`,
+      buttons: ['OK'],
+    });
+    await alert.present();
   }
 
   logout() {
@@ -159,38 +211,19 @@ export class HomePage {
     this.userData = null;
   }
 
-  openCategory(category: any) {
-    console.log('Categoría seleccionada:', category);
-  }
-
-  openBusiness(business: any) {
-    console.log('Emprendimiento seleccionado:', business);
-  }
-
-  openEvent(event: any) {
-    console.log('Evento seleccionado:', event);
-  }
-
-  seeAll(type: string) {
-    console.log('Ver todos los:', type);
-  }
-
   searchItems(event: any) {
     const term = event.target.value;
-    console.log('Buscando:', term);
+    if (term.trim() !== '') {
+      this.router.navigate(['/busqueda'], {
+        queryParams: { q: term }
+      });
+    }
   }
 
   navigateTo(page: string) {
-    if (page === 'registro-emprendimiento') {
-      if (this.isAuthenticated) {
-        // Navega a la página de registro de emprendimiento
-        this.router.navigate(['/registro-emprendimiento']);
-      } else {
-        this.showLoginForRegister();
-      }
+    if (page === 'registro-emprendimiento' && !this.isAuthenticated) {
+      this.showLoginForRegister();
     } else {
-      console.log('Navegar a:', page);
-      // Otras rutas (como mapa, etc.)
       this.router.navigate([`/${page}`]);
     }
   }
@@ -207,7 +240,6 @@ export class HomePage {
         {
           text: 'Iniciar sesión',
           handler: () => {
-            // Guarda la ruta a la que quería acceder
             localStorage.setItem('pending_route', '/registro-emprendimiento');
             this.openLogin();
           },
