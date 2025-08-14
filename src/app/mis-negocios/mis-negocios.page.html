@@ -4,92 +4,135 @@
       <ion-back-button defaultHref="/home"></ion-back-button>
     </ion-buttons>
     <ion-title>Mis Negocios</ion-title>
-    
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="businesses-content">
+<ion-content [fullscreen]="true" class="no-padding">
+  <!-- Refresher -->
   <ion-refresher slot="fixed" (ionRefresh)="loadBusinesses(true, $event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <!-- Filtros -->
-  <div class="filters-section">
-    <ion-item lines="none" class="filter-item">
+  <!-- Filtro de categorías -->
+  <div class="filter-container">
+    <ion-item lines="none">
       <ion-icon slot="start" name="filter-outline"></ion-icon>
       <ion-select 
         [(ngModel)]="selectedCategory" 
         (ionChange)="onCategoryChange()"
-        interface="action-sheet"
+        interface="action-sheet" 
         placeholder="Filtrar por categoría"
       >
-        <ion-select-option value="">Todos mis negocios</ion-select-option>
-        <ion-select-option *ngFor="let category of categories" [value]="category.name">
-          {{ category.name }}
+        <ion-select-option value="">Todos</ion-select-option>
+        <ion-select-option *ngFor="let cat of categories" [value]="cat.id">
+          {{ cat.name }}
         </ion-select-option>
       </ion-select>
     </ion-item>
   </div>
 
-  <!-- Listado de negocios -->
+  <!-- Lista de negocios -->
   <div class="business-list">
     <ng-container *ngIf="businesses.length > 0; else noBusinesses">
-      <ion-card *ngFor="let business of businesses; trackBy: trackByBusinessId" 
-                class="business-card" 
-              >
+      <ion-card *ngFor="let biz of businesses" class="full-width-card">
         
+        <!-- Cabecera con imagen y estado -->
         <div class="card-header">
-          <img [src]="business.logoUrl || 'assets/icon/default-business.png'" 
-               alt="{{ business.commercialName }}" 
+          <img [src]="biz.logoUrl || 'assets/icon/default-business.png'" 
+               alt="{{ biz.commercialName }}" 
                class="business-image">
-          <div class="business-status" [class.active]="business.active">
-            {{ business.active ? 'Activo' : 'Inactivo' }}
-          </div>
+          <ion-badge [color]="biz.active ? 'success' : 'danger'">
+            {{ biz.active ? 'Activo' : 'Inactivo' }}
+          </ion-badge>
         </div>
-        
+
+        <!-- Información principal -->
         <ion-card-header>
-          <ion-card-title>{{ business.commercialName }}</ion-card-title>
+          <ion-card-title>{{ biz.commercialName }}</ion-card-title>
           <ion-card-subtitle>
-            <ion-icon name="pricetag-outline"></ion-icon>
-            {{ business.category || 'Sin categoría' }}
+            <ion-icon name="person-outline"></ion-icon>
+            {{ biz.representativeName }}
           </ion-card-subtitle>
         </ion-card-header>
-        
+
+        <!-- Detalles del negocio -->
         <ion-card-content>
-          <div class="business-meta">
-            <div class="meta-item">
-              <ion-icon name="calendar-outline"></ion-icon>
-              <span>Registrado: {{ business.createdDate | date:'mediumDate' }}</span>
-            </div>
-            <div class="meta-item">
-              <ion-icon name="stats-chart-outline"></ion-icon>
-              <span>Visitas: {{ business.views || 0 }}</span>
-            </div>
+          <ion-grid>
+            <ion-row>
+              <ion-col size="12">
+                <ion-item lines="none">
+                  <ion-icon slot="start" name="location-outline"></ion-icon>
+                  <ion-label class="ion-text-wrap">
+                    {{ biz.parishCommunitySector || 'Ubicación no especificada' }}
+                  </ion-label>
+                </ion-item>
+              </ion-col>
+            </ion-row>
+
+            <ion-row>
+              <ion-col size="6">
+                <ion-item lines="none">
+                  <ion-icon slot="start" name="call-outline"></ion-icon>
+                  <ion-label>{{ biz.phone || 'Sin teléfono' }}</ion-label>
+                </ion-item>
+              </ion-col>
+              <ion-col size="6">
+                <ion-item lines="none">
+                  <ion-icon slot="start" name="mail-outline"></ion-icon>
+                  <ion-label>{{ biz.email || 'Sin email' }}</ion-label>
+                </ion-item>
+              </ion-col>
+            </ion-row>
+
+            <ion-row>
+              <ion-col size="12">
+                <ion-item lines="none">
+                  <ion-icon slot="start" name="calendar-outline"></ion-icon>
+                  <ion-label>
+                    Registrado: {{ biz.registrationDate | date:'mediumDate' }}
+                  </ion-label>
+                </ion-item>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+
+          <!-- Redes sociales -->
+          <div class="social-links" *ngIf="biz.facebook || biz.instagram || biz.tiktok">
+            <ion-chip *ngIf="biz.facebook" outline (click)="openSocial(biz.facebook, 'facebook')">
+              <ion-icon name="logo-facebook"></ion-icon>
+            </ion-chip>
+            <ion-chip *ngIf="biz.instagram" outline (click)="openSocial(biz.instagram, 'instagram')">
+              <ion-icon name="logo-instagram"></ion-icon>
+            </ion-chip>
+            <ion-chip *ngIf="biz.tiktok" outline (click)="openSocial(biz.tiktok, 'tiktok')">
+              <ion-icon name="logo-tiktok"></ion-icon>
+            </ion-chip>
           </div>
-          
-          <ion-button expand="block" fill="outline" size="small" class="edit-button">
-            <ion-icon slot="start" name="create-outline"></ion-icon>
-            Editar
-          </ion-button>
+
+          <!-- Botones de acción -->
+          <div class="action-buttons">
+            <ion-button expand="block" fill="outline" size="small" (click)="openDetails(biz.id)">
+              <ion-icon slot="start" name="eye-outline"></ion-icon>
+              Ver Detalles
+            </ion-button>
+          </div>
         </ion-card-content>
       </ion-card>
     </ng-container>
 
     <ng-template #noBusinesses>
       <div class="empty-state">
-        <div class="empty-icon">
-          <ion-icon name="storefront-outline"></ion-icon>
-        </div>
+        <ion-icon name="storefront-outline" size="large"></ion-icon>
         <h3>No tienes negocios registrados</h3>
-        <p>Comienza registrando tu primer emprendimiento</p>
-        <ion-button expand="block" routerLink="/registro-emprendimiento" fill="solid">
-          Registrar Negocio
+        <ion-button expand="block" fill="solid" routerLink="/registro-emprendimiento">
+          Crear mi primer negocio
         </ion-button>
       </div>
     </ng-template>
   </div>
 
+  <!-- Infinite Scroll -->
   <ion-infinite-scroll (ionInfinite)="loadMore($event)" [disabled]="!hasMoreData">
-    <ion-infinite-scroll-content loadingSpinner="bubbles"></ion-infinite-scroll-content>
+    <ion-infinite-scroll-content></ion-infinite-scroll-content>
   </ion-infinite-scroll>
 </ion-content>

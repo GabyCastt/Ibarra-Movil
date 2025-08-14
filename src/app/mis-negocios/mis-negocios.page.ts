@@ -110,5 +110,25 @@ export class MisNegociosPage implements OnInit {
   trackByBusinessId(index: number, business: any): number {
     return business.id;
   }
-  
+  getCategoryName(categoryId: string): string {
+    const category = this.categories.find((cat) => cat.id === categoryId);
+    return category ? category.name : '';
+  }
+
+  editBusiness(businessId: string) {
+    this.router.navigate(['/editar-negocio', businessId]);
+  }
+  // Abrir redes sociales
+  openSocial(url: string, platform: string) {
+    let socialUrl = url;
+    if (!url.startsWith('http')) {
+      socialUrl = `https://${platform}.com/${url}`;
+    }
+    window.open(socialUrl, '_blank');
+  }
+
+  // Navegar a detalles
+  openDetails(businessId: string) {
+    this.router.navigate(['/detalle-negocio', businessId]);
+  }
 }

@@ -46,7 +46,16 @@ import {
   filterOutline,
   pricetagOutline,
   calendarOutline,
-  statsChartOutline
+  statsChartOutline,
+  eyeOutline,
+  logoFacebook,
+  logoInstagram,
+  logoWhatsapp,
+  logoYoutube,
+  logoLinkedin,
+  logoTwitter,
+  logoTiktok,
+
 } from 'ionicons/icons';
 
 @Component({
@@ -100,7 +109,15 @@ export class AppComponent {
       filterOutline,
       pricetagOutline,
       calendarOutline,
-      statsChartOutline
+      statsChartOutline,
+      eyeOutline,
+      logoFacebook,
+      logoInstagram,
+      logoWhatsapp,
+      logoYoutube,
+      logoLinkedin,
+      logoTwitter,
+      logoTiktok,
     });
   }
 }
