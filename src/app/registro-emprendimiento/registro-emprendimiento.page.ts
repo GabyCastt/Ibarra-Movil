@@ -27,7 +27,7 @@ export class RegistroEmprendimientoPage implements OnInit {
   logoFile!: File;
   signatureFile!: File;
   cedulaFile!: File;
-  productPhotos: File[] = [];
+  carrouselPhotos: File[] = [];
   categories: any[] = []; // Nueva propiedad para almacenar categorías
 
   constructor(
@@ -73,12 +73,14 @@ export class RegistroEmprendimientoPage implements OnInit {
     Validators.pattern('^[0-9]{10}$|^[0-9]{13}$'),
   ],
 ],
-      email: ['', [Validators.email]],
-      phone: ['', [Validators.pattern('^[0-9]+$'), Validators.maxLength(10)]],
+      email: ['', [Validators.required, Validators.email]],
+      phone: ['', [Validators.required, Validators.pattern('^[0-9]+$'), Validators.maxLength(10)]],
       website: ['', [Validators.maxLength(50)]],
-      description: ['', [Validators.maxLength(200)]],
-      parishCommunitySector: ['', [Validators.maxLength(50)]],
+      description: ['', [Validators.required, Validators.maxLength(200)]],
+      parishCommunitySector: ['', Validators.required, [Validators.maxLength(50)]],
       acceptsWhatsappOrders: [false],
+      whatsappNumber: ['', [Validators.required,Validators.maxLength(15)]],
+      googleMapsCoordinates: ['', [Validators.required, Validators.maxLength(100)]],
       deliveryService: ['NO', [Validators.pattern('NO|SI|BAJO_PEDIDO')]],
       salePlace: ['NO', [Validators.pattern('NO|FERIAS|LOCAL_FIJO')]],
       receivedUdelSupport: [false],
@@ -87,6 +89,8 @@ export class RegistroEmprendimientoPage implements OnInit {
       facebook: ['', [Validators.maxLength(50)]],
       instagram: ['', [Validators.maxLength(50)]],
       tiktok: ['', [Validators.maxLength(50)]],
+      address: ['', [Validators.required, Validators.maxLength(100)]],
+      schedules: this.fb.array(['']), 
       productsServices: this.fb.array([this.createProductService()]),
     });
   }
@@ -117,7 +121,6 @@ export class RegistroEmprendimientoPage implements OnInit {
     return this.fb.group({
       name: ['', Validators.required],
       description: ['', Validators.required],
-      price: [null, [Validators.required, Validators.min(0)]],
     });
   }
 
@@ -127,6 +130,20 @@ export class RegistroEmprendimientoPage implements OnInit {
 
   addProductService() {
     this.productsServices.push(this.createProductService());
+  }
+
+  addSchedule(): void {
+  this.schedules.push(this.fb.control('', Validators.required));
+}
+
+
+  removeSchedule(index: number) {
+    this.schedules.removeAt(index);
+  }
+
+
+  get schedules(): FormArray {
+    return this.registerBusiness.get('schedules') as FormArray;
   }
 
   removeProductService(index: number) {
@@ -149,8 +166,8 @@ export class RegistroEmprendimientoPage implements OnInit {
     formData.append('logoFile', this.logoFile);
     formData.append('signatureFile', this.signatureFile);
 
-    this.productPhotos.forEach((file) => {
-      formData.append('productPhotos', file);
+    this.carrouselPhotos.forEach((file) => {
+      formData.append('carrouselPhotos', file);
     });
 
     formData.append(
@@ -175,7 +192,7 @@ export class RegistroEmprendimientoPage implements OnInit {
       this.logoFile = null as any;
       this.signatureFile = null as any;
       this.cedulaFile = null as any;
-      this.productPhotos = [];
+      this.carrouselPhotos = [];
 
       if (this.categories.length > 0) {
         this.registerBusiness.patchValue({
@@ -208,7 +225,7 @@ export class RegistroEmprendimientoPage implements OnInit {
       this.toastService.show('La cédula es obligatoria', 'warning');
       return false;
     }
-    if (this.productPhotos.length === 0) {
+    if (this.carrouselPhotos.length === 0) {
       this.toastService.show(
         'Debe subir al menos una foto de producto',
         'warning'
@@ -220,7 +237,7 @@ export class RegistroEmprendimientoPage implements OnInit {
 
   async onFileChange(
     event: Event | DragEvent,
-    tipo: 'logoFile' | 'signatureFile' | 'cedulaFile' | 'productPhotos'
+    tipo: 'logoFile' | 'signatureFile' | 'cedulaFile' | 'carrouselPhotos'
   ) {
     const input =
       event.target instanceof HTMLInputElement ? event.target : null;
@@ -267,10 +284,10 @@ export class RegistroEmprendimientoPage implements OnInit {
       this.signatureFile = validFiles[0];
     } else if (tipo === 'cedulaFile') {
       this.cedulaFile = validFiles[0];
-    } else if (tipo === 'productPhotos') {
-      this.productPhotos = validFiles;
-    } else if (tipo === 'productPhotos') {
-      this.productPhotos = validFiles;
+    } else if (tipo === 'carrouselPhotos') {
+      this.carrouselPhotos = validFiles;
+    } else if (tipo === 'carrouselPhotos') {
+      this.carrouselPhotos = validFiles;
     }
 
     await this.toastService.show(
@@ -281,7 +298,7 @@ export class RegistroEmprendimientoPage implements OnInit {
 
   onDrop(
     event: DragEvent,
-    tipo: 'logoFile' | 'signatureFile' | 'cedulaFile' | 'productPhotos'
+    tipo: 'logoFile' | 'signatureFile' | 'cedulaFile' | 'carrouselPhotos'
   ) {
     event.preventDefault();
     this.onFileChange(event, tipo);
@@ -292,7 +309,7 @@ export class RegistroEmprendimientoPage implements OnInit {
   }
 
   private clearFile(
-    tipo: 'logoFile' | 'signatureFile' | 'cedulaFile' | 'productPhotos'
+    tipo: 'logoFile' | 'signatureFile' | 'cedulaFile' | 'carrouselPhotos'
   ) {
     if (tipo === 'logoFile') {
       this.logoFile = null as any;
