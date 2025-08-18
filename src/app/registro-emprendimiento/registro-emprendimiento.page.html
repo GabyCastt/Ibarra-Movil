@@ -61,16 +61,6 @@
     </div>
 
     <div class="form-field-wrapper">
-      <ion-item class="form-field" fill="outline" [class.error-field]="hasError('identificationNumber')">
-        <ion-label position="stacked">Ruc Empresa <span class="required">*</span></ion-label>
-        <ion-input formControlName="identificationNumber" type="text" maxlength="13"></ion-input>
-      </ion-item>
-      <div class="error-message" *ngIf="hasError('identificationNumber')">
-        {{ getErrorMessage('identificationNumber') }}
-      </div>
-    </div>
-
-    <div class="form-field-wrapper">
       <label id="cedulaFile" class="upload-label" for="cedulaFileInput">Cédula del Representante Legal <span
           class="required">*</span></label>
       <div class="upload-box" (dragover)="onDragOver($event)" (drop)="onDrop($event, 'cedulaFile')">
@@ -127,7 +117,7 @@
       </div>
     </div>
 
-     <div class="form-field-wrapper">
+    <div class="form-field-wrapper">
       <ion-item class="form-field" fill="outline" [class.error-field]="hasError('address')">
         <ion-label position="stacked">Dirección <span class="required">*</span></ion-label>
         <ion-textarea formControlName="address" placeholder="Escribe aquí..." autoGrow="true"></ion-textarea>
@@ -136,6 +126,17 @@
         {{ getErrorMessage('address') }}
       </div>
     </div>
+
+     <div class="form-field-wrapper">
+      <ion-item class="form-field" fill="outline" [class.error-field]="hasError('productsServices')">
+        <ion-label position="stacked">Producto/Servicio <span class="required">*</span></ion-label>
+        <ion-input formControlName="productsServices" type="text" maxlength="100"></ion-input>
+      </ion-item>
+      <div class="error-message" *ngIf="hasError('productsServices')">
+        {{ getErrorMessage('productsServices') }}
+      </div>
+    </div>
+
 
     <div class="form-field-wrapper">
       <ion-item class="form-field" fill="outline" [class.error-field]="hasError('website')">
@@ -157,13 +158,14 @@
 
     <div class="form-field-wrapper">
       <ion-item class="form-field" fill="outline" [class.error-field]="hasError('whatsappNumber')">
-        <ion-label position="stacked">Número de WhatsApp</ion-label>
+        <ion-label position="stacked">Número de WhatsApp <span class="required">*</span></ion-label>
         <ion-input formControlName="whatsappNumber" type="text" maxlength="15"></ion-input>
       </ion-item>
       <div class="error-message" *ngIf="hasError('whatsappNumber')">
         {{ getErrorMessage('whatsappNumber') }}
       </div>
     </div>
+    
 
     <div class="form-field-wrapper">
       <ion-item class="form-field" fill="outline" [class.error-field]="hasError('googleMapsCoordinates')">
@@ -203,6 +205,24 @@
         {{ getErrorMessage('salePlace') }}
       </div>
     </div>
+
+      <div class="form-field-wrapper">
+      <h3>Horarios</h3>
+
+      <div formArrayName="schedules">
+        <div *ngFor="let schedule of schedules.controls; let i = index">
+          <ion-item fill="outline">
+            <ion-label position="stacked">Horario {{ i + 1 }} <span class="required">*</span></ion-label>
+            <ion-input [formControlName]="i" type="text" placeholder="HH:MM"></ion-input>
+          </ion-item>
+        </div>
+      </div>
+
+    </div>
+
+    <ion-button expand="block" fill="outline" (click)="addSchedule()">
+      + Agregar Horario
+    </ion-button>
 
     <div class="form-field-wrapper">
       <ion-item class="form-field" fill="outline">
@@ -248,8 +268,7 @@
         <ion-input formControlName="tiktok" type="text" maxlength="100"></ion-input>
       </ion-item>
     </div>
-
-        <div class="form-field-wrapper">
+    <div class="form-field-wrapper">
       <label id="logoFile" class="upload-label" for="logoFileInput">Logo del Negocio</label>
       <div class="upload-box" (dragover)="onDragOver($event)" (drop)="onDrop($event, 'logoFile')">
         <ion-icon name="folder-open" class="upload-icon"></ion-icon>
@@ -281,53 +300,6 @@
     </div>
 
     <div class="form-field-wrapper">
-      <h3>Horarios</h3>
-
-      <div formArrayName="schedules">
-        <div *ngFor="let schedule of schedules.controls; let i = index">
-          <ion-item fill="outline">
-            <ion-label position="stacked">Horario {{ i + 1 }}</ion-label>
-            <ion-input [formControlName]="i" type="text" placeholder="HH:MM"></ion-input>
-          </ion-item>
-        </div>
-      </div>
-
-    </div>
-
-    <ion-button expand="block" fill="outline" (click)="addSchedule()">
-      + Agregar Horario
-    </ion-button>
-
-
-
-    <div class="form-field-wrapper">
-      <h3>Productos / Servicios</h3>
-
-      <div formArrayName="productsServices">
-        <div *ngFor="let ps of productsServices.controls; let i = index" [formGroupName]="i"
-          class="product-service-item">
-          <ion-item fill="outline">
-            <ion-label position="stacked">Nombre</ion-label>
-            <ion-input formControlName="name" type="text"></ion-input>
-          </ion-item>
-
-          <ion-item fill="outline">
-            <ion-label position="stacked">Descripción</ion-label>
-            <ion-textarea formControlName="description"></ion-textarea>
-          </ion-item>
-          <ion-button color="danger" fill="outline" size="small" (click)="removeProductService(i)"
-            *ngIf="productsServices.length > 1">
-            Eliminar
-          </ion-button>
-        </div>
-      </div>
-
-      <ion-button expand="block" fill="outline" (click)="addProductService()">
-        + Agregar Producto / Servicio
-      </ion-button>
-    </div>
-
-    <div class="form-field-wrapper">
       <label id="carrouselPhotos" class="upload-label" for="carrouselPhotosInput">
         Carrousel de Imágenes
       </label>
@@ -335,7 +307,8 @@
         <ion-icon name="folder-open" class="upload-icon"></ion-icon>
         <p>Arrastra tus fotos aquí o haz clic para seleccionarlas</p>
         <input id="carrouselPhotosInput" type="file" multiple accept=".jpg,.jpeg,.png"
-          title="Fotos de productos (JPG o PNG, máx. 2 MB cada una)" (change)="onFileChange($event, 'carrouselPhotos')" />
+          title="Fotos de productos (JPG o PNG, máx. 2 MB cada una)"
+          (change)="onFileChange($event, 'carrouselPhotos')" />
       </div>
       <div class="file-name" *ngIf="carrouselPhotos?.length">
         <div *ngFor="let photo of carrouselPhotos">

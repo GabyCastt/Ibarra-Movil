@@ -63,23 +63,16 @@ export class RegistroEmprendimientoPage implements OnInit {
 
   private initializeForm() {
     this.registerBusiness = this.fb.group({
-      categoryId: [null, [Validators.required]], 
+      categoryId: [null, [Validators.required]],
       commercialName: ['', [Validators.required, Validators.maxLength(50)]],
       representativeName: ['', [Validators.required, Validators.maxLength(50)]],
-     identificationNumber: [
-  '',
-  [
-    Validators.required,
-    Validators.pattern('^[0-9]{10}$|^[0-9]{13}$'),
-  ],
-],
       email: ['', [Validators.required, Validators.email]],
-      phone: ['', [Validators.required, Validators.pattern('^[0-9]+$'), Validators.maxLength(10)]],
+      phone: ['', [Validators.required, Validators.maxLength(15)]],
       website: ['', [Validators.maxLength(50)]],
       description: ['', [Validators.required, Validators.maxLength(200)]],
       parishCommunitySector: ['', Validators.required, [Validators.maxLength(50)]],
       acceptsWhatsappOrders: [false],
-      whatsappNumber: ['', [Validators.required,Validators.maxLength(15)]],
+      whatsappNumber: ['', [Validators.required, Validators.maxLength(15)]],
       googleMapsCoordinates: ['', [Validators.required, Validators.maxLength(100)]],
       deliveryService: ['NO', [Validators.pattern('NO|SI|BAJO_PEDIDO')]],
       salePlace: ['NO', [Validators.pattern('NO|FERIAS|LOCAL_FIJO')]],
@@ -90,8 +83,13 @@ export class RegistroEmprendimientoPage implements OnInit {
       instagram: ['', [Validators.maxLength(50)]],
       tiktok: ['', [Validators.maxLength(50)]],
       address: ['', [Validators.required, Validators.maxLength(100)]],
-      schedules: this.fb.array(['']), 
-      productsServices: this.fb.array([this.createProductService()]),
+      schedules: this.fb.array(
+  [this.fb.control('', Validators.required)],
+  Validators.required
+),
+
+
+      productsServices: ['', [Validators.required, Validators.maxLength(50)]],
     });
   }
 
@@ -117,24 +115,9 @@ export class RegistroEmprendimientoPage implements OnInit {
     return '';
   }
 
-  createProductService(): FormGroup {
-    return this.fb.group({
-      name: ['', Validators.required],
-      description: ['', Validators.required],
-    });
-  }
-
-  get productsServices(): FormArray {
-    return this.registerBusiness.get('productsServices') as FormArray;
-  }
-
-  addProductService() {
-    this.productsServices.push(this.createProductService());
-  }
-
   addSchedule(): void {
-  this.schedules.push(this.fb.control('', Validators.required));
-}
+    this.schedules.push(this.fb.control('', Validators.required));
+  }
 
 
   removeSchedule(index: number) {
@@ -146,9 +129,6 @@ export class RegistroEmprendimientoPage implements OnInit {
     return this.registerBusiness.get('schedules') as FormArray;
   }
 
-  removeProductService(index: number) {
-    this.productsServices.removeAt(index);
-  }
 
   isLoading = false;
 
@@ -213,23 +193,8 @@ export class RegistroEmprendimientoPage implements OnInit {
   }
 
   validateFiles(): boolean {
-    if (!this.logoFile) {
-      this.toastService.show('El logo es obligatorio', 'warning');
-      return false;
-    }
-    if (!this.signatureFile) {
-      this.toastService.show('La firma es obligatoria', 'warning');
-      return false;
-    }
     if (!this.cedulaFile) {
       this.toastService.show('La cédula es obligatoria', 'warning');
-      return false;
-    }
-    if (this.carrouselPhotos.length === 0) {
-      this.toastService.show(
-        'Debe subir al menos una foto de producto',
-        'warning'
-      );
       return false;
     }
     return true;
