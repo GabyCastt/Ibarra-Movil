@@ -4,7 +4,7 @@ import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { NegociosService } from '../../services/negocios.service';
 import { HttpClientModule } from '@angular/common/http';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-negocios',
@@ -24,7 +24,8 @@ export class NegociosPage implements OnInit {
   totalElements: number | null = null;
 
   constructor(private negociosService: NegociosService,
-    private route: ActivatedRoute) { }
+      private route: ActivatedRoute,
+      private router: Router) { }
 
   ngOnInit() {
     this.cargarCategorias();
@@ -100,4 +101,8 @@ export class NegociosPage implements OnInit {
       this.cargarNegocios(this.paginaActual + 1);
     }
   }
+ verDetalles(negocio: any) {
+  // Navegar a la página de detalles con el ID del negocio
+  this.router.navigate(['/detalle-publico', negocio.id]);
+}
 }

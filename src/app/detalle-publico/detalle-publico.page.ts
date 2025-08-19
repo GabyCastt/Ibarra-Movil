@@ -1,12 +1,16 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { BusinessService, Business } from '../services/detalle-publico.service';
+import { CommonModule } from '@angular/common';
+import { IonicModule } from '@ionic/angular';
 
 @Component({
   selector: 'app-detalle-publico',
-  templateUrl: './detalle-publico.component.html',
-  styleUrls: ['./detalle-publico.component.css']
+  templateUrl: './detalle-publico.page.html',
+  standalone: true,
+  imports: [CommonModule, IonicModule],
+  styleUrls: ['detalle-publico.page.scss']
 })
-export class DetallePublicoComponent implements OnInit {
+export class DetallePublicoPage implements OnInit {
   @Input() businessId?: number;
   @Input() showModal: boolean = false;
   
@@ -16,7 +20,8 @@ export class DetallePublicoComponent implements OnInit {
   error: string = '';
   formattedSchedules: { day: string, hours: string }[] = [];
 
-  constructor(private businessService: BusinessService) {}
+  constructor(private businessService: BusinessService
+  ) {}
 
   ngOnInit(): void {
     if (this.businessId) {
