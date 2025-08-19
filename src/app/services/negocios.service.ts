@@ -24,6 +24,6 @@ export class NegociosService {
       params = params.set('category', categoria);
     }
 
-    return this.http.get<any>(`${this.apiUrl}/business/public-list-by-category`, { params });
+    return this.http.get<any>(`${this.apiUrl}/business/public/approved?`, { params });
   }
 }
