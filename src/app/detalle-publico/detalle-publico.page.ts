@@ -1,4 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { BusinessService, Business } from '../services/detalle-publico.service';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
@@ -20,13 +21,29 @@ export class DetallePublicoPage implements OnInit {
   error: string = '';
   formattedSchedules: { day: string, hours: string }[] = [];
 
-  constructor(private businessService: BusinessService
+  constructor(
+    private businessService: BusinessService,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
-    if (this.businessId) {
+    console.log('=== DEBUGGING INICIO ===');
+    
+    // Obtener ID desde la ruta URL
+    const routeId = this.route.snapshot.paramMap.get('id');
+    console.log('Route ID:', routeId);
+    console.log('Input businessId:', this.businessId);
+    
+    // Priorizar el ID de la ruta sobre el Input
+    const finalBusinessId = routeId ? parseInt(routeId, 10) : this.businessId;
+    console.log('Final business ID:', finalBusinessId);
+    
+    if (finalBusinessId) {
+      this.businessId = finalBusinessId;
+      console.log('Cargando negocio por ID...');
       this.loadBusinessDetails();
     } else {
+      console.log('Cargando lista de negocios...');
       this.loadApprovedBusinesses();
     }
   }
@@ -35,37 +52,63 @@ export class DetallePublicoPage implements OnInit {
     if (!this.businessId) return;
     
     this.loading = true;
-    this.businessService.getBusinessById(this.businessId).subscribe({
+    this.error = '';
+    
+    // Usar el endpoint público específico que devuelve los datos directamente
+    this.businessService.getBusinessByIdPublic(this.businessId).subscribe({
       next: (business: Business) => {
+        console.log('Business loaded:', business);
         this.business = business;
         this.formattedSchedules = this.businessService.formatSchedules(business.schedules);
         this.loading = false;
       },
       error: (error: any) => {
+        console.error('Error loading business details:', error);
         this.error = 'Error al cargar los detalles del negocio';
         this.loading = false;
-        console.error('Error:', error);
+        
+        // Fallback: intentar cargar desde la lista de negocios aprobados
+        this.loadApprovedBusinesses();
       }
     });
   }
 
   loadApprovedBusinesses(): void {
     this.loading = true;
-    this.businessService.getApprovedBusinesses().subscribe({
-      next: (response: any) => {
+    this.error = '';
+    
+    this.businessService.getApprovedBusinesses(0, 10).subscribe({
+      next: (response) => {
+        console.log('API Response:', response);
+        
         if (response.success && response.data.content.length > 0) {
-          // Tomar el primer negocio como ejemplo
-          this.business = response.data.content[0];
+          if (this.businessId) {
+            // Buscar el negocio específico por ID
+            const foundBusiness = response.data.content.find(b => b.id === this.businessId);
+            if (foundBusiness) {
+              this.business = foundBusiness;
+            } else {
+              this.error = 'Negocio no encontrado';
+              this.loading = false;
+              return;
+            }
+          } else {
+            // Tomar el primer negocio como ejemplo
+            this.business = response.data.content[0];
+          }
+          
           if (this.business) {
             this.formattedSchedules = this.businessService.formatSchedules(this.business.schedules);
           }
+        } else {
+          this.error = 'No hay negocios disponibles';
         }
         this.loading = false;
       },
       error: (error: any) => {
+        console.error('Error loading approved businesses:', error);
         this.error = 'Error al cargar los negocios';
         this.loading = false;
-        console.error('Error:', error);
       }
     });
   }
@@ -75,7 +118,6 @@ export class DetallePublicoPage implements OnInit {
   }
 
   saveDetails(): void {
-    // Lógica para guardar o procesar los detalles
     console.log('Guardando detalles del negocio:', this.business);
     this.closeModal();
   }
