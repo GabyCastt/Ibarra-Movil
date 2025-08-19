@@ -97,8 +97,8 @@
           </ion-grid>
 
           <!-- Botones de acción -->
-          <div class="action-buttons">
-            <ion-button expand="block" fill="outline" size="small">
+           <div class="action-buttons">
+            <ion-button expand="block" fill="outline" size="small" (click)="verDetalles($event, negocio)">
               <ion-icon slot="start" name="eye-outline"></ion-icon>
               Ver Detalles
             </ion-button>
@@ -106,6 +106,7 @@
         </ion-card-content>
       </ion-card>
     </ng-container>
+
 
     <ng-template #noResults>
       <div class="empty-state">
