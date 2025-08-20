@@ -53,16 +53,27 @@
           </div>
         </div>
 
-        <div class="no-images" *ngIf="!business.photos || business.photos.length === 0">
-          <div class="no-images-icon">📷</div>
-          <p>No hay imágenes disponibles</p>
-        </div>
+      <div class="no-images" *ngIf="!business.photos || business.photos.length === 0">
+        <div class="no-images-icon">📷</div>
+        <p>No hay imágenes disponibles</p>
       </div>
+    </div>
 
-      <!-- Business Name -->
-      <div class="form-group">
-        <label class="form-label">Nombre del Negocio</label>
-        <div class="input-display">{{ business.commercialName }}</div>
+    <!-- Business Logo -->
+    <div class="logo-container" *ngIf="business.logoUrl">
+      <img [src]="business.logoUrl" [alt]="business.commercialName" class="business-logo" />
+    </div>
+
+    <!-- Business Name -->
+    <div class="form-group">
+      <label class="form-label">Nombre del Negocio</label>
+      <div class="input-display">{{ business.commercialName }}</div>
+    </div>
+
+      <!-- Representative -->
+      <div class="form-group" *ngIf="business.representativeName">
+        <label class="form-label">Representante</label>
+        <div class="input-display">{{ business.representativeName }}</div>
       </div>
 
       <!-- Representative -->

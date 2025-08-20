@@ -49,7 +49,7 @@ export interface BusinessResponse {
 @Injectable({
   providedIn: 'root'
 })
-export class BusinessService {
+export class DetallePublicoService {
   private apiUrl = environment.apiUrl;
   private businessUrl = `${this.apiUrl}/business`;
 

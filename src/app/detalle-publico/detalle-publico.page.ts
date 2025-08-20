@@ -1,6 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BusinessService, Business } from '../services/detalle-publico.service';
+import { DetallePublicoService, Business } from '../services/detalle-publico.service';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 
@@ -13,7 +13,7 @@ import { IonicModule } from '@ionic/angular';
 })
 export class DetallePublicoPage implements OnInit {
   @Input() businessId?: number;
-  @Input() showModal: boolean = false;
+  @Input() showModal: boolean = true;
   
   business: Business | null = null;
   currentImageIndex: number = 0;
@@ -22,7 +22,7 @@ export class DetallePublicoPage implements OnInit {
   formattedSchedules: { day: string, hours: string }[] = [];
 
   constructor(
-    private businessService: BusinessService,
+    private businessService: DetallePublicoService,
     private route: ActivatedRoute
   ) {}
 
@@ -115,6 +115,7 @@ export class DetallePublicoPage implements OnInit {
 
   closeModal(): void {
     this.showModal = false;
+    window.history.back();
   }
 
   saveDetails(): void {
