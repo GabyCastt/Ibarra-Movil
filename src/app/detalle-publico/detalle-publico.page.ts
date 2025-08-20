@@ -1,6 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BusinessService, Business } from '../services/detalle-publico.service';
+import { DetallePublicoService, Business } from '../services/detalle-publico.service';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 
@@ -22,7 +22,7 @@ export class DetallePublicoPage implements OnInit {
   formattedSchedules: { day: string, hours: string }[] = [];
 
   constructor(
-    private businessService: BusinessService,
+    private businessService: DetallePublicoService,
     private route: ActivatedRoute
   ) {}
 
