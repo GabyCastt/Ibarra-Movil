@@ -65,6 +65,12 @@
         <div class="input-display">{{ business.commercialName }}</div>
       </div>
 
+      <!-- Representative -->
+      <div class="form-group" *ngIf="business.representativeName">
+        <label class="form-label">Representante</label>
+        <div class="input-display">{{ business.representativeName }}</div>
+      </div>
+
       <!-- Description -->
       <div class="form-group">
         <label class="form-label">Descripción</label>
@@ -185,10 +191,10 @@
         </div>
         
         <div class="info-card">
-          <div class="info-icon">🏷️</div>
+          <div class="info-icon">📞</div>
           <div class="info-content">
-            <h4>Categoría</h4>
-            <p>{{ business.category.name }}</p>
+            <h4>Teléfono</h4>
+            <p>{{ business.phone || 'No especificado' }}</p>
           </div>
         </div>
       </div>
