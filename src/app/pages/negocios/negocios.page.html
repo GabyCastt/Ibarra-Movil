@@ -87,9 +87,9 @@
             <ion-row>
               <ion-col size="12">
                 <ion-item lines="none">
-                  <ion-icon slot="start" name="pricetag-outline"></ion-icon>
+                  <ion-icon slot="start" name="call-outline"></ion-icon>
                   <ion-label class="ion-text-wrap">
-                    {{ negocio.category?.name || 'Sin categoría' }}
+                    {{ negocio.phone || 'Teléfono no disponible' }}
                   </ion-label>
                 </ion-item>
               </ion-col>
@@ -98,7 +98,7 @@
 
           <!-- Botones de acción -->
            <div class="action-buttons">
-            <ion-button expand="block" fill="outline" size="small" (click)="verDetalles(negocio)">
+            <ion-button expand="block" fill="outline" size="small" (click)="openBusiness(negocio); $event.stopPropagation()">
               <ion-icon slot="start" name="eye-outline"></ion-icon>
               Ver Detalles
             </ion-button>

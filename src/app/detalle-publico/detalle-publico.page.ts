@@ -13,7 +13,7 @@ import { IonicModule } from '@ionic/angular';
 })
 export class DetallePublicoPage implements OnInit {
   @Input() businessId?: number;
-  @Input() showModal: boolean = false;
+  @Input() showModal: boolean = true;
   
   business: Business | null = null;
   currentImageIndex: number = 0;
@@ -115,6 +115,7 @@ export class DetallePublicoPage implements OnInit {
 
   closeModal(): void {
     this.showModal = false;
+    window.history.back();
   }
 
   saveDetails(): void {

@@ -80,14 +80,7 @@ export class NegociosPage implements OnInit {
       });
   }
   openBusiness(negocio: any) {
-    // Aquí defines qué pasa al hacer click en un negocio
-    // Por ejemplo, navegar a detalle o mostrar un modal
-    console.log('Negocio seleccionado:', negocio);
-
-    // Ejemplo: si tienes router, puedes navegar a una página de detalle pasando id
-    // this.router.navigate(['/detalle-negocio', negocio.id]);
-
-    // O abrir un modal, etc.
+    this.router.navigate(['/detalle-publico', negocio.id]);
   }
 
   paginaAnterior() {
@@ -101,8 +94,4 @@ export class NegociosPage implements OnInit {
       this.cargarNegocios(this.paginaActual + 1);
     }
   }
- verDetalles(negocio: any) {
-  // Navegar a la página de detalles con el ID del negocio
-  this.router.navigate(['/detalle-publico', negocio.id]);
-}
 }
