@@ -206,7 +206,7 @@ private getCategoryColor(categoryId: number): string {
 
   openCategory(category: any) {
     this.router.navigate(['/negocios'], {
-      queryParams: { categoria: category.name },
+      queryParams: { categoria: category.id },
       state: { categoryName: category.name }
     });
   }
