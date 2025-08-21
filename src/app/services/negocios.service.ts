@@ -21,9 +21,9 @@ export class NegociosService {
       .set('size', limite.toString());
 
     if (categoria) {
-      params = params.set('category', categoria);
+      params = params.set('id', categoria);
     }
 
-    return this.http.get<any>(`${this.apiUrl}/business/public/approved?`, { params });
+    return this.http.get<any>(`${this.apiUrl}/business/public/approved`, { params });
   }
 }

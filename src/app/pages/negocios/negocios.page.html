@@ -17,7 +17,7 @@
       <ion-item>
         <ion-select [(ngModel)]="categoriaSeleccionada" (ionChange)="cargarNegocios(1)">
           <ion-select-option value="">Todas</ion-select-option>
-          <ion-select-option *ngFor="let cat of categorias" [value]="cat.name">
+          <ion-select-option *ngFor="let cat of categorias" [value]="cat.id">
             {{ cat.name }}
           </ion-select-option>
         </ion-select>
