@@ -30,7 +30,7 @@
     <div class="form-field-wrapper">
       <ion-item class="form-field" fill="outline" [class.error-field]="hasError('categoryId')">
         <ion-label position="stacked">Categoría <span class="required">*</span></ion-label>
-        <ion-select formControlName="categoryId" interface="action-sheet">
+        <ion-select formControlName="categoryId" interface="popover">
           <ion-select-option *ngFor="let category of categories" [value]="category.id">
             {{ category.name }}
           </ion-select-option>
@@ -42,38 +42,57 @@
     </div>
 
     <div class="form-field-wrapper">
-      <ion-item class="form-field" fill="outline" [class.error-field]="hasError('commercialName')">
-        <ion-label position="stacked">Actividad Comercial <span class="required">*</span></ion-label>
-        <ion-input formControlName="commercialName" type="text" maxlength="50"></ion-input>
-      </ion-item>
-      <div class="error-message" *ngIf="hasError('commercialName')">
-        {{ getErrorMessage('commercialName') }}
-      </div>
-    </div>
-    <div class="form-field-wrapper">
-      <ion-item class="form-field" fill="outline" [class.error-field]="hasError('representativeName')">
-        <ion-label position="stacked">Representante Legal <span class="required">*</span></ion-label>
-        <ion-input formControlName="representativeName" type="text" maxlength="50"></ion-input>
-      </ion-item>
-      <div class="error-message" *ngIf="hasError('representativeName')">
-        {{ getErrorMessage('representativeName') }}
-      </div>
-    </div>
+  <ion-item class="form-field" fill="outline" [class.error-field]="hasError('commercialName')">
+    <ion-label position="stacked">
+      Actividad Comercial <span class="required">*</span>
+    </ion-label>
 
-    <div class="form-field-wrapper">
-      <ion-item class="form-field" fill="outline" [class.error-field]="hasError('email')">
-        <ion-label position="stacked">Correo Electrónico (opcional)</ion-label>
-        <ion-input formControlName="email" type="email" maxlength="50"></ion-input>
-      </ion-item>
-      <div class="error-message" *ngIf="hasError('email')">
-        {{ getErrorMessage('email') }}
-      </div>
-    </div>
+    <ion-select 
+      formControlName="commercialName" 
+      interface="popover" 
+      placeholder="Selecciona una categoría">
+      
+      <ion-select-option value="alimentos_bebidas">Alimentos y bebidas</ion-select-option>
+      <ion-select-option value="ropa_calzado">Ropa y calzado</ion-select-option>
+      <ion-select-option value="electrodomesticos">Electrodomésticos</ion-select-option>
+      <ion-select-option value="muebles">Muebles</ion-select-option>
+      <ion-select-option value="vehiculos">Vehículos</ion-select-option>
+      <ion-select-option value="material_construccion">Material de construcción</ion-select-option>
+      <ion-select-option value="libros_papeleria">Libros y papelería</ion-select-option>
+      <ion-select-option value="software_licencias">Software y licencias digitales</ion-select-option>
+      <ion-select-option value="obras_audiovisuales">Obras audiovisuales</ion-select-option>
+      <ion-select-option value="bienes_inmuebles">Bienes inmuebles</ion-select-option>
+      <ion-select-option value="transporte">Transporte</ion-select-option>
+      <ion-select-option value="educacion">Educación</ion-select-option>
+      <ion-select-option value="salud">Salud</ion-select-option>
+      <ion-select-option value="telecomunicaciones">Telecomunicaciones</ion-select-option>
+      <ion-select-option value="servicios_financieros">Servicios financieros</ion-select-option>
+      <ion-select-option value="consultoria">Consultoría</ion-select-option>
+      <ion-select-option value="alquiler">Alquiler</ion-select-option>
+      <ion-select-option value="reparaciones">Reparaciones</ion-select-option>
+      <ion-select-option value="turismo">Turismo</ion-select-option>
+      <ion-select-option value="servicios_publicos">Servicios públicos</ion-select-option>
+    </ion-select>
+  </ion-item>
+
+  <div class="error-message" *ngIf="hasError('commercialName')">
+    {{ getErrorMessage('commercialName') }}
+  </div>
+</div>
+
 
     <div class="form-field-wrapper">
       <ion-item class="form-field" fill="outline" [class.error-field]="hasError('phone')">
         <ion-label position="stacked">Teléfono <span class="required">*</span></ion-label>
-        <ion-input formControlName="phone" type="tel" maxlength="15"></ion-input>
+        <div class="country">
+        <ion-select interface="popover" class="w-28" formControlName="countryCodePhone">
+          <ion-select-option value="+593">🇪🇨 +593</ion-select-option>
+          <ion-select-option value="+57">🇨🇴 +57</ion-select-option>
+          <ion-select-option value="+52">🇲🇽 +52</ion-select-option>
+          <ion-select-option value="+34">🇪🇸 +34</ion-select-option>
+        </ion-select>
+        <ion-input formControlName="phone" type="tel" maxlength="9" placeholder="999999999"></ion-input>
+      </div>
       </ion-item>
       <div class="error-message" *ngIf="hasError('phone')">
         {{ getErrorMessage('phone') }}
@@ -128,17 +147,27 @@
       </ion-item>
     </div>
 
-    <div *ngIf="registerBusiness.get('acceptsWhatsappOrders')?.value">
-      <div class="form-field-wrapper">
-        <ion-item class="form-field" fill="outline" [class.error-field]="hasError('whatsappNumber')">
-          <ion-label position="stacked">Número de WhatsApp <span class="required">*</span></ion-label>
-          <ion-input formControlName="whatsappNumber" type="text" maxlength="15"></ion-input>
-        </ion-item>
-        <div class="error-message" *ngIf="hasError('whatsappNumber')">
-          {{ getErrorMessage('whatsappNumber') }}
-        </div>
+   <div *ngIf="registerBusiness.get('acceptsWhatsappOrders')?.value">
+  <div class="form-field-wrapper">
+    <ion-item class="form-field" fill="outline">
+      <ion-label position="stacked">WhatsApp <span class="required">*</span></ion-label>
+
+      <div class="country">
+        <ion-select interface="popover" class="w-28" formControlName="countryCode">
+          <ion-select-option value="+593">🇪🇨 +593</ion-select-option>
+          <ion-select-option value="+57">🇨🇴 +57</ion-select-option>
+          <ion-select-option value="+52">🇲🇽 +52</ion-select-option>
+          <ion-select-option value="+34">🇪🇸 +34</ion-select-option>
+        </ion-select>
+        <ion-input formControlName="whatsappNumber" type="tel" maxlength="9" placeholder="999999999"></ion-input>
       </div>
+    </ion-item>
+
+    <div class="error-message" *ngIf="hasError('whatsappNumber')">
+      {{ getErrorMessage('whatsappNumber') }}
     </div>
+  </div>
+</div>
 
 
     <div class="form-field-wrapper">
