@@ -23,12 +23,11 @@ import { Router } from '@angular/router';
 })
 export class RegistroEmprendimientoPage implements OnInit {
   registerBusiness!: FormGroup;
-  currentDate: string = new Date().toISOString().split('T')[0];
+    currentDate!: string;   // la definimos luego en ngOnInit
+
   logoFile!: File;
-  signatureFile!: File;
-  cedulaFile!: File;
   carrouselPhotos: File[] = [];
-  categories: any[] = []; // Nueva propiedad para almacenar categorías
+  categories: any[] = []; 
 
   constructor(
     private fb: FormBuilder,
@@ -42,7 +41,7 @@ export class RegistroEmprendimientoPage implements OnInit {
   async ngOnInit() {
     await this.loadCategories(); // Cargar categorías al iniciar
     this.registerBusiness.patchValue({
-      registrationDate: this.currentDate,
+      registrationDate: this.getDateInEcuador(),
     });
   }
 
@@ -66,13 +65,13 @@ export class RegistroEmprendimientoPage implements OnInit {
       categoryId: [null, [Validators.required]],
       commercialName: ['', [Validators.required, Validators.maxLength(50)]],
       representativeName: ['', [Validators.required, Validators.maxLength(50)]],
-      email: ['', [Validators.required, Validators.email]],
-      phone: ['', [Validators.required, Validators.maxLength(15)]],
+      email: ['', [Validators.email]],
+      phone: ['+593', [Validators.required, Validators.maxLength(15)]],
       website: ['', [Validators.maxLength(50)]],
       description: ['', [Validators.required, Validators.maxLength(200)]],
       parishCommunitySector: ['', Validators.required, [Validators.maxLength(50)]],
       acceptsWhatsappOrders: [false],
-      whatsappNumber: ['', [Validators.required, Validators.maxLength(15)]],
+      whatsappNumber: ['+593', [Validators.required, Validators.maxLength(15)]],
       googleMapsCoordinates: ['', [Validators.required, Validators.maxLength(100)]],
       deliveryService: ['NO', [Validators.pattern('NO|SI|BAJO_PEDIDO')]],
       salePlace: ['NO', [Validators.pattern('NO|FERIAS|LOCAL_FIJO')]],
@@ -84,12 +83,15 @@ export class RegistroEmprendimientoPage implements OnInit {
       tiktok: ['', [Validators.maxLength(50)]],
       address: ['', [Validators.required, Validators.maxLength(100)]],
       schedules: this.fb.array(
-  [this.fb.control('', Validators.required)],
+  [
+    this.fb.control('', Validators.required),
+    this.fb.control('', Validators.required)
+  ],
   Validators.required
 ),
 
 
-      productsServices: ['', [Validators.required, Validators.maxLength(50)]],
+      productsServices: ['Banana', [Validators.required, Validators.maxLength(50)]],
     });
   }
 
@@ -115,25 +117,18 @@ export class RegistroEmprendimientoPage implements OnInit {
     return '';
   }
 
-  addSchedule(): void {
-    this.schedules.push(this.fb.control('', Validators.required));
-  }
-
-
-  removeSchedule(index: number) {
-    this.schedules.removeAt(index);
-  }
-
-
-  get schedules(): FormArray {
-    return this.registerBusiness.get('schedules') as FormArray;
+    private getDateInEcuador(): string {
+    const dateInEcuador = new Date().toLocaleDateString("sv-SE", {
+      timeZone: "America/Guayaquil",
+    });
+    return dateInEcuador; // formato YYYY-MM-DD
   }
 
 
   isLoading = false;
 
   async onSubmit() {
-    if (this.registerBusiness.invalid || !this.validateFiles()) {
+    if (this.registerBusiness.invalid) {
       await this.toastService.show(
         'Por favor complete todos los campos requeridos',
         'warning'
@@ -142,10 +137,7 @@ export class RegistroEmprendimientoPage implements OnInit {
     }
 
     const formData = new FormData();
-    formData.append('cedulaFile', this.cedulaFile);
     formData.append('logoFile', this.logoFile);
-    formData.append('signatureFile', this.signatureFile);
-
     this.carrouselPhotos.forEach((file) => {
       formData.append('carrouselPhotos', file);
     });
@@ -170,8 +162,6 @@ export class RegistroEmprendimientoPage implements OnInit {
       await this.toastService.show('Registro exitoso', 'success');
       this.registerBusiness.reset();
       this.logoFile = null as any;
-      this.signatureFile = null as any;
-      this.cedulaFile = null as any;
       this.carrouselPhotos = [];
 
       if (this.categories.length > 0) {
@@ -192,17 +182,10 @@ export class RegistroEmprendimientoPage implements OnInit {
     }
   }
 
-  validateFiles(): boolean {
-    if (!this.cedulaFile) {
-      this.toastService.show('La cédula es obligatoria', 'warning');
-      return false;
-    }
-    return true;
-  }
 
   async onFileChange(
     event: Event | DragEvent,
-    tipo: 'logoFile' | 'signatureFile' | 'cedulaFile' | 'carrouselPhotos'
+    tipo: 'logoFile' | 'carrouselPhotos'
   ) {
     const input =
       event.target instanceof HTMLInputElement ? event.target : null;
@@ -214,7 +197,7 @@ export class RegistroEmprendimientoPage implements OnInit {
       return;
     }
 
-    const allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png'];
+    const allowedExtensions = ['jpg', 'jpeg', 'png'];
     const maxSize = 2 * 1024 * 1024;
 
     const validFiles: File[] = [];
@@ -222,7 +205,7 @@ export class RegistroEmprendimientoPage implements OnInit {
       const extension = file.name.split('.').pop()?.toLowerCase();
       if (!extension || !allowedExtensions.includes(extension)) {
         await this.toastService.show(
-          'Formato no permitido. Solo PDF, JPG o PNG',
+          'Formato no permitido. Solo JPG o PNG',
           'warning'
         );
         continue;
@@ -245,12 +228,6 @@ export class RegistroEmprendimientoPage implements OnInit {
 
     if (tipo === 'logoFile') {
       this.logoFile = validFiles[0];
-    } else if (tipo === 'signatureFile') {
-      this.signatureFile = validFiles[0];
-    } else if (tipo === 'cedulaFile') {
-      this.cedulaFile = validFiles[0];
-    } else if (tipo === 'carrouselPhotos') {
-      this.carrouselPhotos = validFiles;
     } else if (tipo === 'carrouselPhotos') {
       this.carrouselPhotos = validFiles;
     }
@@ -263,7 +240,7 @@ export class RegistroEmprendimientoPage implements OnInit {
 
   onDrop(
     event: DragEvent,
-    tipo: 'logoFile' | 'signatureFile' | 'cedulaFile' | 'carrouselPhotos'
+    tipo: 'logoFile' | 'carrouselPhotos'
   ) {
     event.preventDefault();
     this.onFileChange(event, tipo);
@@ -274,14 +251,12 @@ export class RegistroEmprendimientoPage implements OnInit {
   }
 
   private clearFile(
-    tipo: 'logoFile' | 'signatureFile' | 'cedulaFile' | 'carrouselPhotos'
+    tipo: 'logoFile' | 'carrouselPhotos'
   ) {
     if (tipo === 'logoFile') {
       this.logoFile = null as any;
-    } else if (tipo === 'signatureFile') {
-      this.signatureFile = null as any;
-    } else {
-      this.cedulaFile = null as any;
+    } else if (tipo === 'carrouselPhotos') {
+      this.carrouselPhotos = [];
     }
   }
 }
