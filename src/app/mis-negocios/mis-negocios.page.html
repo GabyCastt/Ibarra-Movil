@@ -17,10 +17,10 @@
   <div class="filter-container">
     <ion-item lines="none">
       <ion-icon slot="start" name="filter-outline"></ion-icon>
-      <ion-select 
-        [(ngModel)]="selectedCategory" 
+      <ion-select
+        [(ngModel)]="selectedCategory"
         (ionChange)="onCategoryChange()"
-        interface="action-sheet" 
+        interface="action-sheet"
         placeholder="Filtrar por categoría"
       >
         <ion-select-option value="">Todos</ion-select-option>
@@ -35,14 +35,19 @@
   <div class="business-list">
     <ng-container *ngIf="businesses.length > 0; else noBusinesses">
       <ion-card *ngFor="let biz of businesses" class="full-width-card">
-        
         <!-- Cabecera con imagen y estado -->
         <div class="card-header">
-          <img [src]="biz.logoUrl || 'assets/icon/ibarra.jpg'" 
-               alt="{{ biz.commercialName }}" 
-               class="business-image">
-          <ion-badge [color]="biz.active ? 'success' : 'danger'">
-            {{ biz.active ? 'Activo' : 'Inactivo' }}
+          <img
+            [src]="biz.logoUrl"
+            alt="{{ biz.commercialName }}"
+            class="business-image"
+            (error)="biz.logoUrl = 'assets/icon/ibarra.jpg'"
+          />
+          <ion-badge
+            [color]="biz.validationStatus === 'VALIDATED' ? 'success' : 'warning'"
+          >
+            {{ biz.validationStatus === 'VALIDATED' ? 'Validado' : 'Pendiente'
+            }}
           </ion-badge>
         </div>
 
@@ -51,7 +56,11 @@
           <ion-card-title>{{ biz.commercialName }}</ion-card-title>
           <ion-card-subtitle>
             <ion-icon name="person-outline"></ion-icon>
-            {{ biz.representativeName }}
+            {{ biz.user?.name || 'No especificado' }}
+          </ion-card-subtitle>
+          <ion-card-subtitle>
+            <ion-icon name="pricetag-outline"></ion-icon>
+            {{ biz.category?.name || 'Sin categoría' }}
           </ion-card-subtitle>
         </ion-card-header>
 
@@ -63,7 +72,8 @@
                 <ion-item lines="none">
                   <ion-icon slot="start" name="location-outline"></ion-icon>
                   <ion-label class="ion-text-wrap">
-                    {{ biz.parishCommunitySector || 'Ubicación no especificada' }}
+                    {{ biz.parishCommunitySector || 'Ubicación no especificada'
+                    }}
                   </ion-label>
                 </ion-item>
               </ion-col>
@@ -97,21 +107,41 @@
           </ion-grid>
 
           <!-- Redes sociales -->
-          <div class="social-links" *ngIf="biz.facebook || biz.instagram || biz.tiktok">
-            <ion-chip *ngIf="biz.facebook" outline (click)="openSocial(biz.facebook, 'facebook')">
+          <div
+            class="social-links"
+            *ngIf="biz.facebook || biz.instagram || biz.tiktok"
+          >
+            <ion-chip
+              *ngIf="biz.facebook"
+              outline
+              (click)="openSocial(biz.facebook, 'facebook')"
+            >
               <ion-icon name="logo-facebook"></ion-icon>
             </ion-chip>
-            <ion-chip *ngIf="biz.instagram" outline (click)="openSocial(biz.instagram, 'instagram')">
+            <ion-chip
+              *ngIf="biz.instagram"
+              outline
+              (click)="openSocial(biz.instagram, 'instagram')"
+            >
               <ion-icon name="logo-instagram"></ion-icon>
             </ion-chip>
-            <ion-chip *ngIf="biz.tiktok" outline (click)="openSocial(biz.tiktok, 'tiktok')">
+            <ion-chip
+              *ngIf="biz.tiktok"
+              outline
+              (click)="openSocial(biz.tiktok, 'tiktok')"
+            >
               <ion-icon name="logo-tiktok"></ion-icon>
             </ion-chip>
           </div>
 
           <!-- Botones de acción -->
           <div class="action-buttons">
-            <ion-button expand="block" fill="outline" size="small" (click)="openDetails(biz.id)">
+            <ion-button
+              expand="block"
+              fill="outline"
+              size="small"
+              (click)="openDetails(biz.id)"
+            >
               <ion-icon slot="start" name="eye-outline"></ion-icon>
               Ver Detalles
             </ion-button>
@@ -124,7 +154,11 @@
       <div class="empty-state">
         <ion-icon name="storefront-outline" size="large"></ion-icon>
         <h3>No tienes negocios registrados</h3>
-        <ion-button expand="block" fill="solid" routerLink="/registro-emprendimiento">
+        <ion-button
+          expand="block"
+          fill="solid"
+          routerLink="/registro-emprendimiento"
+        >
           Crear mi primer negocio
         </ion-button>
       </div>
@@ -132,7 +166,10 @@
   </div>
 
   <!-- Infinite Scroll -->
-  <ion-infinite-scroll (ionInfinite)="loadMore($event)" [disabled]="!hasMoreData">
+  <ion-infinite-scroll
+    (ionInfinite)="loadMore($event)"
+    [disabled]="!hasMoreData"
+  >
     <ion-infinite-scroll-content></ion-infinite-scroll-content>
   </ion-infinite-scroll>
 </ion-content>

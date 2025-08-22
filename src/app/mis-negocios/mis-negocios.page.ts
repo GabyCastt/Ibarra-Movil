@@ -74,10 +74,13 @@ export class MisNegociosPage implements OnInit {
         .toPromise();
 
       if (response && Array.isArray(response.content)) {
+        const newBusinesses = response.content;
+
         this.businesses = reset
-          ? response.content
-          : [...this.businesses, ...response.content];
-        this.hasMoreData = !response.last;
+          ? newBusinesses
+          : [...this.businesses, ...newBusinesses];
+
+        this.hasMoreData = this.currentPage < response.totalPages - 1;
         if (this.hasMoreData) this.currentPage++;
       } else {
         console.warn('Unexpected response format:', response);
@@ -85,11 +88,8 @@ export class MisNegociosPage implements OnInit {
     } catch (error) {
       console.error('Error loading businesses:', error);
       if (
-        typeof error === 'object' &&
-        error !== null &&
-        'message' in error &&
-        typeof (error as any).message === 'string' &&
-        (error as any).message.includes('sesión ha expirado')
+        error instanceof Error &&
+        error.message.includes('sesión ha expirado')
       ) {
         this.authService.logout();
       }

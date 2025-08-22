@@ -58,7 +58,20 @@ export class NegocioService {
         params,
       })
       .pipe(
-        map((response) => response.data),
+        map((response) => {
+          // Procesa los datos para extraer el logo y añadir propiedades necesarias
+          const processedData = {
+            ...response.data,
+            content: response.data.content.map((business: any) => ({
+              ...business,
+              logoUrl: this.extractLogoUrl(business.photos),
+              active: business.validationStatus === 'VALIDATED',
+              representativeName: business.user?.name || 'No especificado',
+              email: business.user?.email || 'No especificado',
+            })),
+          };
+          return processedData;
+        }),
         catchError((error) => {
           if (error.status === 401) {
             this.authService.logout();
@@ -66,6 +79,19 @@ export class NegocioService {
           return throwError(() => new Error(this.getErrorMessage(error)));
         })
       );
+  }
+
+  private extractLogoUrl(photos: any[]): string {
+    if (!photos || photos.length === 0) {
+      return 'assets/icon/ibarra.jpg';
+    }
+
+    // Buscar logo
+    const logo = photos.find((photo) => photo.photoType === 'LOGO');
+    if (logo) return logo.url;
+
+    // Si no hay logo, usar la primera imagen disponible
+    return photos[0].url || 'assets/icon/ibarra.jpg';
   }
 
   getCategories(): Observable<any> {
