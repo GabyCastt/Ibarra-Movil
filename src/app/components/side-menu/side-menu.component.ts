@@ -2,18 +2,19 @@ import { Component } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { 
-  IonMenu, 
-  IonHeader, 
-  IonToolbar, 
-  IonTitle, 
-  IonContent, 
-  IonList, 
-  IonItem, 
-  IonIcon, 
+import {
+  IonMenu,
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonContent,
+  IonList,
+  IonItem,
+  IonIcon,
   IonLabel,
-  IonMenuToggle
+  IonMenuToggle,
 } from '@ionic/angular/standalone';
+import { AlertController } from '@ionic/angular';
 
 @Component({
   selector: 'app-side-menu',
@@ -31,29 +32,63 @@ import {
     IonItem,
     IonIcon,
     IonLabel,
-    IonMenuToggle
-  ]
+    IonMenuToggle,
+  ],
 })
 export class SideMenuComponent {
   menuItems = [
     { title: 'Inicio', icon: 'home', path: '/home' },
-    // Ruta correcta para el perfil
     { title: 'Perfil', icon: 'person', path: '/perfil' },
     { title: 'Mis Documentos', icon: 'document-text', path: '/mis-documentos' },
-    { title: 'Configuración', icon: 'settings', path: '/settings' }
+    { title: 'Configuración', icon: 'settings', path: '/settings' },
   ];
 
   constructor(
     public authService: AuthService,
-    private router: Router
+    private router: Router,
+    private alertController: AlertController
   ) {}
 
   navigateTo(path: string) {
     this.router.navigate([path]);
   }
 
-  logout() {
+  async logout() {
+    const alert = await this.alertController.create({
+      header: 'Cerrar Sesión',
+      message: '¿Estás seguro de que quieres cerrar sesión?',
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel',
+          cssClass: 'secondary',
+        },
+        {
+          text: 'Sí, Cerrar Sesión',
+          handler: () => {
+            this.confirmLogout();
+          },
+        },
+      ],
+    });
+
+    await alert.present();
+  }
+
+  private async confirmLogout() {
     this.authService.logout();
-    this.router.navigate(['/login']);
+    await this.showLogoutAlert();
+    this.router.navigate(['/home']);
+  }
+
+  private async showLogoutAlert() {
+    const alert = await this.alertController.create({
+      header: 'Sesión cerrada',
+      message: 'Has cerrado sesión exitosamente.',
+      buttons: ['OK'],
+      cssClass: 'logout-alert',
+    });
+
+    await alert.present();
   }
 }

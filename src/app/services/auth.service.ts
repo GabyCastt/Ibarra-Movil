@@ -19,12 +19,17 @@ export class AuthService {
   private authState = new BehaviorSubject<boolean>(false);
   isAuthenticated$ = this.authState.asObservable();
 
+private currentUser = new BehaviorSubject<any>(null);
+  currentUser$ = this.currentUser.asObservable();
+
   constructor(
     private http: HttpClient,
     private router: Router
   ) {
     this.checkAuthState();
+    this.loadUserData();
   }
+
 
   login(email: string, password: string): Observable<any> {
     return this.http.post<any>(this.loginUrl, {
@@ -134,9 +139,36 @@ export class AuthService {
     );
   }
 
-  private storeAuthData(response: any): void {
+private storeAuthData(response: any): void {
     localStorage.setItem('jwt_token', response.jwt);
-    localStorage.setItem('user_data', JSON.stringify(response));
+    
+    // Extrae datos del usuario de la respuesta
+    const userData = {
+      id: response.id,
+      name: response.name,
+      lastname: response.lastname,
+      email: response.email,
+      identification: response.identification,
+      phone: response.phone,
+      address: response.address,
+      username: response.username,
+      enabled: response.enabled,
+      roles: response.roles || []
+    };
+    
+    localStorage.setItem('user_data', JSON.stringify(userData));
+    this.currentUser.next(userData);
+  }
+
+  private loadUserData(): void {
+    const userData = localStorage.getItem('user_data');
+    if (userData) {
+      this.currentUser.next(JSON.parse(userData));
+    }
+  }
+
+  getCurrentUser(): any {
+    return this.currentUser.value;
   }
 
   private checkAuthState(): void {
@@ -152,7 +184,7 @@ export class AuthService {
     localStorage.removeItem('jwt_token');
     localStorage.removeItem('user_data');
     this.authState.next(false);
-    this.router.navigate(['/login']);
+    this.router.navigate(['/home']);
   }
 
   getToken(): string | null {

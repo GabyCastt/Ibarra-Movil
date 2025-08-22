@@ -298,3 +298,41 @@ ion-col[size="auto"] {
   }
 }
 }
+// Alertas personalizadas
+.success-alert {
+  --background: #d4edda;
+  --color: #155724;
+  
+  .alert-title {
+    color: #155724;
+    font-weight: bold;
+  }
+  
+  .alert-message {
+    color: #155724;
+  }
+  
+  .alert-button {
+    color: #155724;
+    font-weight: bold;
+  }
+}
+
+.welcome-alert {
+  --background: #e3f2fd;
+  --color: #0d47a1;
+  
+  .alert-title {
+    color: #0d47a1;
+    font-weight: bold;
+  }
+}
+
+.logout-alert {
+  --background: #fff3cd;
+  --color: #856404;
+  
+  .alert-title {
+    color: #856404;
+  }
+}

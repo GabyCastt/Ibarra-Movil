@@ -1,5 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { ModalController, LoadingController, AlertController } from '@ionic/angular';
+import {
+  ModalController,
+  LoadingController,
+  AlertController,
+} from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
@@ -23,11 +27,12 @@ import {
   homeOutline,
   buildOutline,
   ellipsisHorizontalOutline,
-  helpOutline
+  helpOutline,
 } from 'ionicons/icons';
 import { LoginPage } from '../login/login.page';
 import { Router } from '@angular/router';
 import { NegociosService } from '../services/negocios.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-home',
@@ -48,22 +53,22 @@ export class HomePage implements OnInit {
       name: 'Arte Andino',
       location: 'Centro de Ibarra',
       logoUrl: 'assets/icon/ArteAndino.jpg',
-      description: 'Artesanías locales y productos tradicionales'
+      description: 'Artesanías locales y productos tradicionales',
     },
     {
       id: 2,
       name: 'Café del Río',
       location: 'Malecón de Ibarra',
       logoUrl: 'assets/icon/CafeDelRio.jpg',
-      description: 'Café orgánico y gastronomía local'
+      description: 'Café orgánico y gastronomía local',
     },
     {
       id: 3,
       name: 'Moda Imbabura',
       location: 'Calle Flores',
       logoUrl: 'assets/icon/ModaImbabura.jpg',
-      description: 'Ropa y accesorios de diseño local'
-    }
+      description: 'Ropa y accesorios de diseño local',
+    },
   ];
 
   // Datos estáticos para eventos
@@ -74,7 +79,7 @@ export class HomePage implements OnInit {
       date: '2023-12-15',
       location: 'Plaza de Ponchos',
       imageUrl: 'assets/icon/FeriaEmprendedores.jpg',
-      description: 'Evento anual para emprendedores locales'
+      description: 'Evento anual para emprendedores locales',
     },
     {
       id: 2,
@@ -82,8 +87,8 @@ export class HomePage implements OnInit {
       date: '2023-12-20',
       location: 'Centro de Convenciones',
       imageUrl: 'assets/icon/TallerMarketing.jpg',
-      description: 'Aprende a promocionar tu negocio en línea'
-    }
+      description: 'Aprende a promocionar tu negocio en línea',
+    },
   ];
 
   private loading: HTMLIonLoadingElement | null = null;
@@ -93,7 +98,8 @@ export class HomePage implements OnInit {
     private alertController: AlertController,
     private router: Router,
     private negociosService: NegociosService,
-    private loadingCtrl: LoadingController
+    private loadingCtrl: LoadingController,
+    private authService: AuthService
   ) {
     addIcons({
       locationOutline,
@@ -114,76 +120,87 @@ export class HomePage implements OnInit {
       homeOutline,
       buildOutline,
       ellipsisHorizontalOutline,
-      helpOutline
+      helpOutline,
     });
-    this.checkAuthStatus();
   }
 
   async ngOnInit() {
+    this.checkAuthStatus();
     await this.loadCategories();
+    this.setupAuthSubscription();
+  }
+
+  private setupAuthSubscription() {
+    this.authService.isAuthenticated$.subscribe((isAuthenticated) => {
+      this.isAuthenticated = isAuthenticated;
+      if (isAuthenticated) {
+        this.userData = this.authService.getCurrentUser();
+      } else {
+        this.userData = null;
+      }
+    });
   }
 
   private checkAuthStatus() {
-    const token = localStorage.getItem('jwt_token');
-    this.isAuthenticated = !!token;
-    if (token) {
-      const userData = localStorage.getItem('user_data');
-      this.userData = userData ? JSON.parse(userData) : null;
+    this.isAuthenticated = this.authService.isAuthenticated();
+    if (this.isAuthenticated) {
+      this.userData = this.authService.getCurrentUser();
     }
   }
 
-private async loadCategories() {
-  await this.showLoading();
-  try {
-    const categories = await this.negociosService.getCategorias().toPromise();
-    this.categories = (categories || []).map(category => ({
-      ...category,
-      icon: this.getCategoryIcon(category.name),
-      color: this.getCategoryColor(category.id)
-    }));
-  } catch (error) {
-    console.error('Error loading categories:', error);
-    await this.showErrorAlert();
-  } finally {
-    await this.hideLoading();
+  private async loadCategories() {
+    await this.showLoading();
+    try {
+      const categories = await this.negociosService.getCategorias().toPromise();
+      this.categories = (categories || []).map((category) => ({
+        ...category,
+        icon: this.getCategoryIcon(category.name),
+        color: this.getCategoryColor(category.id),
+      }));
+    } catch (error) {
+      console.error('Error loading categories:', error);
+      await this.showErrorAlert();
+    } finally {
+      await this.hideLoading();
+    }
   }
-}
 
-private getCategoryIcon(categoryName: string): string {
-  const iconMap: {[key: string]: string} = {
-    'Alimentos y Bebidas': 'fast-food-outline',
-    'Gastronomía': 'restaurant-outline',
-    'Artesanías': 'color-palette-outline',
-    'Manualidades y Bisutería': 'construct-outline',
-    'Salud y Cosmética Natural': 'medkit-outline',
-    'Textiles y Moda': 'shirt-outline',
-    'Tecnología': 'hardware-chip-outline',
-    'Decoración, Hogar y Jardinería': 'home-outline',
-    'Servicios': 'build-outline',
-    'Otro': 'ellipsis-horizontal-outline'
-  };
-  return iconMap[categoryName] || 'help-outline';
-}
+  private getCategoryIcon(categoryName: string): string {
+    const iconMap: { [key: string]: string } = {
+      'Alimentos y Bebidas': 'fast-food-outline',
+      Gastronomía: 'restaurant-outline',
+      Artesanías: 'color-palette-outline',
+      'Manualidades y Bisutería': 'construct-outline',
+      'Salud y Cosmética Natural': 'medkit-outline',
+      'Textiles y Moda': 'shirt-outline',
+      Tecnología: 'hardware-chip-outline',
+      'Decoración, Hogar y Jardinería': 'home-outline',
+      Servicios: 'build-outline',
+      Otro: 'ellipsis-horizontal-outline',
+    };
+    return iconMap[categoryName] || 'help-outline';
+  }
 
-private getCategoryColor(categoryId: number): string {
-  const colorMap: {[key: number]: string} = {
-    1: '#E53935',  // Rojo para alimentos
-    2: '#FB8C00',  // Naranja para gastronomía
-    3: '#8E24AA',  // Púrpura para artesanías
-    4: '#3949AB',  // Azul índigo para manualidades
-    5: '#43A047',  // Verde para salud
-    6: '#FDD835',  // Amarillo para textiles/moda
-    7: '#00ACC1',  // Turquesa para tecnología
-    8: '#5E35B1',  // Violeta para decoración
-    9: '#6D4C41',  // Marrón para servicios
-    10: '#757575'  // Gris para otros
-  };
-  return colorMap[categoryId] || '#607D8B';
-}
+  private getCategoryColor(categoryId: number): string {
+    const colorMap: { [key: number]: string } = {
+      1: '#E53935', // Rojo para alimentos
+      2: '#FB8C00', // Naranja para gastronomía
+      3: '#8E24AA', // Púrpura para artesanías
+      4: '#3949AB', // Azul índigo para manualidades
+      5: '#43A047', // Verde para salud
+      6: '#FDD835', // Amarillo para textiles/moda
+      7: '#00ACC1', // Turquesa para tecnología
+      8: '#5E35B1', // Violeta para decoración
+      9: '#6D4C41', // Marrón para servicios
+      10: '#757575', // Gris para otros
+    };
+    return colorMap[categoryId] || '#607D8B';
+  }
+
   private async showLoading() {
     this.loading = await this.loadingCtrl.create({
       message: 'Cargando...',
-      spinner: 'crescent'
+      spinner: 'crescent',
     });
     await this.loading.present();
   }
@@ -199,7 +216,7 @@ private getCategoryColor(categoryId: number): string {
     const alert = await this.alertController.create({
       header: 'Error',
       message: 'No se pudieron cargar las categorías.',
-      buttons: ['OK']
+      buttons: ['OK'],
     });
     await alert.present();
   }
@@ -207,7 +224,7 @@ private getCategoryColor(categoryId: number): string {
   openCategory(category: any) {
     this.router.navigate(['/negocios'], {
       queryParams: { categoria: category.id },
-      state: { categoryName: category.name }
+      state: { categoryName: category.name },
     });
   }
 
@@ -223,46 +240,64 @@ private getCategoryColor(categoryId: number): string {
     }
   }
 
-  async openLogin() {
-    const modal = await this.modalCtrl.create({
-      component: LoginPage,
-      cssClass: 'login-modal',
-      breakpoints: [0.5, 0.8],
-      initialBreakpoint: 0.8,
-      backdropDismiss: true,
-    });
+  async showWelcomeAlert() {
+    const userName =
+      this.userData?.name || this.userData?.username || 'usuario';
 
-    await modal.present();
-
-    const { data } = await modal.onWillDismiss();
-    if (data?.authenticated) {
-      this.isAuthenticated = true;
-      this.userData = data.userData;
-      await this.showWelcomeAlert();
-    }
-  }
-
-  private async showWelcomeAlert() {
     const alert = await this.alertController.create({
-      header: 'Bienvenido',
-      message: `Hola, ${this.userData.nombre || this.userData.username || 'usuario'}!`,
+      header: '¡Bienvenido/a!',
+      message: `Hola ${userName}, te has conectado exitosamente.`,
       buttons: ['OK'],
+      cssClass: 'welcome-alert',
     });
+
     await alert.present();
   }
 
-  logout() {
-    localStorage.removeItem('jwt_token');
-    localStorage.removeItem('user_data');
-    this.isAuthenticated = false;
-    this.userData = null;
+  async logout() {
+    const alert = await this.alertController.create({
+      header: 'Cerrar Sesión',
+      message: '¿Estás seguro de que quieres cerrar sesión?',
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel',
+          cssClass: 'secondary',
+        },
+        {
+          text: 'Sí, Cerrar Sesión',
+          handler: () => {
+            this.confirmLogout();
+          },
+        },
+      ],
+    });
+
+    await alert.present();
+  }
+
+  private async confirmLogout() {
+    this.authService.logout();
+    await this.showLogoutAlert();
+    this.router.navigate(['/home']);
+  }
+
+  private async showLogoutAlert() {
+    const alert = await this.alertController.create({
+      header: 'Sesión cerrada',
+      message: 'Has cerrado sesión exitosamente.',
+      buttons: ['OK'],
+      cssClass: 'logout-alert',
+    });
+
+    await alert.present();
   }
 
   searchItems(event: any) {
     const term = event.target.value;
     if (term.trim() !== '') {
       this.router.navigate(['/busqueda'], {
-        queryParams: { q: term }
+        queryParams: { q: term },
       });
     }
   }
@@ -294,5 +329,30 @@ private getCategoryColor(categoryId: number): string {
       ],
     });
     await alert.present();
+  }
+  async openLogin() {
+    const modal = await this.modalCtrl.create({
+      component: LoginPage,
+      cssClass: 'login-modal',
+      breakpoints: [0.5, 0.8],
+      initialBreakpoint: 0.8,
+      backdropDismiss: true,
+      componentProps: {
+        isModal: true,
+      },
+    });
+
+    await modal.present();
+
+    const { data } = await modal.onWillDismiss();
+
+    if (data?.authenticated) {
+      this.isAuthenticated = true;
+      this.userData = data.userData;
+      await this.showWelcomeAlert();
+    } else if (data?.navigateToRegister) {
+      // Navegar al registro cuando el usuario cierra el modal para registrarse
+      this.router.navigate(['/registro-app']);
+    }
   }
 }
