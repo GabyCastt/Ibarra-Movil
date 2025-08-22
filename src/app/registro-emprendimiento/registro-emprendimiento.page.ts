@@ -231,7 +231,7 @@ export class RegistroEmprendimientoPage implements OnInit {
     if (tipo === 'logoFile') {
       this.logoFile = validFiles[0];
     } else if (tipo === 'carrouselPhotos') {
-      this.carrouselPhotos = validFiles;
+      this.carrouselPhotos = [...this.carrouselPhotos, ...validFiles];
     }
 
     await this.toastService.show(
