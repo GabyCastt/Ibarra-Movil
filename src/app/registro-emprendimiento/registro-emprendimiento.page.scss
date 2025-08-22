@@ -4,7 +4,6 @@
     margin: 0 auto;
 }
 
-
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -16,6 +15,7 @@
     gap: 10px;
   }
 }
+
 .form-field-wrapper {
   display: flex;
   flex-direction: column;
@@ -83,7 +83,6 @@
   line-height: 1.2;
   display: block;
 }
-
 
 .upload-label {
   font-weight: 500;
@@ -153,4 +152,131 @@
   display: flex;
   align-items: center;
   gap: 4px;
+}
+
+/* Estilos para el mapa */
+.map-button {
+  margin-top: 8px;
+  margin-bottom: 0;
+  --color: #2563eb;
+  --border-color: #2563eb;
+  
+  ion-icon {
+    margin-right: 8px;
+  }
+}
+
+.map-info {
+  padding: 16px;
+  background-color: #f0f9ff;
+  border-bottom: 1px solid #e0e7ff;
+  text-align: center;
+
+  p {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    color: #374151;
+  }
+
+  ion-button {
+    --color: #2563eb;
+    --border-color: #2563eb;
+  }
+}
+
+.map-container {
+  width: 100%;
+  height: 400px;
+  position: relative;
+  background-color: #f3f4f6;
+  
+  @media (max-width: 768px) {
+    height: 350px;
+  }
+}
+
+.map-actions {
+  padding: 16px;
+  background-color: white;
+  border-top: 1px solid #e5e7eb;
+
+  ion-button {
+    --background: #2563eb;
+    --background-hover: #1d4ed8;
+    --background-focused: #1d4ed8;
+    --color: white;
+    font-weight: 600;
+    
+    &[disabled] {
+      --background: #9ca3af;
+      --color: #6b7280;
+    }
+  }
+}
+
+/* Estilos específicos para Leaflet */
+:global(.leaflet-container) {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+}
+
+:global(.leaflet-popup-content-wrapper) {
+  border-radius: 8px;
+}
+
+:global(.leaflet-control-zoom) {
+  border-radius: 8px;
+}
+
+:global(.leaflet-control-zoom a) {
+  border-radius: 4px;
+}
+
+/* Mejorar la apariencia del modal en móviles */
+@media (max-width: 768px) {
+  .map-info {
+    padding: 12px;
+    
+    p {
+      font-size: 13px;
+    }
+  }
+  
+  .map-actions {
+    padding: 12px;
+  }
+}
+
+/* Animación para el botón del mapa */
+.map-button {
+  transition: transform 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+/* Indicador de ubicación seleccionada */
+.coordinates-selected {
+  .map-button {
+    --color: #16a34a;
+    --border-color: #16a34a;
+  }
+}
+
+/* Estilos para el input de coordenadas cuando está lleno */
+.form-field {
+  &.coordinates-filled {
+    --border-color: #16a34a;
+    
+    ion-input {
+      --color: #16a34a;
+      font-weight: 500;
+    }
+  }
 }

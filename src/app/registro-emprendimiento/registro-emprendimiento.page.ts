@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
@@ -13,6 +13,9 @@ import { NegocioService } from '../services/negocio.service';
 import { lastValueFrom } from 'rxjs';
 import { Router } from '@angular/router';
 
+
+declare var L: any;
+
 @Component({
   selector: 'app-registro-emprendimiento',
   templateUrl: './registro-emprendimiento.page.html',
@@ -20,13 +23,20 @@ import { Router } from '@angular/router';
   standalone: true,
   imports: [CommonModule, IonicModule, FormsModule, ReactiveFormsModule],
 })
-export class RegistroEmprendimientoPage implements OnInit {
+export class RegistroEmprendimientoPage implements OnInit, AfterViewInit {
+  @ViewChild('mapContainer', { static: false }) mapContainer!: ElementRef;
+  
   registerBusiness!: FormGroup;
-  currentDate!: string;   // la definimos luego en ngOnInit
+  currentDate!: string;
 
   logoFile!: File;
   carrouselPhotos: File[] = [];
   categories: any[] = [];
+  
+  // Variables para el mapa
+  map: any;
+  marker: any;
+  showMap = false;
 
   constructor(
     private fb: FormBuilder,
@@ -38,16 +48,42 @@ export class RegistroEmprendimientoPage implements OnInit {
   }
 
   async ngOnInit() {
-    await this.loadCategories(); // Cargar categorías al iniciar
+    await this.loadCategories();
     this.registerBusiness.patchValue({
       registrationDate: this.getDateInEcuador(),
+    });
+    
+    // Cargar Leaflet dinámicamente
+    await this.loadLeafletScript();
+  }
+
+  ngAfterViewInit() {
+    // El mapa se inicializará cuando el usuario haga clic en "Abrir Mapa"
+  }
+
+  async loadLeafletScript() {
+    if (typeof L !== 'undefined') {
+      return; 
+    }
+
+    return new Promise<void>((resolve) => {
+    
+      const cssLink = document.createElement('link');
+      cssLink.rel = 'stylesheet';
+      cssLink.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      document.head.appendChild(cssLink);
+
+     
+      const script = document.createElement('script');
+      script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+      script.onload = () => resolve();
+      document.head.appendChild(script);
     });
   }
 
   async loadCategories() {
     try {
       this.categories = await this.negocioService.getCategories().toPromise();
-      // Estable la primera categoría como selección por defecto
       if (this.categories.length > 0) {
         this.registerBusiness.patchValue({
           categoryId: this.categories[0].id,
@@ -88,10 +124,115 @@ export class RegistroEmprendimientoPage implements OnInit {
         ],
         Validators.required
       ),
-
-
       productsServices: ['Banana', [Validators.required, Validators.maxLength(50)]],
     });
+  }
+
+  // Funciones del mapa
+  openMap() {
+    this.showMap = true;
+    setTimeout(() => {
+      this.initMap();
+    }, 100);
+  }
+
+  closeMap() {
+    this.showMap = false;
+    if (this.map) {
+      this.map.remove();
+      this.map = null;
+    }
+  }
+
+  private initMap() {
+    if (!this.mapContainer || this.map) return;
+
+    // Coordenadas por defecto (Santo Domingo de los Colorados(Aqui se puede cambiar OK tener en cuenta ya que es para IBARRA ), Ecuador)
+    const defaultLat = -0.25;
+    const defaultLng = -79.17;
+
+
+    this.map = L.map(this.mapContainer.nativeElement).setView([defaultLat, defaultLng], 13);
+
+    // Agregar capa de OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(this.map);
+
+    // Agregar marcador inicial
+    this.marker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(this.map);
+
+    // Evento cuando se hace clic en el mapa
+    this.map.on('click', (e: any) => {
+      this.updateMarkerPosition(e.latlng);
+    });
+
+    // Evento cuando se arrastra el marcador
+    this.marker.on('dragend', (e: any) => {
+      this.updateMarkerPosition(e.target.getLatLng());
+    });
+
+    // Intentar obtener ubicación actual
+    this.getCurrentLocation();
+  }
+
+  private updateMarkerPosition(latlng: any) {
+    if (this.marker) {
+      this.marker.setLatLng(latlng);
+    }
+    
+    const coordinates = `${latlng.lat.toFixed(6)}, ${latlng.lng.toFixed(6)}`;
+    this.registerBusiness.patchValue({
+      googleMapsCoordinates: coordinates
+    });
+  }
+
+  private getCurrentLocation() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          
+          this.map.setView([lat, lng], 15);
+          this.updateMarkerPosition({ lat, lng });
+        },
+        (error) => {
+          console.log('Error obteniendo ubicación:', error);
+          this.toastService.show('No se pudo obtener la ubicación actual', 'warning');
+        }
+      );
+    }
+  }
+
+  centerOnCurrentLocation() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          
+          this.map.setView([lat, lng], 15);
+          this.updateMarkerPosition({ lat, lng });
+          this.toastService.show('Ubicación actualizada', 'success');
+        },
+        (error) => {
+          this.toastService.show('No se pudo obtener la ubicación actual', 'error');
+        }
+      );
+    } else {
+      this.toastService.show('Geolocalización no disponible', 'error');
+    }
+  }
+
+  confirmLocation() {
+    const coordinates = this.registerBusiness.get('googleMapsCoordinates')?.value;
+    if (coordinates) {
+      this.closeMap();
+      this.toastService.show('Ubicación seleccionada correctamente', 'success');
+    } else {
+      this.toastService.show('Por favor selecciona una ubicación en el mapa', 'warning');
+    }
   }
 
   hasError(controlName: string): boolean {
@@ -120,9 +261,8 @@ export class RegistroEmprendimientoPage implements OnInit {
     const dateInEcuador = new Date().toLocaleDateString("sv-SE", {
       timeZone: "America/Guayaquil",
     });
-    return dateInEcuador; // formato YYYY-MM-DD
+    return dateInEcuador;
   }
-
 
   isLoading = false;
 
@@ -183,7 +323,6 @@ export class RegistroEmprendimientoPage implements OnInit {
       this.isLoading = false;
     }
   }
-
 
   async onFileChange(
     event: Event | DragEvent,
