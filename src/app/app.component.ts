@@ -55,10 +55,12 @@ import {
   logoLinkedin,
   logoTwitter,
   logoTiktok,
-
   chevronBackOutline,
   chevronForwardOutline,
   chevronDownOutline,
+  locateOutline,
+  checkmarkOutline,
+
 } from 'ionicons/icons';
 
 @Component({
@@ -124,6 +126,9 @@ export class AppComponent {
       chevronBackOutline,
       chevronForwardOutline,
       chevronDownOutline,
+      locateOutline,
+      checkmarkOutline,
+     
  
     });
   }

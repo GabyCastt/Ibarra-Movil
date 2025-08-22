@@ -9,6 +9,13 @@ export interface BusinessCategory {
   name: string;
   description: string | null;
 }
+export interface BussinessPhoto{
+  id: number;
+  url: string;
+  fileType: string;
+  publicId: string | null;
+  photoType: string;
+}
 
 export interface Business {
   id: number;
@@ -25,8 +32,8 @@ export interface Business {
   address: string;
   parishCommunitySector: string;
   googleMapsCoordinates: string;
-  logoUrl: string;
-  photos: string[];
+  logoUrl: string | null;
+  photos: BussinessPhoto[];
   schedules: string[];
   acceptsWhatsappOrders: boolean;
   deliveryService: string;
@@ -64,73 +71,129 @@ export class DetallePublicoService {
     console.log('=== CALLING APPROVED BUSINESSES ===');
     console.log('URL:', url);
     console.log('Params:', params.toString());
-    console.log('Full URL:', `${url}?${params.toString()}`);
 
-    return this.http.get<BusinessResponse>(url, { params })
+    return this.http.get<any>(url, { params })
       .pipe(
         map(response => {
           console.log('=== RAW API RESPONSE ===');
           console.log('Response:', response);
-          console.log('Response type:', typeof response);
-          console.log('Has success property:', 'success' in response);
-          console.log('Has data property:', 'data' in response);
-          return response;
+          
+          // Procesar cada negocio para extraer logos
+          const processedContent = (response.data?.content || response.content || []).map((business: any) => ({
+            ...business,
+            logoUrl: this.extractLogoUrl(business.photos || []),
+            // Asegurar valores por defecto
+            email: business.email || '',
+            whatsappNumber: business.whatsappNumber || '',
+            photos: business.photos || []
+          }));
+          
+          return {
+            ...response,
+            data: {
+              ...(response.data || response),
+              content: processedContent
+            }
+          };
         }),
         catchError((error) => {
           console.error('=== API ERROR IN SERVICE ===');
           console.error('Error object:', error);
-          console.error('Error status:', error.status);
-          console.error('Error message:', error.message);
-          console.error('Error body:', error.error);
           return throwError(() => new Error(this.getErrorMessage(error)));
         })
       );
   }
 
-  // Método corregido: usar el endpoint público y filtrar por ID
-  getBusinessById(id: number): Observable<Business> {
-    return this.getApprovedBusinesses(0, 100) // Obtener más registros para buscar
-      .pipe(
-        map(response => {
-          const business = response.data.content.find(b => b.id === id);
-          if (!business) {
-            throw new Error('Negocio no encontrado');
-          }
-          return business;
-        }),
-        catchError((error) => {
-          return throwError(() => new Error(this.getErrorMessage(error)));
-        })
-      );
-  }
-
-  // Método para endpoint específico público (respuesta directa)
+  // Método para endpoint específico público
   getBusinessByIdPublic(id: number): Observable<Business> {
     const url = `${this.businessUrl}/public-details`;
     const params = new HttpParams().set('id', id.toString());
+    
     console.log('=== API CALL ===');
     console.log('URL:', url);
     console.log('Business ID:', id);
 
-    return this.http.get<Business>(url, { params })
+    return this.http.get<any>(url, { params })
       .pipe(
         map(response => {
-          console.log('=== API RESPONSE ===');
+          console.log('=== RAW API RESPONSE ===');
           console.log('Response:', response);
-          return response;
+          
+          // Procesar la respuesta para extraer el logo y formatear las fotos
+          const processedBusiness = this.processBusinessResponse(response);
+          console.log('Processed business:', processedBusiness);
+          
+          return processedBusiness;
         }),
         catchError((error) => {
           console.error('=== API ERROR ===');
           console.error('Error:', error);
-          console.error('Status:', error.status);
-          console.error('Message:', error.message);
           return throwError(() => new Error(this.getErrorMessage(error)));
         })
       );
   }
 
+  // Método para procesar la respuesta de la API
+  private processBusinessResponse(response: any): Business {
+    // Extraer el logo URL de las fotos
+    const logoUrl = this.extractLogoUrl(response.photos || []);
+    
+    return {
+      ...response,
+      logoUrl: logoUrl,
+      // Asegurar que las propiedades opcionales tengan valores por defecto
+      email: response.email || '',
+      whatsappNumber: response.whatsappNumber || '',
+      facebook: response.facebook || '',
+      instagram: response.instagram || '',
+      tiktok: response.tiktok || '',
+      website: response.website || '',
+      address: response.address || '',
+      parishCommunitySector: response.parishCommunitySector || '',
+      // Mantener el array de fotos como objetos
+      photos: response.photos || [],
+      // Valores por defecto para otras propiedades
+      representativeName: response.representativeName || null,
+      description: response.description || '',
+      phone: response.phone || '',
+      googleMapsCoordinates: response.googleMapsCoordinates || '',
+      acceptsWhatsappOrders: response.acceptsWhatsappOrders || false,
+      deliveryService: response.deliveryService || 'NO',
+      salePlace: response.salePlace || 'NO',
+      category: response.category || { id: 0, name: '', description: null }
+    };
+  }
+
+  // Método para extraer el logo URL del array de fotos
+  private extractLogoUrl(photos: BussinessPhoto[]): string {
+    if (!photos || photos.length === 0) {
+      return 'assets/icon/ibarra.jpg';
+    }
+    
+    // Buscar la foto con photoType = 'LOGO'
+    const logo = photos.find(photo => photo.photoType === 'LOGO');
+    if (logo) {
+      return logo.url;
+    }
+    
+    // Si no hay logo, usar la primera imagen disponible
+    return photos[0].url || 'assets/icon/ibarra.jpg';
+  }
+
+  // Método para obtener solo las URLs de las fotos (para el carrusel)
+  getPhotoUrls(photos: BussinessPhoto[]): string[] {
+    if (!photos || photos.length === 0) {
+      return [];
+    }
+    return photos.map(photo => photo.url);
+  }
+
   // Método para formatear horarios
   formatSchedules(schedules: string[]): { day: string, hours: string }[] {
+    if (!schedules || schedules.length === 0) {
+      return [];
+    }
+    
     return schedules.map(schedule => {
       const parts = schedule.split(' ');
       const day = parts[0];
@@ -166,8 +229,12 @@ export class DetallePublicoService {
 
   // Método para obtener coordenadas como array
   getCoordinatesArray(coordinates: string): [number, number] {
+    if (!coordinates) {
+      return [0, 0];
+    }
+    
     const coords = coordinates.split(',').map(coord => parseFloat(coord.trim()));
-    return [coords[0], coords[1]];
+    return coords.length === 2 ? [coords[0], coords[1]] : [0, 0];
   }
 
   private getErrorMessage(error: any): string {

@@ -20,6 +20,7 @@ export class DetallePublicoPage implements OnInit {
   loading: boolean = false;
   error: string = '';
   formattedSchedules: { day: string, hours: string }[] = [];
+  photoUrls: string[] = [];
 
   constructor(
     private businessService: DetallePublicoService,
@@ -54,11 +55,14 @@ export class DetallePublicoPage implements OnInit {
     this.loading = true;
     this.error = '';
     
-    // Usar el endpoint público específico que devuelve los datos directamente
     this.businessService.getBusinessByIdPublic(this.businessId).subscribe({
       next: (business: Business) => {
         console.log('Business loaded:', business);
         this.business = business;
+        
+        // Extraer las URLs de las fotos para el carrusel
+        this.photoUrls = this.businessService.getPhotoUrls(business.photos);
+        
         this.formattedSchedules = this.businessService.formatSchedules(business.schedules);
         this.loading = false;
       },
@@ -87,6 +91,7 @@ export class DetallePublicoPage implements OnInit {
             const foundBusiness = response.data.content.find(b => b.id === this.businessId);
             if (foundBusiness) {
               this.business = foundBusiness;
+              this.photoUrls = this.businessService.getPhotoUrls(foundBusiness.photos);
             } else {
               this.error = 'Negocio no encontrado';
               this.loading = false;
@@ -95,6 +100,7 @@ export class DetallePublicoPage implements OnInit {
           } else {
             // Tomar el primer negocio como ejemplo
             this.business = response.data.content[0];
+            this.photoUrls = this.businessService.getPhotoUrls(this.business.photos);
           }
           
           if (this.business) {
@@ -125,15 +131,15 @@ export class DetallePublicoPage implements OnInit {
 
   // Métodos para el carrusel de imágenes
   nextImage(): void {
-    if (this.business && this.business.photos.length > 0) {
-      this.currentImageIndex = (this.currentImageIndex + 1) % this.business.photos.length;
+    if (this.photoUrls.length > 0) {
+      this.currentImageIndex = (this.currentImageIndex + 1) % this.photoUrls.length;
     }
   }
 
   prevImage(): void {
-    if (this.business && this.business.photos.length > 0) {
+    if (this.photoUrls.length > 0) {
       this.currentImageIndex = this.currentImageIndex === 0 
-        ? this.business.photos.length - 1 
+        ? this.photoUrls.length - 1 
         : this.currentImageIndex - 1;
     }
   }
@@ -203,11 +209,11 @@ export class DetallePublicoPage implements OnInit {
 
   // Getters para template
   get currentImage(): string {
-    return this.business?.photos[this.currentImageIndex] || '';
+    return this.photoUrls[this.currentImageIndex] || 'assets/icon/ibarra.jpg';
   }
 
   get hasMultipleImages(): boolean {
-    return this.business ? this.business.photos.length > 1 : false;
+    return this.photoUrls.length > 1;
   }
 
   get deliveryText(): string {
@@ -227,5 +233,14 @@ export class DetallePublicoPage implements OnInit {
 
   get businessName(): string {
     return this.business?.commercialName || '';
+  }
+
+  // Manejo de errores en imágenes
+  handleImageError(event: any, imageType: string = 'carousel') {
+    if (imageType === 'carousel') {
+      event.target.src = 'assets/icon/ibarra.jpg';
+    } else if (imageType === 'logo' && this.business) {
+      this.business.logoUrl = 'assets/icon/ibarra.jpg';
+    }
   }
 }
