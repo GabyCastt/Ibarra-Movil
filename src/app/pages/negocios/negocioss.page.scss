@@ -187,3 +187,16 @@ ion-list ion-item {
   --inner-padding-end: 12px;
   --inner-padding-start: 12px;
 }
+.active-filter {
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  text-align: center;
+}
+
+.no-padding {
+  --padding-start: 0;
+  --padding-end: 0;
+  --padding-top: 0;
+  --padding-bottom: 0;
+}

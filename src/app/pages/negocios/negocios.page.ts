@@ -17,39 +17,71 @@ export class NegociosPage implements OnInit {
   negocios: any[] = [];
   categorias: any[] = [];
   categoriaSeleccionada: string = '';
+  categoriaNombre: string = '';
 
   paginaActual = 1;
   totalPaginas = 1;
   limite = 5;
   totalElements: number | null = null;
 
-  constructor(private negociosService: NegociosService,
-      private route: ActivatedRoute,
-      private router: Router) { }
+  constructor(
+    private negociosService: NegociosService,
+    private route: ActivatedRoute,
+    private router: Router
+  ) {}
 
-   ngOnInit() {
+  ngOnInit() {
     this.cargarCategorias();
 
-    // Leer parámetro de la URL (?categoria=...)
+    // Leer parámetros de la URL
     this.route.queryParams.subscribe(params => {
       if (params['categoria']) {
         this.categoriaSeleccionada = params['categoria'];
+        
+        // Si viene el nombre directamente desde la URL, usarlo
+        if (params['categoriaNombre']) {
+          this.categoriaNombre = params['categoriaNombre'];
+          this.cargarNegocios(1);
+        } else {
+          // Si no viene el nombre, esperar a que se carguen las categorías
+          if (this.categorias.length > 0) {
+            this.obtenerNombreCategoria();
+          }
+        }
+      } else {
+        this.cargarNegocios(1);
       }
-      this.cargarNegocios(1);
     });
   }
 
   cargarCategorias() {
     this.negociosService.getCategorias().subscribe((data) => {
       this.categorias = data || [];
+      
+      // Si ya tenemos una categoría seleccionada desde la URL, obtener su nombre
+      if (this.categoriaSeleccionada) {
+        this.obtenerNombreCategoria();
+      }
     });
+  }
+
+  obtenerNombreCategoria() {
+    if (this.categorias.length > 0 && this.categoriaSeleccionada) {
+      const categoria = this.categorias.find(cat => 
+        cat.id.toString() === this.categoriaSeleccionada.toString()
+      );
+      this.categoriaNombre = categoria ? categoria.name : '';
+      
+      // Cargar negocios solo cuando ya tenemos el nombre
+      this.cargarNegocios(1);
+    }
   }
 
   cargarNegocios(pagina: number) {
     // Convertir a índice 0-based para el backend
     const pageToRequest = Math.max(0, pagina - 1);
 
-    this.negociosService.getNegocios(this.categoriaSeleccionada, pageToRequest, this.limite)
+    this.negociosService.getNegocios(this.categoriaNombre, pageToRequest, this.limite)
       .subscribe((resp: any) => {
         const data = resp && resp.data ? resp.data : resp;
         const content = data && data.content ? data.content : [];
@@ -71,6 +103,19 @@ export class NegociosPage implements OnInit {
       });
   }
 
+  // Manejar cambio de categoría en el select
+  onCategoriaChange() {
+    if (this.categoriaSeleccionada) {
+      const categoria = this.categorias.find(cat => 
+        cat.id.toString() === this.categoriaSeleccionada.toString()
+      );
+      this.categoriaNombre = categoria ? categoria.name : '';
+    } else {
+      this.categoriaNombre = '';
+    }
+    this.cargarNegocios(1);
+  }
+
   openBusiness(negocio: any) {
     this.router.navigate(['/detalle-publico', negocio.id]);
   }
@@ -85,5 +130,12 @@ export class NegociosPage implements OnInit {
     if (this.totalPaginas > 0 && this.paginaActual < this.totalPaginas) {
       this.cargarNegocios(this.paginaActual + 1);
     }
+  }
+
+  // Método para limpiar filtros
+  limpiarFiltros() {
+    this.categoriaSeleccionada = '';
+    this.categoriaNombre = '';
+    this.cargarNegocios(1);
   }
 }

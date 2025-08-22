@@ -60,6 +60,7 @@ import {
   chevronDownOutline,
   locateOutline,
   checkmarkOutline,
+  closeCircleOutline
 
 } from 'ionicons/icons';
 
@@ -128,7 +129,7 @@ export class AppComponent {
       chevronDownOutline,
       locateOutline,
       checkmarkOutline,
-     
+     closeCircleOutline,
  
     });
   }

@@ -222,11 +222,13 @@ export class HomePage implements OnInit {
   }
 
   openCategory(category: any) {
-    this.router.navigate(['/negocios'], {
-      queryParams: { categoria: category.id },
-      state: { categoryName: category.name },
-    });
-  }
+  this.router.navigate(['/negocios'], {
+    queryParams: { 
+      categoria: category.id,
+      categoriaNombre: category.name // Pasamos ambos para mayor seguridad
+    }
+  });
+}
 
   openBusiness(business: any) {
     this.router.navigate(['/negocio-detalle', business.id]);

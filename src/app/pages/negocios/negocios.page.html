@@ -4,10 +4,25 @@
       <ion-back-button defaultHref="/"></ion-back-button>
     </ion-buttons>
     <ion-title>Lista de Negocios</ion-title>
+
+    <!-- Botón para limpiar filtros -->
+    <ion-buttons slot="end" *ngIf="categoriaSeleccionada">
+      <ion-button (click)="limpiarFiltros()">
+        <ion-icon name="close-circle-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" class="no-padding">
+  <!-- Mostrar categoría activa -->
+  <div *ngIf="categoriaNombre" class="active-filter">
+    <ion-chip color="primary">
+      <ion-label>Filtrado por: {{ categoriaNombre }}</ion-label>
+      <ion-icon name="close" (click)="limpiarFiltros()"></ion-icon>
+    </ion-chip>
+  </div>
+
   <!-- Filtro por categoría -->
   <ion-card>
     <ion-card-header>
@@ -15,8 +30,11 @@
     </ion-card-header>
     <ion-card-content>
       <ion-item>
-        <ion-select [(ngModel)]="categoriaSeleccionada" (ionChange)="cargarNegocios(1)">
-          <ion-select-option value="">Todas</ion-select-option>
+        <ion-select
+          [(ngModel)]="categoriaSeleccionada"
+          (ionChange)="onCategoriaChange()"
+        >
+          <ion-select-option value="">Todos los negocios</ion-select-option>
           <ion-select-option *ngFor="let cat of categorias" [value]="cat.id">
             {{ cat.name }}
           </ion-select-option>
@@ -29,7 +47,9 @@
   <ion-item>
     <ion-label>Items por página</ion-label>
     <ion-select [(ngModel)]="limite" (ionChange)="cargarNegocios(1)">
-      <ion-select-option *ngFor="let opt of [2, 5, 10, 20]" [value]="opt">{{ opt }}</ion-select-option>
+      <ion-select-option *ngFor="let opt of [2, 5, 10, 20]" [value]="opt"
+        >{{ opt }}</ion-select-option
+      >
     </ion-select>
   </ion-item>
 
@@ -41,21 +61,30 @@
   <!-- Lista de negocios -->
   <div class="business-list">
     <ng-container *ngIf="negocios.length > 0; else noResults">
-      <ion-card *ngFor="let negocio of negocios" class="full-width-card" button (click)="openBusiness(negocio)">
-        
+      <ion-card
+        *ngFor="let negocio of negocios"
+        class="full-width-card"
+        button
+        (click)="openBusiness(negocio)"
+      >
         <!-- Cabecera con imagen -->
         <div class="card-header">
-          <img [src]="negocio.logoUrl || 'assets/icon/ibarra.jpg'" 
-               alt="{{ negocio.commercialName }}" 
-               class="business-image">
+          <img
+            [src]="negocio.logoUrl || 'assets/icon/ibarra.jpg'"
+            alt="{{ negocio.commercialName }}"
+            class="business-image"
+          />
         </div>
 
         <!-- Información principal -->
         <ion-card-header>
           <ion-card-title>{{ negocio.commercialName }}</ion-card-title>
-          <ion-card-subtitle *ngIf="negocio.representativeName || negocio.ownerName || negocio.name">
+          <ion-card-subtitle
+            *ngIf="negocio.representativeName || negocio.ownerName || negocio.name"
+          >
             <ion-icon name="person-outline"></ion-icon>
-            {{ negocio.representativeName || negocio.ownerName || negocio.name }}
+            {{ negocio.representativeName || negocio.ownerName || negocio.name
+            }}
           </ion-card-subtitle>
         </ion-card-header>
 
@@ -76,7 +105,10 @@
             <ion-row>
               <ion-col size="12">
                 <ion-item lines="none">
-                  <ion-icon slot="start" name="document-text-outline"></ion-icon>
+                  <ion-icon
+                    slot="start"
+                    name="document-text-outline"
+                  ></ion-icon>
                   <ion-label class="ion-text-wrap">
                     {{ negocio.description || 'Sin descripción' }}
                   </ion-label>
@@ -97,8 +129,13 @@
           </ion-grid>
 
           <!-- Botones de acción -->
-           <div class="action-buttons">
-            <ion-button expand="block" fill="outline" size="small" (click)="openBusiness(negocio); $event.stopPropagation()">
+          <div class="action-buttons">
+            <ion-button
+              expand="block"
+              fill="outline"
+              size="small"
+              (click)="openBusiness(negocio); $event.stopPropagation()"
+            >
               <ion-icon slot="start" name="eye-outline"></ion-icon>
               Ver Detalles
             </ion-button>
@@ -106,7 +143,6 @@
         </ion-card-content>
       </ion-card>
     </ng-container>
-
 
     <ng-template #noResults>
       <div class="empty-state">
@@ -119,15 +155,28 @@
 
   <!-- Paginación -->
   <div class="pagination">
-    <ion-button size="small" fill="solid" color="danger" [disabled]="paginaActual === 1" (click)="paginaAnterior()">
+    <ion-button
+      size="small"
+      fill="solid"
+      color="danger"
+      [disabled]="paginaActual === 1"
+      (click)="paginaAnterior()"
+    >
       <ion-icon slot="start" name="chevron-back-outline"></ion-icon>
       Anterior
     </ion-button>
 
-    <span class="pagination-info">Página {{ paginaActual }} de {{ totalPaginas }}</span>
+    <span class="pagination-info"
+      >Página {{ paginaActual }} de {{ totalPaginas }}</span
+    >
 
-    <ion-button size="small" fill="solid" color="danger" [disabled]="paginaActual === totalPaginas"
-      (click)="paginaSiguiente()">
+    <ion-button
+      size="small"
+      fill="solid"
+      color="danger"
+      [disabled]="paginaActual === totalPaginas"
+      (click)="paginaSiguiente()"
+    >
       Siguiente
       <ion-icon slot="end" name="chevron-forward-outline"></ion-icon>
     </ion-button>

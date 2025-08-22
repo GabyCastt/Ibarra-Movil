@@ -6,7 +6,6 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class NegociosService {
-  // URL temporal de prueba
   private apiUrl = 'http://34.10.172.54:8080';
 
   constructor(private http: HttpClient) { }
@@ -15,13 +14,14 @@ export class NegociosService {
     return this.http.get<any[]>(`${this.apiUrl}/businessCategories/select`);
   }
 
-  getNegocios(categoria: string, pagina: number, limite: number = 5): Observable<any> {
+   getNegocios(categoriaNombre: string, pagina: number, limite: number = 5): Observable<any> {
     let params = new HttpParams()
       .set('page', pagina.toString())
       .set('size', limite.toString());
 
-    if (categoria) {
-      params = params.set('id', categoria);
+    // Ahora filtramos por el nombre de la categoría en lugar del ID
+    if (categoriaNombre && categoriaNombre.trim() !== '') {
+      params = params.set('category', categoriaNombre.trim());
     }
 
     return this.http.get<any>(`${this.apiUrl}/business/public/approved`, { params });
