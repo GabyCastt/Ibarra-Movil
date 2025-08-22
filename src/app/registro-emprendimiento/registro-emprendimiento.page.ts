@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
-  FormArray,
   FormBuilder,
   FormGroup,
   FormsModule,
@@ -23,11 +22,11 @@ import { Router } from '@angular/router';
 })
 export class RegistroEmprendimientoPage implements OnInit {
   registerBusiness!: FormGroup;
-    currentDate!: string;   // la definimos luego en ngOnInit
+  currentDate!: string;   // la definimos luego en ngOnInit
 
   logoFile!: File;
   carrouselPhotos: File[] = [];
-  categories: any[] = []; 
+  categories: any[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -64,14 +63,14 @@ export class RegistroEmprendimientoPage implements OnInit {
     this.registerBusiness = this.fb.group({
       categoryId: [null, [Validators.required]],
       commercialName: ['', [Validators.required, Validators.maxLength(50)]],
-      representativeName: ['', [Validators.required, Validators.maxLength(50)]],
-      email: ['', [Validators.email]],
-      phone: ['+593', [Validators.required, Validators.maxLength(15)]],
+      countryCodePhone: ['+593', Validators.required],
+      countryCode: ['+593', Validators.required],
+      phone: ['', [Validators.required, Validators.maxLength(9), Validators.pattern('^[0-9]*$')]],
       website: ['', [Validators.maxLength(50)]],
       description: ['', [Validators.required, Validators.maxLength(200)]],
       parishCommunitySector: ['', Validators.required, [Validators.maxLength(50)]],
       acceptsWhatsappOrders: [false],
-      whatsappNumber: ['+593', [Validators.required, Validators.maxLength(15)]],
+      whatsappNumber: ['', [Validators.required, Validators.maxLength(9), Validators.pattern('^[0-9]*$')]],
       googleMapsCoordinates: ['', [Validators.required, Validators.maxLength(100)]],
       deliveryService: ['NO', [Validators.pattern('NO|SI|BAJO_PEDIDO')]],
       salePlace: ['NO', [Validators.pattern('NO|FERIAS|LOCAL_FIJO')]],
@@ -83,12 +82,12 @@ export class RegistroEmprendimientoPage implements OnInit {
       tiktok: ['', [Validators.maxLength(50)]],
       address: ['', [Validators.required, Validators.maxLength(100)]],
       schedules: this.fb.array(
-  [
-    this.fb.control('', Validators.required),
-    this.fb.control('', Validators.required)
-  ],
-  Validators.required
-),
+        [
+          this.fb.control('', Validators.required),
+          this.fb.control('', Validators.required)
+        ],
+        Validators.required
+      ),
 
 
       productsServices: ['Banana', [Validators.required, Validators.maxLength(50)]],
@@ -117,7 +116,7 @@ export class RegistroEmprendimientoPage implements OnInit {
     return '';
   }
 
-    private getDateInEcuador(): string {
+  private getDateInEcuador(): string {
     const dateInEcuador = new Date().toLocaleDateString("sv-SE", {
       timeZone: "America/Guayaquil",
     });
@@ -135,7 +134,9 @@ export class RegistroEmprendimientoPage implements OnInit {
       );
       return;
     }
-
+    const formValue = this.registerBusiness.value;
+    const fullWhatsApp = `${formValue.countryCode}${formValue.whatsappNumber}`;
+    const fullPhone = `${formValue.countryCodePhone}${formValue.phone}`;
     const formData = new FormData();
     formData.append('logoFile', this.logoFile);
     this.carrouselPhotos.forEach((file) => {
@@ -148,7 +149,8 @@ export class RegistroEmprendimientoPage implements OnInit {
         [
           JSON.stringify({
             ...this.registerBusiness.value,
-            productsServices: this.registerBusiness.value.productsServices,
+            whatsappNumber: fullWhatsApp,
+            phone: fullPhone
           }),
         ],
         { type: 'application/json' }
