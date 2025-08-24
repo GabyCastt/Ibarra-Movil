@@ -3,17 +3,15 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/home"></ion-back-button>
     </ion-buttons>
-    <ion-title>Mis Negocios</ion-title>
+    <ion-title>Mis Negocios Privados</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" class="no-padding">
-  <!-- Refresher -->
   <ion-refresher slot="fixed" (ionRefresh)="loadBusinesses(true, $event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <!-- Filtro de categorías -->
   <div class="filter-container">
     <ion-item lines="none">
       <ion-icon slot="start" name="filter-outline"></ion-icon>
@@ -31,11 +29,9 @@
     </ion-item>
   </div>
 
-  <!-- Lista de negocios -->
   <div class="business-list">
     <ng-container *ngIf="businesses.length > 0; else noBusinesses">
       <ion-card *ngFor="let biz of businesses; trackBy: trackByBusinessId" class="full-width-card">
-        <!-- Cabecera con imagen y estado -->
         <div class="card-header">
           <img
             [src]="biz.logoUrl || 'assets/icon/ibarra.jpg'"
@@ -43,18 +39,16 @@
             class="business-image"
             (error)="$event.target.src = 'assets/icon/ibarra.jpg'"
           />
-          <!-- SIN CÓDIGO HARDCODEADO - Estados desde API -->
           <ion-badge [color]="biz.validationStatus === 'VALIDATED' || biz.validationStatus === 'APPROVED' ? 'success' : biz.validationStatus === 'PENDING' ? 'warning' : 'danger'">
             {{ biz.validationStatus }}
           </ion-badge>
         </div>
 
-        <!-- Información principal -->
         <ion-card-header>
           <ion-card-title>{{ biz.commercialName }}</ion-card-title>
           <ion-card-subtitle>
             <ion-icon name="person-outline"></ion-icon>
-            {{ biz.user?.name || biz.representativeName || 'No especificado' }}
+            {{ biz.representativeName || biz.user?.name || 'No especificado' }}
           </ion-card-subtitle>
           <ion-card-subtitle>
             <ion-icon name="pricetag-outline"></ion-icon>
@@ -70,7 +64,18 @@
                 <ion-item lines="none">
                   <ion-icon slot="start" name="location-outline"></ion-icon>
                   <ion-label class="ion-text-wrap">
-                    {{ biz.parishCommunitySector || biz.address || 'Ubicación no especificada' }}
+                    {{ biz.address || 'Dirección no especificada' }}
+                  </ion-label>
+                </ion-item>
+              </ion-col>
+            </ion-row>
+
+            <ion-row *ngIf="biz.parishCommunitySector">
+              <ion-col size="12">
+                <ion-item lines="none">
+                  <ion-icon slot="start" name="business-outline"></ion-icon>
+                  <ion-label class="ion-text-wrap">
+                    {{ biz.parishCommunitySector }}
                   </ion-label>
                 </ion-item>
               </ion-col>
@@ -103,10 +108,9 @@
             </ion-row>
           </ion-grid>
 
-          <!-- Redes sociales -->
           <div
             class="social-links"
-            *ngIf="biz.facebook || biz.instagram || biz.tiktok"
+            *ngIf="biz.facebook || biz.instagram || biz.tiktok || biz.website"
           >
             <ion-chip
               *ngIf="biz.facebook"
@@ -129,21 +133,25 @@
             >
               <ion-icon name="logo-tiktok"></ion-icon>
             </ion-chip>
+            <ion-chip
+              *ngIf="biz.website"
+              outline
+              (click)="openSocial(biz.website, 'website')"
+            >
+              <ion-icon name="globe-outline"></ion-icon>
+            </ion-chip>
           </div>
 
-          <!-- Descripción breve -->
           <div class="description" *ngIf="biz.description">
             <p>{{ biz.description | slice:0:100 }}{{ biz.description.length > 100 ? '...' : '' }}</p>
           </div>
 
-          <!-- Botones de acción - CORREGIDO -->
           <div class="action-buttons">
             <ion-button
               expand="block"
               fill="solid"
               size="small"
               (click)="viewBusinessDetails(biz.id)"
-              [disabled]="!biz.id"
             >
               <ion-icon slot="start" name="settings-outline"></ion-icon>
               Ver Detalles

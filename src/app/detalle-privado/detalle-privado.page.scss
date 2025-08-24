@@ -38,17 +38,31 @@
       position: absolute;
       top: 10px;
       right: 10px;
+      z-index: 2;
     }
   }
 
   /* Estilos para el encabezado de la tarjeta */
   ion-card-header {
-    padding-bottom: 0;
+    padding-bottom: 8px;
+    
+    ion-card-title {
+      font-size: 1.2em;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
     
     ion-card-subtitle {
       display: flex;
       align-items: center;
       gap: 5px;
+      margin-bottom: 4px;
+      font-size: 0.9em;
+      color: var(--ion-color-medium);
+
+      ion-icon {
+        font-size: 14px;
+      }
     }
   }
 
@@ -75,12 +89,43 @@
       ion-chip {
         margin: 0;
         cursor: pointer;
+        transition: transform 0.2s ease;
+
+        &:hover {
+          transform: scale(1.05);
+        }
+      }
+    }
+
+    /* Descripción */
+    .description {
+      margin: 12px 0;
+      padding: 8px 12px;
+      background: var(--ion-color-light);
+      border-radius: 8px;
+      border-left: 3px solid var(--ion-color-primary);
+
+      p {
+        margin: 0;
+        font-size: 0.9em;
+        line-height: 1.4;
+        color: var(--ion-color-dark);
+        font-style: italic;
       }
     }
 
     /* Botones de acción */
     .action-buttons {
-      margin-top: 12px;
+      margin-top: 16px;
+
+      ion-button {
+        --border-radius: 8px;
+        font-weight: 600;
+        
+        ion-icon {
+          margin-right: 8px;
+        }
+      }
     }
   }
 }
@@ -104,31 +149,53 @@
   h3 {
     color: var(--ion-color-medium);
     margin-bottom: 24px;
+    font-size: 1.1em;
   }
 
-  .description {
-  margin: 12px 0;
-  padding: 8px 12px;
-  background: var(--ion-color-light);
-  border-radius: 8px;
-  border-left: 3px solid var(--ion-color-primary);
-
-  p {
-    margin: 0;
-    font-size: 0.9em;
-    line-height: 1.4;
-    color: var(--ion-color-dark);
-    font-style: italic;
+  ion-button {
+    --border-radius: 12px;
+    font-weight: 600;
   }
 }
 
+/* Loading state */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+  
+  ion-spinner {
+    --color: var(--ion-color-primary);
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .full-width-card {
+    .card-header {
+      height: 150px;
+    }
+
+    ion-card-content {
+      ion-grid {
+        ion-row {
+          ion-col[size="6"] {
+            size: 12;
+          }
+        }
+      }
+    }
+  }
+}
+
+/* Estados específicos de los negocios */
 .full-width-card {
   &.pending {
     border-left: 4px solid var(--ion-color-warning);
   }
 
-  &.approved,
-  &.validated {
+  &.approved {
     border-left: 4px solid var(--ion-color-success);
   }
 
@@ -137,10 +204,18 @@
   }
 }
 
-ion-badge {
-  font-size: 0.8em;
-  font-weight: 600;
-  padding: 4px 8px;
-  border-radius: 12px;
+/* Animaciones */
+.full-width-card {
+  animation: fadeInUp 0.3s ease-out;
 }
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from './guards/auth.guard';
 
-
 export const routes: Routes = [
   {
     path: 'home',
@@ -36,9 +35,9 @@ export const routes: Routes = [
   },
   {
     path: 'mis-negocios',
-    loadComponent: () => import('./mis-negocios/mis-negocios.page').then(m => m.MisNegociosPage)
+    loadComponent: () => import('./mis-negocios/mis-negocios.page').then(m => m.MisNegociosPage),
+    canActivate: [AuthGuard]
   },
-
   {
     path: 'negocios',
     loadComponent: () => import('./pages/negocios/negocios.page').then(m => m.NegociosPage)
@@ -46,6 +45,15 @@ export const routes: Routes = [
   {
     path: 'detalle-publico/:id',
     loadComponent: () => import('./detalle-publico/detalle-publico.page').then( m => m.DetallePublicoPage)
+  },  
+  {
+    path: 'detalle-privado',
+    loadComponent: () => import('./detalle-privado/detalle-privado.page').then( m => m.DetallePrivadoPage),
+    canActivate: [AuthGuard]
   },
-
+  {
+    path: 'detalle-negocio/:id',
+    loadComponent: () => import('./detalle-negocio/detalle-negocio.page').then( m => m.DetalleNegocioPage),
+    canActivate: [AuthGuard]
+  }
 ];

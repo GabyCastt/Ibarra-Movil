@@ -1,20 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, InfiniteScrollCustomEvent } from '@ionic/angular';
-import { NegocioService } from '../services/negocio.service';
-import { AuthService } from '../services/auth.service';
+import { IonicModule } from '@ionic/angular';
 import { Router } from '@angular/router';
+import { DetallePrivadoService, Business } from '../services/detalle-privado.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
-  selector: 'app-mis-negocios',
-  templateUrl: './mis-negocios.page.html',
-  styleUrls: ['./mis-negocios.page.scss'],
+  selector: 'app-detalle-privado',
+  templateUrl: './detalle-privado.page.html',
+  styleUrls: ['./detalle-privado.page.scss'],
   standalone: true,
   imports: [CommonModule, IonicModule, FormsModule],
 })
-export class MisNegociosPage implements OnInit {
-  businesses: any[] = [];
+export class DetallePrivadoPage implements OnInit {
+  businesses: Business[] = [];
   categories: any[] = [];
   selectedCategory: string = '';
   isLoading: boolean = false;
@@ -23,7 +23,7 @@ export class MisNegociosPage implements OnInit {
   hasMoreData: boolean = true;
 
   constructor(
-    private negocioService: NegocioService,
+    private detallePrivadoService: DetallePrivadoService,
     private authService: AuthService,
     private router: Router
   ) {}
@@ -38,11 +38,9 @@ export class MisNegociosPage implements OnInit {
 
   async loadInitialData() {
     try {
-      const [categories] = await Promise.all([
-        this.negocioService.getCategories().toPromise(),
-      ]);
-
+      const categories = await this.detallePrivadoService.getCategories().toPromise();
       this.categories = Array.isArray(categories) ? categories : [];
+      
       await this.loadBusinesses(true);
     } catch (error) {
       console.error('Error loading initial data:', error);
@@ -64,32 +62,25 @@ export class MisNegociosPage implements OnInit {
     }
 
     try {
-      const response = await this.negocioService
-        .getBusinessesByUser(
-          this.selectedCategory,
-          this.currentPage,
-          this.pageSize
-        )
+      const response = await this.detallePrivadoService
+        .getPrivateBusinesses(this.selectedCategory, this.currentPage, this.pageSize)
         .toPromise();
 
-      if (response && response.content && Array.isArray(response.content)) {
-        const newBusinesses = response.content;
+      if (response && response.success && response.data && Array.isArray(response.data.content)) {
+        const newBusinesses = response.data.content;
 
         this.businesses = reset
           ? newBusinesses
           : [...this.businesses, ...newBusinesses];
 
-        this.hasMoreData = this.currentPage < (response.totalPages - 1);
+        this.hasMoreData = this.currentPage < (response.data.totalPages - 1);
         if (this.hasMoreData) this.currentPage++;
       } else {
         console.warn('Unexpected response format:', response);
       }
     } catch (error) {
       console.error('Error loading businesses:', error);
-      if (
-        error instanceof Error &&
-        error.message.includes('sesión ha expirado')
-      ) {
+      if (error instanceof Error && error.message.includes('autenticado')) {
         this.authService.logout();
       }
     } finally {
@@ -106,8 +97,8 @@ export class MisNegociosPage implements OnInit {
     await this.loadBusinesses(false, event);
   }
 
-  trackByBusinessId(index: number, business: any): number {
-    return business?.id || index;
+  trackByBusinessId(index: number, business: Business): number {
+    return business.id;
   }
 
   getCategoryName(categoryId: string): string {
@@ -116,43 +107,15 @@ export class MisNegociosPage implements OnInit {
     return category?.name || '';
   }
 
-  editBusiness(businessId: string | number) {
-    if (businessId) {
-      this.router.navigate(['/editar-negocio', businessId]);
-    }
-  }
-
-  viewBusinessDetails(businessId: string | number) {
-    if (businessId) {
-      console.log('Navigating to business details with ID:', businessId);
-      this.router.navigate(['/detalle-negocio', businessId]);
-    } else {
-      console.error('Business ID is null or undefined');
-    }
+  viewBusinessDetails(businessId: number) {
+    this.router.navigate(['/detalle-negocio', businessId]);
   }
 
   openSocial(url: string, platform: string) {
-    if (!url || !platform) return;
-    
     let socialUrl = url;
     if (!url.startsWith('http')) {
       socialUrl = `https://${platform}.com/${url}`;
     }
     window.open(socialUrl, '_blank');
-  }
-
-  debugBusiness(business: any) {
-    console.log('Business object:', business);
-    console.log('Business ID:', business?.id);
-    console.log('Business ID type:', typeof business?.id);
-  }
-
-  openDetails(businessId: string | number) {
-    console.log('Opening details for business ID:', businessId);
-    if (!businessId) {
-      console.error('Cannot open details: Business ID is missing');
-      return;
-    }
-    this.viewBusinessDetails(businessId);
   }
 }
