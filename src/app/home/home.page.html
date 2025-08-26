@@ -2,29 +2,17 @@
   <ion-toolbar color="primary">
     <ion-title class="app-title">
       <div class="title-content">
-        <img
-          src="assets/icon/logo-GAD-IBARRA.png"
-          alt="Logo GAD Ibarra"
-          class="header-logo"
-        />
+        <img src="assets/icon/logo-GAD-IBARRA.png" alt="Logo GAD Ibarra" class="header-logo" />
         <span>Municipalidad de Ibarra</span>
       </div>
     </ion-title>
 
     <ion-buttons slot="end">
-      <ion-button
-        *ngIf="!isAuthenticated"
-        (click)="openLogin()"
-        class="user-button"
-      >
+      <ion-button *ngIf="!isAuthenticated" (click)="openLogin()" class="user-button">
         <ion-icon name="person-circle-outline"></ion-icon>
       </ion-button>
 
-      <ion-button
-        *ngIf="isAuthenticated"
-        (click)="logout()"
-        class="user-button"
-      >
+      <ion-button *ngIf="isAuthenticated" (click)="logout()" class="user-button">
         <ion-icon name="log-out-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -35,11 +23,7 @@
   <!-- Banner superior -->
   <div class="hero-banner">
     <div class="banner-overlay"></div>
-    <img
-      src="assets/icon/ibarra-bannerr.jpg"
-      alt="Ibarra ciudad"
-      class="banner-image"
-    />
+    <img src="assets/icon/ibarra-bannerr.jpg" alt="Ibarra ciudad" class="banner-image" />
     <div class="banner-text">
       <h1>Orgullo Ecuatoriano</h1>
       <p>Descubre los emprendimientos de nuestra ciudad</p>
@@ -47,12 +31,8 @@
   </div>
 
   <!-- Barra de búsqueda -->
-  <ion-searchbar
-    placeholder="Buscar emprendimientos..."
-    animated
-    class="home-searchbar"
-    (ionInput)="searchItems($event)"
-  >
+  <ion-searchbar placeholder="Buscar emprendimientos..." animated class="home-searchbar"
+    (ionInput)="searchItems($event)">
   </ion-searchbar>
 
   <!-- Sección de categorías con scroll horizontal -->
@@ -65,40 +45,57 @@
       <ion-row class="ion-nowrap">
         <ion-col *ngFor="let category of categories; let i = index" size="auto">
           <div class="category-item" (click)="openCategory(category)">
-  <div class="category-icon" [style.background-color]="category.color">
-    <ion-icon [name]="category.icon"></ion-icon>
-  </div>
-  <span>{{category.name}}</span>
-</div>
+            <div class="category-icon" [style.background-color]="category.color">
+              <ion-icon [name]="category.icon"></ion-icon>
+            </div>
+            <span>{{category.name}}</span>
+          </div>
         </ion-col>
       </ion-row>
     </ion-grid>
   </div>
 
-  <!-- Emprendimientos destacados con scroll horizontal -->
+  <!-- Promociones con scroll horizontal -->
   <div class="section-header">
-    <h2>Destacados</h2>
+    <h2>Promociones</h2>
     <ion-button fill="clear" size="small" (click)="seeAll('featured')">
       Ver todos
       <ion-icon slot="end" name="chevron-forward-outline"></ion-icon>
     </ion-button>
   </div>
 
+<div class="chip-filter">
+  <ion-chip 
+    *ngFor="let tipo of promotionTypes" 
+    [outline]="selectedPromotionType !== tipo.value"
+    color="primary"
+    (click)="onPromotionTypeSelect(tipo.value)">
+    {{ tipo.label }}
+  </ion-chip>
+</div>
+
+
+
   <div class="scroll-container">
     <ion-grid class="scroll-grid">
       <ion-row class="ion-nowrap">
-        <ion-col *ngFor="let business of featuredBusinesses" size="auto">
-          <ion-card class="business-card" (click)="openBusiness(business)">
-            <div class="business-badge" *ngIf="business.badge">
-              {{business.badge}}
+        <ion-col *ngFor="let promocion of promociones" size="auto">
+          <ion-card class="business-card" (click)="openBusinessById(promocion.businessId)">
+            <div class="promotion-badge">
+             {{ getTipoPromocionLabel(promocion.tipoPromocion) }}
             </div>
-            <img src="assets/icon/ArteAndino.jpg" [alt]="business.name" />
+            <img [src]="promocion.businessImageUrl" [alt]="promocion.businessName" class="promo-img" />
             <ion-card-header>
-              <ion-card-title>{{business.name}}</ion-card-title>
+               <ion-label>
+               <ion-icon name="calendar-outline"></ion-icon>
+               Válido hasta: {{ promocion.fechaPromoFin | date:'dd/MM/yyyy' }}
+               </ion-label>
+              <ion-card-title>{{promocion.tituloPromocion
+                }}</ion-card-title>
               <ion-card-subtitle>
-                <ion-icon name="location-outline"></ion-icon>
-                {{business.location}}
+                {{promocion.businessName}}
               </ion-card-subtitle>
+             
             </ion-card-header>
           </ion-card>
         </ion-col>
@@ -116,10 +113,7 @@
   </div>
 
   <div class="events-container">
-    <ion-card
-      *ngFor="let event of upcomingEvents"
-      class="event-card"
-    >
+    <ion-card *ngFor="let event of upcomingEvents" class="event-card">
       <img src="assets/icon/Eventoss.png" [alt]="event.title" />
       <ion-card-header>
         <ion-card-title>{{event.title}}</ion-card-title>
@@ -138,12 +132,8 @@
       Mapa de emprendimientos
     </ion-button>
 
-    <ion-button
-      expand="block"
-      fill="outline"
-      (click)="navigateTo('registro-emprendimiento')"
-      [disabled]="!isAuthenticated"
-    >
+    <ion-button expand="block" fill="outline" (click)="navigateTo('registro-emprendimiento')"
+      [disabled]="!isAuthenticated">
       <ion-icon slot="start" name="business-outline"></ion-icon>
       Registrar mi emprendimiento
     </ion-button>
