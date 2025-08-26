@@ -50,5 +50,9 @@ export const routes: Routes = [
     path: 'detalle-negocio/:id',
     loadComponent: () => import('./detalle-negocio/detalle-negocio.page').then( m => m.DetalleNegocioPage),
     canActivate: [AuthGuard]
+  },  {
+    path: 'eliminar-negocio',
+    loadComponent: () => import('./eliminar-negocio/eliminar-negocio.page').then( m => m.EliminarNegocioPage)
   }
+
 ];
