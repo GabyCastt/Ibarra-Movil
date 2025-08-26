@@ -128,6 +128,7 @@ export class DetallePrivadoService {
           }
           
           console.log('Business found in private list:', business);
+          console.log('Business validation status:', business.validationStatus);
           console.log('Business photos:', business.photos);
           console.log('Business schedules:', business.schedules);
           
@@ -162,6 +163,7 @@ export class DetallePrivadoService {
     }).pipe(
       tap(business => {
         console.log('Alternative method - Business details response:', business);
+        console.log('Alternative method - Business validation status:', business.validationStatus);
         console.log('Alternative method - Business photos:', business.photos);
         console.log('Alternative method - Business schedules:', business.schedules);
       }),
@@ -183,9 +185,10 @@ export class DetallePrivadoService {
     );
   }
 
-  updateBusiness(businessId: number, updateData: UpdateBusinessRequest): Observable<any> {
+  updateBusiness(businessId: number, updateData: UpdateBusinessRequest, businessStatus?: string): Observable<any> {
     console.log('=== UPDATE BUSINESS SERVICE ===');
     console.log('Business ID:', businessId);
+    console.log('Business Status:', businessStatus);
     console.log('Update Data:', updateData);
     
     if (!businessId || businessId <= 0) {
@@ -207,9 +210,18 @@ export class DetallePrivadoService {
       return throwError(() => error);
     }
 
-    const cleanedData: UpdateBusinessRequest = {};
+    let url: string;
+    if (businessStatus === 'REJECTED') {
+      url = `${this.businessUrl}/update-rejected/${businessId}`;
+      console.log('Using rejected business endpoint');
+    } else {
+      url = `${this.businessUrl}/${businessId}`;
+      console.log('Using standard business endpoint');
+    }
+
+    const cleanedData: any = {};
     
-    if (updateData.commercialName !== undefined && updateData.commercialName !== null) {
+    if (updateData.commercialName !== undefined && updateData.commercialName !== null && updateData.commercialName.trim() !== '') {
       cleanedData.commercialName = updateData.commercialName.trim();
     }
     
@@ -217,9 +229,9 @@ export class DetallePrivadoService {
       cleanedData.description = updateData.description.trim();
     }
     
-    if (updateData.email !== undefined && updateData.email !== null) {
+    if (updateData.email !== undefined && updateData.email !== null && updateData.email.trim() !== '') {
       const email = updateData.email.trim();
-      if (email && !this.isValidEmail(email)) {
+      if (!this.isValidEmail(email)) {
         return throwError(() => new Error('Formato de email inválido'));
       }
       cleanedData.email = email;
@@ -227,7 +239,7 @@ export class DetallePrivadoService {
     
     ['facebook', 'instagram', 'tiktok', 'website', 'whatsappNumber', 'address'].forEach(field => {
       const value = (updateData as any)[field];
-      if (value !== undefined && value !== null) {
+      if (value !== undefined && value !== null && value.toString().trim() !== '') {
         (cleanedData as any)[field] = value.toString().trim();
       }
     });
@@ -236,12 +248,14 @@ export class DetallePrivadoService {
       cleanedData.acceptsWhatsappOrders = Boolean(updateData.acceptsWhatsappOrders);
     }
 
-
-    if (updateData.googleMapsCoordinates !== undefined && updateData.googleMapsCoordinates !== null) {
+    if (updateData.googleMapsCoordinates !== undefined && updateData.googleMapsCoordinates !== null && updateData.googleMapsCoordinates.trim() !== '') {
       cleanedData.googleMapsCoordinates = updateData.googleMapsCoordinates.trim();
     }
 
-    const url = `${this.businessUrl}/${businessId}`;
+    if (Object.keys(cleanedData).length === 0) {
+      console.error('No valid data to send after cleaning');
+      return throwError(() => new Error('No hay datos válidos para actualizar'));
+    }
     
     console.log('=== MAKING UPDATE REQUEST ===');
     console.log('URL:', url);
@@ -269,7 +283,11 @@ export class DetallePrivadoService {
         switch (error.status) {
           case 400:
             if (error.error?.message) {
-              errorMessage = `Datos inválidos: ${error.error.message}`;
+              if (error.error.message.includes('DTO inválido')) {
+                errorMessage = 'Formato de datos incorrecto. Verifica que todos los campos estén en el formato correcto.';
+              } else {
+                errorMessage = `Datos inválidos: ${error.error.message}`;
+              }
             } else if (error.error?.errors && Array.isArray(error.error.errors)) {
               errorMessage = `Errores de validación: ${error.error.errors.join(', ')}`;
             } else {
@@ -306,6 +324,7 @@ export class DetallePrivadoService {
             }
         }
         
+        console.log('Final error message:', errorMessage);
         return throwError(() => new Error(errorMessage));
       })
     );
@@ -380,33 +399,6 @@ export class DetallePrivadoService {
     
     console.log('Formatted schedules:', formatted);
     return formatted;
-  }
-
-  getEliminationReasons(): string[] {
-    return [
-      'Ya no opero el negocio',
-      'Cambié de actividad comercial',
-      'Información incorrecta',
-      'Duplicado',
-      'Otro motivo'
-    ];
-  }
-
-  requestDeletion(businessId: number, reason: string, comment?: string): Observable<any> {
-    console.log('Requesting deletion:', { businessId, reason, comment });
-    
-    const data = {
-      businessId,
-      reason,
-      comment: comment || ''
-    };
-    
-    return this.http.post(`${this.apiUrl}/business/${businessId}/request-deletion`, data, {
-      headers: this.getAuthHeaders()
-    }).pipe(
-      tap(response => console.log('Deletion request response:', response)),
-      catchError(this.handleError)
-    );
   }
 
   private isValidEmail(email: string): boolean {

@@ -43,6 +43,14 @@
       </div>
     </div>
 
+    <div *ngIf="business.validationStatus === 'REJECTED'" class="rejection-notice">
+      <div class="rejection-icon">⚠️</div>
+      <div class="rejection-text">
+        <h4>Negocio Rechazado</h4>
+        <p>Tu negocio fue rechazado durante la validación. Puedes editarlo para corregir los datos y será revisado nuevamente.</p>
+      </div>
+    </div>
+
     <div class="carousel-container" *ngIf="business.photos && business.photos.length > 0">
       <div class="carousel-header">
         <h3>📷 Imágenes del Negocio</h3>
@@ -211,19 +219,21 @@
       <div class="action-buttons-grid">
         <button class="action-btn cancel-btn" (click)="goBack()">
           <span class="btn-icon">↩️</span>
-          <span>Cancelar</span>
+          <span>Volver</span>
         </button>
-        <button class="action-btn edit-btn" (click)="openAdminModal()">
+        <button class="action-btn edit-btn" (click)="openAdminModal()" [disabled]="!canEditBusiness()">
           <span class="btn-icon">✏️</span>
-          <span>Editar datos del negocio</span>
+          <span>{{ editButtonText }}</span>
         </button>
-        <button class="action-btn delete-btn" (click)="openDeleteModal()">
+        <button class="action-btn delete-btn" (click)="openDeleteFunctionality()">
           <span class="btn-icon">🗑️</span>
-          <span>Solicitar Eliminación</span>
+          <span>Solicitar Eliminacion</span>
+          <small class="btn-subtitle">Próximamente</small>
         </button>
         <button class="action-btn admin-btn" (click)="openAdministrationPanel()">
           <span class="btn-icon">⚙️</span>
           <span>Administrar negocio</span>
+          <small class="btn-subtitle">Próximamente</small>
         </button>
       </div>
     </div>
@@ -232,8 +242,13 @@
   <div class="modal-overlay" *ngIf="showAdminModal" (click)="closeAdminModal()">
     <div class="modal-container" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h2 class="modal-title">✏️ Editar Negocio</h2>
-        <p class="modal-subtitle">Actualiza la información de tu emprendimiento</p>
+        <h2 class="modal-title">✏️ {{ business?.validationStatus === 'REJECTED' ? 'Corregir Negocio' : 'Editar Negocio' }}</h2>
+        <p class="modal-subtitle" *ngIf="business?.validationStatus === 'REJECTED'">
+          Corrige los datos de tu negocio para una nueva validación
+        </p>
+        <p class="modal-subtitle" *ngIf="business?.validationStatus !== 'REJECTED'">
+          Actualiza la información de tu emprendimiento
+        </p>
         <button class="close-button" (click)="closeAdminModal()">
           <span>&times;</span>
         </button>
@@ -327,68 +342,9 @@
 
       <div class="modal-footer">
         <button class="cancel-button" (click)="closeAdminModal()">Cancelar</button>
-        <button class="save-button" (click)="saveBusinessChanges()">Guardar Cambios</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal-overlay" *ngIf="showDeleteModal" (click)="closeDeleteModal()">
-    <div class="modal-container delete-modal" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h2 class="modal-title">🗑️ Solicitar Eliminación</h2>
-        <p class="modal-subtitle">¿Por qué deseas eliminar tu negocio?</p>
-        <button class="close-button" (click)="closeDeleteModal()">
-          <span>&times;</span>
+        <button class="save-button" (click)="saveBusinessChanges()">
+          {{ business?.validationStatus === 'REJECTED' ? 'Corregir y Guardar' : 'Guardar Cambios' }}
         </button>
-      </div>
-
-      <div class="modal-content">
-        <p class="delete-warning">
-          Esta acción enviará una solicitud para eliminar tu negocio. ¿Cuál es el motivo?
-        </p>
-
-        <div class="reasons-container">
-          <div class="reason-item" *ngFor="let reason of deleteReasons">
-            <input type="radio" [id]="reason" [value]="reason" 
-                   [(ngModel)]="selectedDeleteReason" name="deleteReason" class="reason-radio">
-            <label [for]="reason" class="reason-label">{{ reason }}</label>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Comentarios adicionales (opcional)</label>
-          <div class="input-container">
-            <textarea [(ngModel)]="deleteComment" rows="4" 
-                      placeholder="Explica más detalles sobre el motivo..." class="form-textarea"></textarea>
-          </div>
-        </div>
-      </div>
-
-      <div class="modal-footer">
-        <button class="cancel-button" (click)="closeDeleteModal()">Cancelar</button>
-        <button class="delete-confirm-button" (click)="requestDeletion()">Solicitar Eliminación</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal-overlay" *ngIf="showDeleteConfirmModal">
-    <div class="modal-container confirm-modal">
-      <div class="modal-header">
-        <h2 class="modal-title">⚠️ Confirmar Eliminación</h2>
-      </div>
-
-      <div class="modal-content">
-        <div class="warning-icon">⚠️</div>
-        <p><strong>¿Estás seguro de que deseas solicitar la eliminación de este negocio?</strong></p>
-        <p>Esta acción no se puede deshacer. Una vez procesada la solicitud, tu negocio será eliminado del sistema.</p>
-        <div class="reason-summary">
-          <strong>Motivo:</strong> {{ selectedDeleteReason }}
-        </div>
-      </div>
-
-      <div class="modal-footer">
-        <button class="cancel-button" (click)="cancelDeletionConfirm()">Cancelar</button>
-        <button class="delete-confirm-button" (click)="confirmDeletion()">Sí, Eliminar</button>
       </div>
     </div>
   </div>
