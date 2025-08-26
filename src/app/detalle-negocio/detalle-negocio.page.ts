@@ -138,6 +138,10 @@ export class DetalleNegocioPage implements OnInit {
      console.log('Navigating to promotions with business ID:', this.businessId);
   this.router.navigate(['/promociones', this.businessId]);
   }
+  openDeleteFunctionality(): void {
+    console.log('Navigating to delete with business ID:', this.businessId);
+  this.router.navigate(['/eliminar-negocio', this.businessId]);
+  }
   async saveBusinessChanges(): Promise<void> {
     if (!this.business || !this.businessId) {
       console.error('Cannot save: business or businessId is missing');
