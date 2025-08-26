@@ -66,7 +66,8 @@ import {
   settingsOutline,
   imagesOutline,
   checkmarkCircleOutline,
-  arrowBack
+  arrowBack, 
+  closeCircle
 
 
 } from 'ionicons/icons';
@@ -142,7 +143,7 @@ export class AppComponent {
       settingsOutline,
       imagesOutline,
       checkmarkCircleOutline,
-      arrowBack
+      arrowBack, closeCircle
  
     });
   }
