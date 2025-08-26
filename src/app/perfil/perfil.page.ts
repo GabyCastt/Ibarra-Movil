@@ -9,12 +9,12 @@ import { PerfilService, UpdateUserDto } from '../services/perfil.service';
   templateUrl: './perfil.page.html',
   styleUrls: ['./perfil.page.scss'],
   standalone: true,
-  imports: [CommonModule, IonicModule, FormsModule, ReactiveFormsModule],
-  providers: [PerfilService]
+  imports: [CommonModule, IonicModule, FormsModule, ReactiveFormsModule]
 })
 export class PerfilPage implements OnInit {
   profileForm!: FormGroup;
   isEditing = false;
+  originalData: any = {};
 
   constructor(
     private fb: FormBuilder,
@@ -25,36 +25,15 @@ export class PerfilPage implements OnInit {
 
   ngOnInit() {
     this.initForm();
-    this.initializeUserData(); // Inicializar datos si no existen
     this.loadProfile();
-  }
-
-  private initializeUserData() {
-    // Si no hay datos en localStorage, crear datos iniciales
-    const stored = localStorage.getItem('user_data');
-    if (!stored) {
-      const initialData = {
-        name: '',
-        lastname: '',
-        email: 'calvachemaril@gmail.com',
-        phone: '',
-        address: '',
-        business: '',
-        username: 'calvachemaril'
-      };
-      localStorage.setItem('user_data', JSON.stringify(initialData));
-    }
   }
 
   private initForm() {
     this.profileForm = this.fb.group({
-      // Campos que se pueden actualizar en la API
-      email: ['', [Validators.required, Validators.email]],
-      phone: [''],
-      address: [''],
-      username: ['', Validators.required],
-      
-      // Campos de solo lectura (si los necesitas mostrar)
+      email: [{ value: '', disabled: true }, [Validators.required, Validators.email]],
+      phone: [{ value: '', disabled: true }],
+      address: [{ value: '', disabled: true }],
+      username: [{ value: '', disabled: true }, Validators.required],
       name: [{ value: '', disabled: true }],
       lastname: [{ value: '', disabled: true }],
       business: [{ value: '', disabled: true }]
@@ -62,57 +41,63 @@ export class PerfilPage implements OnInit {
   }
 
   private loadProfile() {
-    // Obtener datos almacenados localmente primero
-    const stored = localStorage.getItem('user_data');
-    if (stored) {
-      const data = JSON.parse(stored);
-      this.profileForm.patchValue({
-        name: data.name || '',
-        lastname: data.lastname || '',
-        email: data.email || '',
-        phone: data.phone || '',
-        address: data.address || '',
-        business: data.business || '',
-        username: data.username || ''
-      });
-    }
-
-    // Cargar datos desde el backend usando /auth/whoami
     this.perfilService.getProfile().subscribe({
       next: (data) => {
-        console.log('Profile data from server:', data);
+        console.log('Datos del perfil:', data);
+        this.originalData = { ...data };
         this.profileForm.patchValue(data);
-        // Actualizar localStorage con datos del servidor
         localStorage.setItem('user_data', JSON.stringify(data));
       },
       error: (error) => {
-        console.error('Error loading profile from /auth/whoami:', error);
-        
-        if (error.status === 401) {
-          console.warn('Usuario no autenticado. Usando datos locales.');
-        } else if (error.status === 403) {
-          console.warn('Sin permisos para acceder al perfil. Usando datos locales.');
-        } else {
-          console.error('Error del servidor:', error.status);
-        }
-        
-        // Si hay error, mantener los datos locales cargados anteriormente
+        console.error('Error cargando perfil:', error);
+        this.loadFromLocalStorage();
+        this.showErrorAlert('Error', 'No se pudo cargar el perfil desde el servidor');
       }
     });
   }
 
+  private loadFromLocalStorage() {
+    const stored = localStorage.getItem('user_data');
+    if (stored) {
+      try {
+        const data = JSON.parse(stored);
+        this.originalData = { ...data };
+        this.profileForm.patchValue(data);
+      } catch (e) {
+        console.error('Error parsing localStorage data:', e);
+      }
+    }
+  }
+
   toggleEdit() {
     this.isEditing = !this.isEditing;
-    if (!this.isEditing) {
-      this.loadProfile();
+    
+    if (this.isEditing) {
+      // Habilitar campos editables
+      this.profileForm.get('email')?.enable();
+      this.profileForm.get('phone')?.enable();
+      this.profileForm.get('address')?.enable();
+      this.profileForm.get('username')?.enable();
+    } else {
+      // Cancelar edición - restaurar valores originales
+      this.profileForm.patchValue(this.originalData);
+      // Deshabilitar campos
+      this.profileForm.get('email')?.disable();
+      this.profileForm.get('phone')?.disable();
+      this.profileForm.get('address')?.disable();
+      this.profileForm.get('username')?.disable();
     }
   }
 
   async saveProfile() {
+    console.log('Intentando guardar...');
+    
     if (this.profileForm.invalid) {
+      console.log('Formulario inválido');
+      this.markFormGroupTouched();
       const alert = await this.alertCtrl.create({
         header: 'Datos inválidos',
-        message: 'Revisa los campos marcados',
+        message: 'Por favor, completa todos los campos requeridos correctamente',
         buttons: ['OK']
       });
       await alert.present();
@@ -120,66 +105,86 @@ export class PerfilPage implements OnInit {
     }
 
     const loading = await this.loadingCtrl.create({
-      message: 'Guardando...',
+      message: 'Guardando cambios...',
       spinner: 'crescent'
     });
     await loading.present();
 
-    // Extraer solo los campos que acepta la API
-    const formValue = this.profileForm.value;
+    // Usar getRawValue() para obtener todos los valores incluyendo disabled
+    const formValue = this.profileForm.getRawValue();
     const updateData: UpdateUserDto = {
       email: formValue.email,
-      phone: formValue.phone,
-      address: formValue.address,
+      phone: formValue.phone || '',
+      address: formValue.address || '',
       username: formValue.username
     };
 
+    console.log('Datos a enviar:', updateData);
+
     this.perfilService.updateProfile(updateData).subscribe({
-      next: (response) => {
-        console.log('Profile updated successfully:', response);
+      next: async (response) => {
+        console.log('Perfil actualizado:', response);
+        await loading.dismiss();
         
-        // Actualizar localStorage con los nuevos datos
-        const currentData = JSON.parse(localStorage.getItem('user_data') || '{}');
-        localStorage.setItem('user_data', JSON.stringify({
-          ...currentData,
-          ...updateData
-        }));
+        // Actualizar datos originales
+        this.originalData = { ...this.originalData, ...updateData };
+        localStorage.setItem('user_data', JSON.stringify(this.originalData));
         
-        loading.dismiss();
         this.isEditing = false;
+        // Deshabilitar campos después de guardar
+        this.profileForm.get('email')?.disable();
+        this.profileForm.get('phone')?.disable();
+        this.profileForm.get('address')?.disable();
+        this.profileForm.get('username')?.disable();
         
-        this.showSuccessAlert();
+        await this.showSuccessAlert('Perfil actualizado correctamente');
       },
       error: async (error) => {
-        console.error('Error updating profile:', error);
-        loading.dismiss();
+        console.error('Error actualizando:', error);
+        await loading.dismiss();
         
-        let errorMessage = 'Error al guardar el perfil';
+        let errorMessage = 'Error al guardar los cambios';
+        if (error.status === 400) errorMessage = 'Datos inválidos';
+        if (error.status === 409) errorMessage = 'El email o usuario ya existe';
+        if (error.status === 401) errorMessage = 'Sesión expirada';
         
-        if (error.status === 400) {
-          errorMessage = 'Datos inválidos. Verifica la información ingresada.';
-        } else if (error.status === 500) {
-          errorMessage = 'Error interno del servidor. Intenta más tarde.';
-        } else if (error.error?.message) {
-          errorMessage = error.error.message;
-        }
-        
-        const alert = await this.alertCtrl.create({
-          header: 'Error',
-          message: errorMessage,
-          buttons: ['OK']
-        });
-        await alert.present();
+        await this.showErrorAlert('Error', errorMessage);
       }
     });
   }
 
-  private async showSuccessAlert() {
+  private markFormGroupTouched() {
+    Object.keys(this.profileForm.controls).forEach(key => {
+      const control = this.profileForm.get(key);
+      if (control && control.enabled) {
+        control.markAsTouched();
+      }
+    });
+  }
+
+  private async showSuccessAlert(message: string) {
     const alert = await this.alertCtrl.create({
       header: 'Éxito',
-      message: 'Perfil actualizado correctamente',
+      message: message,
       buttons: ['OK']
     });
     await alert.present();
+  }
+
+  private async showErrorAlert(header: string, message: string) {
+    const alert = await this.alertCtrl.create({
+      header: header,
+      message: message,
+      buttons: ['OK']
+    });
+    await alert.present();
+  }
+
+  // Helper para debugging
+  logFormState() {
+    console.log('Form values:', this.profileForm.value);
+    console.log('Form raw values:', this.profileForm.getRawValue());
+    console.log('Form valid:', this.profileForm.valid);
+    console.log('Form invalid:', this.profileForm.invalid);
   }
 }
