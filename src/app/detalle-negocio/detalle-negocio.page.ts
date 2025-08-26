@@ -142,9 +142,8 @@ export class DetalleNegocioPage implements OnInit {
   }
 
   openAdministrationPanel(): void {
-    console.log('Opening administration panel');
-
-    this.showInfoToast('Panel de administración - Funcionalidad próximamente');
+     console.log('Navigating to promotions with business ID:', this.businessId);
+  this.router.navigate(['/promociones', this.businessId]);
   }
 
   async saveBusinessChanges(): Promise<void> {

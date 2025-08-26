@@ -1,13 +1,86 @@
+<!-- promociones.page.html -->
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>promociones</ion-title>
+    <ion-title>Promociones</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="cargarPromociones()">
+        <ion-icon name="refresh" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
   <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-title size="large">promociones</ion-title>
+      <ion-title size="large">Promociones</ion-title>
     </ion-toolbar>
   </ion-header>
+
+  <div class="container">
+    <div class="header-actions">
+      <ion-button (click)="abrirModalCrear()" color="primary">
+        <ion-icon name="add" slot="start"></ion-icon>
+        Nueva Promoción
+      </ion-button>
+    </div>
+
+    <div *ngIf="isLoading" class="loading">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Cargando promociones...</p>
+    </div>
+
+    <div *ngIf="!isLoading && promociones.length === 0" class="empty-state">
+      <ion-icon name="ticket" class="empty-icon"></ion-icon>
+      <h3>No hay promociones disponibles</h3>
+      <p>Crea tu primera promoción para atraer más clientes</p>
+      <ion-button (click)="abrirModalCrear()" color="primary">
+        Crear primera promoción
+      </ion-button>
+    </div>
+
+    <div *ngFor="let promocion of promociones" class="promo-card">
+      <ion-card [class.inactive]="!isPromocionActive(promocion)">
+        <ion-img 
+          [src]="promocion.businessImageUrl || 'assets/images/default-promo.jpg'" 
+          alt="{{ promocion.tituloPromocion }}"
+          class="promo-image">
+        </ion-img>
+        
+        <ion-badge 
+          *ngIf="!isPromocionActive(promocion)" 
+          color="medium" 
+          class="status-badge">
+          Expirada
+        </ion-badge>
+        
+        <ion-card-header>
+          <ion-card-title>{{ promocion.tituloPromocion }}</ion-card-title>
+          <ion-card-subtitle>
+            <ion-icon name="calendar"></ion-icon>
+            {{ formatDate(promocion.fechaPromoInicio) }} - {{ formatDate(promocion.fechaPromoFin) }}
+          </ion-card-subtitle>
+        </ion-card-header>
+        
+        <ion-card-content>
+          <div class="promo-details">
+            <ion-chip [color]="getChipColor(promocion.tipoPromocion)">
+              <ion-icon name="pricetag"></ion-icon>
+              <ion-label>{{ getTipoPromocionText(promocion.tipoPromocion) }}</ion-label>
+            </ion-chip>
+            
+            <p class="condiciones">{{ promocion.condiciones }}</p>
+            
+            <div *ngIf="promocion.businessName" class="business-info">
+              <small>Negocio: {{ promocion.businessName }}</small>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+  </div>
 </ion-content>

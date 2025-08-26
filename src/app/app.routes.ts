@@ -50,9 +50,14 @@ export const routes: Routes = [
     path: 'detalle-negocio/:id',
     loadComponent: () => import('./detalle-negocio/detalle-negocio.page').then( m => m.DetalleNegocioPage),
     canActivate: [AuthGuard]
-  },  {
-    path: 'promociones',
+  },
+  {
+    path: 'promociones/:id',
     loadComponent: () => import('./promociones/promociones.page').then( m => m.PromocionesPage)
+  },
+  {
+    path: 'crear-promocion',
+    loadComponent: () => import('./crear-promocion/crear-promocion.page').then( m => m.CrearPromocionPage)
   }
 
 ];

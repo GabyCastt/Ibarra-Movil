@@ -1,0 +1,102 @@
+<!-- crear-promocion/crear-promocion.page.html -->
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Nueva Promoción</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="cancel()">Cerrar</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form (ngSubmit)="confirm()" #promoForm="ngForm">
+    <ion-item>
+      <ion-label position="stacked">Tipo de Promoción</ion-label>
+      <ion-select 
+        [(ngModel)]="nuevaPromocion.tipoPromocion" 
+        name="tipoPromocion" 
+        interface="popover"
+        required>
+        <ion-select-option *ngFor="let tipo of tiposPromocion" [value]="tipo.value">
+          {{ tipo.label }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Título de la Promoción</ion-label>
+      <ion-input 
+        [(ngModel)]="nuevaPromocion.tituloPromocion" 
+        name="tituloPromocion" 
+        type="text" 
+        required
+        placeholder="Ej: 20% de descuento en toda la tienda">
+      </ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Fecha de Inicio</ion-label>
+      <ion-input 
+        [(ngModel)]="nuevaPromocion.fechaPromoInicio" 
+        name="fechaPromoInicio" 
+        type="date" 
+        required>
+      </ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Fecha de Fin</ion-label>
+      <ion-input 
+        [(ngModel)]="nuevaPromocion.fechaPromoFin" 
+        name="fechaPromoFin" 
+        type="date" 
+        required>
+      </ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Condiciones</ion-label>
+      <ion-textarea 
+        [(ngModel)]="nuevaPromocion.condiciones" 
+        name="condiciones" 
+        rows="4" 
+        required
+        placeholder="Describe las condiciones de la promoción">
+      </ion-textarea>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Imagen de la Promoción</ion-label>
+      <input 
+        type="file" 
+        (change)="onFileSelected($event)" 
+        accept="image/jpeg, image/png" 
+        required
+        class="file-input">
+      <ion-text color="medium" *ngIf="selectedFile">
+        <small>Archivo seleccionado: {{ selectedFile.name }}</small>
+      </ion-text>
+      <ion-note color="medium">
+        <small>Formatos permitidos: JPG, PNG. Tamaño máximo: 2MB</small>
+      </ion-note>
+    </ion-item>
+
+    <div class="ion-padding-top">
+      <ion-button 
+        type="submit" 
+        expand="block" 
+        [disabled]="!selectedFile || isSubmitting">
+        <ion-spinner *ngIf="isSubmitting" name="crescent"></ion-spinner>
+        Crear Promoción
+      </ion-button>
+      
+      <ion-button 
+        color="medium" 
+        expand="block" 
+        fill="outline" 
+        (click)="cancel()">
+        Cancelar
+      </ion-button>
+    </div>
+  </form>
+</ion-content>
