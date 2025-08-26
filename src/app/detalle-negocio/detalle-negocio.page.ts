@@ -23,14 +23,7 @@ export class DetalleNegocioPage implements OnInit {
   photoUrls: string[] = [];
 
   showAdminModal: boolean = false;
-  showDeleteModal: boolean = false;
-  showDeleteConfirmModal: boolean = false;
-
   editableBusiness: Partial<Business> = {};
-
-  selectedDeleteReason: string = '';
-  deleteReasons: string[] = [];
-  deleteComment: string = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -57,7 +50,6 @@ export class DetalleNegocioPage implements OnInit {
       this.businessId = parseInt(routeId, 10);
       console.log('Business ID set to:', this.businessId);
       this.loadBusinessDetails();
-      this.deleteReasons = this.detallePrivadoService.getEliminationReasons();
     } else {
       console.error('Invalid business ID, redirecting to mis-negocios');
       this.router.navigate(['/mis-negocios']);
@@ -91,6 +83,7 @@ export class DetalleNegocioPage implements OnInit {
           
         this.loading = false;
         console.log('Business details loaded, photoUrls:', this.photoUrls.length);
+        console.log('Business validation status:', business.validationStatus);
       },
       error: (error: any) => {
         console.error('Error loading business details:', error);
@@ -142,8 +135,14 @@ export class DetalleNegocioPage implements OnInit {
   }
 
   openAdministrationPanel(): void {
-     console.log('Navigating to promotions with business ID:', this.businessId);
-  this.router.navigate(['/promociones', this.businessId]);
+    console.log('Opening administration panel');
+
+    this.showInfoToast('Panel de administración - Funcionalidad próximamente');
+  }
+
+  openDeleteFunctionality(): void {
+    console.log('Opening delete functionality');
+    this.showInfoToast('Eliminar negocio - Funcionalidad próximamente');
   }
 
   async saveBusinessChanges(): Promise<void> {
@@ -155,8 +154,17 @@ export class DetalleNegocioPage implements OnInit {
 
     console.log('=== SAVING BUSINESS CHANGES ===');
     console.log('Business ID:', this.businessId);
+    console.log('Business validation status:', this.business.validationStatus);
     console.log('Original business:', this.business);
     console.log('Editable business:', this.editableBusiness);
+
+    if (this.business.validationStatus === 'VALIDATED') {
+      console.log('Editing validated business');
+    } else if (this.business.validationStatus === 'REJECTED') {
+      console.log('Editing rejected business - allowing modifications');
+    } else if (this.business.validationStatus === 'PENDING') {
+      console.log('Editing pending business');
+    }
 
     if (!this.editableBusiness.commercialName || this.editableBusiness.commercialName.trim() === '') {
       this.showErrorToast('El nombre comercial es obligatorio');
@@ -227,7 +235,11 @@ export class DetalleNegocioPage implements OnInit {
         updateData: updateData
       });
 
-      const response = await this.detallePrivadoService.updateBusiness(this.businessId, updateData).toPromise();
+      const response = await this.detallePrivadoService.updateBusiness(
+        this.businessId, 
+        updateData, 
+        this.business?.validationStatus
+      ).toPromise();
       
       console.log('Update response:', response);
       
@@ -239,6 +251,11 @@ export class DetalleNegocioPage implements OnInit {
       this.showSuccessToast('Negocio actualizado exitosamente');
       this.closeAdminModal();
 
+      if (this.business.validationStatus === 'REJECTED') {
+        setTimeout(() => {
+          this.showInfoToast('Tu negocio se ha actualizado. Será revisado nuevamente para validación.');
+        }, 1000);
+      }
       
     } catch (error: any) {
       console.error('=== ERROR UPDATING BUSINESS ===');
@@ -266,61 +283,6 @@ export class DetalleNegocioPage implements OnInit {
     } finally {
       this.loading = false;
     }
-  }
-
-  openDeleteModal(): void {
-    console.log('Opening delete modal');
-    this.selectedDeleteReason = '';
-    this.deleteComment = '';
-    this.showDeleteModal = true;
-  }
-
-  closeDeleteModal(): void {
-    console.log('Closing delete modal');
-    this.showDeleteModal = false;
-    this.selectedDeleteReason = '';
-    this.deleteComment = '';
-  }
-
-  async requestDeletion(): Promise<void> {
-    if (!this.selectedDeleteReason || this.selectedDeleteReason.trim() === '') {
-      this.showErrorToast('Debe seleccionar un motivo');
-      return;
-    }
-
-    console.log('Requesting deletion...');
-    this.showDeleteConfirmModal = true;
-  }
-
-  async confirmDeletion(): Promise<void> {
-    console.log('Confirming deletion:', {
-      businessId: this.businessId,
-      reason: this.selectedDeleteReason,
-      comment: this.deleteComment
-    });
-
-    try {
-      await this.detallePrivadoService.requestDeletion(
-        this.businessId, 
-        this.selectedDeleteReason, 
-        this.deleteComment
-      ).toPromise();
-
-      this.showSuccessToast('Solicitud de eliminación enviada');
-      this.showDeleteConfirmModal = false;
-      this.closeDeleteModal();
-      
-      this.router.navigate(['/mis-negocios']);
-    } catch (error) {
-      console.error('Error requesting deletion:', error);
-      this.showErrorToast('Error al solicitar eliminación');
-      this.showDeleteConfirmModal = false;
-    }
-  }
-
-  cancelDeletionConfirm(): void {
-    console.log('Canceling deletion confirmation');
-    this.showDeleteConfirmModal = false;
   }
 
   openSocialMedia(platform: string): void {
@@ -474,5 +436,21 @@ export class DetalleNegocioPage implements OnInit {
   goBack(): void {
     console.log('Going back to mis-negocios');
     this.router.navigate(['/mis-negocios']);
+  }
+
+  canEditBusiness(): boolean {
+    if (!this.business) return false;
+    
+    const editableStatuses = ['VALIDATED', 'REJECTED', 'PENDING'];
+    return editableStatuses.includes(this.business.validationStatus);
+  }
+
+  get editButtonText(): string {
+    if (!this.business) return 'Editar datos del negocio';
+    
+    if (this.business.validationStatus === 'REJECTED') {
+      return 'Corregir y editar negocio';
+    }
+    return 'Editar datos del negocio';
   }
 }
