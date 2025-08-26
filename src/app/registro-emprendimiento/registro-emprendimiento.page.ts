@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
   FormGroup,
-  FormArray,
   FormsModule,
   ReactiveFormsModule,
   Validators,
@@ -119,10 +118,8 @@ export class RegistroEmprendimientoPage implements OnInit, AfterViewInit {
       instagram: ['', [Validators.maxLength(100)]],
       tiktok: ['', [Validators.maxLength(100)]],
       address: ['', [Validators.required, Validators.maxLength(100)]],
-      schedules: this.fb.array([
-        this.fb.control('', Validators.required),
-        this.fb.control('', Validators.required)
-      ], Validators.required),
+      schedules: ['', [Validators.required, Validators.maxLength(100)]],
+      schedules1: ['', [Validators.required, Validators.maxLength(100)]],
       productsServices: ['', [Validators.required, Validators.maxLength(50)]],
     });
 
@@ -291,6 +288,14 @@ export class RegistroEmprendimientoPage implements OnInit, AfterViewInit {
       'parishCommunitySector': {
         'required': 'El sector comunitario es obligatorio',
         'maxlength': 'Máximo 50 caracteres'
+      },
+      'schedules': {
+        'required': 'El horario es obligatorio',
+        'maxlength': 'Máximo 100 caracteres'
+      },
+      'schedules1': {
+        'required': 'El horario es obligatorio',
+        'maxlength': 'Máximo 100 caracteres'
       }
     };
 
@@ -318,22 +323,6 @@ export class RegistroEmprendimientoPage implements OnInit, AfterViewInit {
     }
 
     return 'Campo inválido';
-  }
-
-  private markFormGroupTouched(formGroup: FormGroup) {
-    Object.keys(formGroup.controls).forEach(field => {
-      const control = formGroup.get(field);
-      control?.markAsTouched({ onlySelf: true });
-
-      if (control instanceof FormGroup) {
-        this.markFormGroupTouched(control);
-      }
-      if (control instanceof FormArray) {
-        control.controls.forEach(ctrl => {
-          ctrl.markAsTouched({ onlySelf: true });
-        });
-      }
-    });
   }
 
   // =================== VALIDACIONES ADICIONALES ===================
@@ -380,15 +369,23 @@ export class RegistroEmprendimientoPage implements OnInit, AfterViewInit {
     // Validar horarios
     const schedules = this.registerBusiness.get('schedules')?.value;
     if (schedules) {
-      for (let i = 0; i < schedules.length; i++) {
-        if (!this.validateScheduleFormat(schedules[i])) {
+        if (!this.validateScheduleFormat(schedules)) {
           this.toastService.show(
             `Formato de horario inválido. Use el formato "HH:MM - HH:MM"`,
             'warning'
           );
           return false;
         }
-      }
+    }
+
+    //Validar Horario 1
+    const schedule1 = this.registerBusiness.get('schedule1')?.value;
+    if (schedule1 && !this.validateScheduleFormat(schedule1)) {
+      this.toastService.show(
+        `Formato de horario inválido para Horario 1. Use el formato "HH:MM - HH:MM"`,
+        'warning'
+      );
+      return false;
     }
 
     const countryCode = this.registerBusiness.get('countryCodePhone')?.value;
@@ -544,10 +541,8 @@ export class RegistroEmprendimientoPage implements OnInit, AfterViewInit {
       
       acceptsWhatsappOrders: !!formValue.acceptsWhatsappOrders,
       receivedUdelSupport: !!formValue.receivedUdelSupport,
-      
-      schedules: formValue.schedules?.map((schedule: string) => 
-        schedule?.trim().replace(/\s+/g, ' ')
-      )
+
+      schedules: formValue.schedules?.trim(),
     };
   }
 
@@ -570,13 +565,14 @@ export class RegistroEmprendimientoPage implements OnInit, AfterViewInit {
 
   async onSubmit() {
     if (this.registerBusiness.invalid) {
-      this.markFormGroupTouched(this.registerBusiness);
       await this.toastService.show(
         'Por favor complete todos los campos requeridos',
         'warning'
       );
       return;
     }
+
+    console.log(this.registerBusiness.value)
 
     if (!this.validateFormBeforeSubmit()) {
       return;
@@ -592,10 +588,13 @@ export class RegistroEmprendimientoPage implements OnInit, AfterViewInit {
         : '';
       const fullPhone = `${formValue.countryCodePhone}${formValue.phone}`;
 
+      const fullSchedules = `${formValue.schedules}` + " - " + `${formValue.schedules1}` ;
+
       const businessData = {
         ...formValue,
         whatsappNumber: fullWhatsApp,
-        phone: fullPhone
+        phone: fullPhone,
+        schedules: fullSchedules
       };
 
       console.log('Datos a enviar:', JSON.stringify(businessData, null, 2));

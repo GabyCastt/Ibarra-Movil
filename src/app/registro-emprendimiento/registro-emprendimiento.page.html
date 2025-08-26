@@ -227,20 +227,20 @@
 
     <!-- Horarios -->
     <div class="form-field-wrapper">
-      <div formArrayName="schedules">
-        <ion-item fill="outline" [class.error-field]="registerBusiness.get('schedules.0')?.invalid && registerBusiness.get('schedules.0')?.touched">
+      <div >
+        <ion-item fill="outline" [class.error-field]="hasError('schedules')">
           <ion-label position="stacked">Lunes a Viernes <span class="required">*</span></ion-label>
-          <ion-input [formControlName]="0" type="text" placeholder="08:00 - 18:00"></ion-input>
+          <ion-input formControlName="schedules" type="text" placeholder="08:00 - 18:00"></ion-input>
         </ion-item>
-        <div class="error-message" *ngIf="registerBusiness.get('schedules.0')?.invalid && registerBusiness.get('schedules.0')?.touched">
+        <div class="error-message" *ngIf="hasError('schedules')">
           Horario de lunes a viernes es obligatorio
         </div>
-        
-        <ion-item fill="outline" [class.error-field]="registerBusiness.get('schedules.1')?.invalid && registerBusiness.get('schedules.1')?.touched">
+
+        <ion-item fill="outline" [class.error-field]="hasError('schedules1')">
           <ion-label position="stacked">Sábados y Domingos <span class="required">*</span></ion-label>
-          <ion-input [formControlName]="1" type="text" placeholder="09:00 - 17:00"></ion-input>
+          <ion-input formControlName="schedules1" type="text" placeholder="09:00 - 17:00"></ion-input>
         </ion-item>
-        <div class="error-message" *ngIf="registerBusiness.get('schedules.1')?.invalid && registerBusiness.get('schedules.1')?.touched">
+        <div class="error-message" *ngIf="hasError('schedules1')">
           Horario de fin de semana es obligatorio
         </div>
       </div>

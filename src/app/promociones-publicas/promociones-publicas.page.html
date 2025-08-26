@@ -1,0 +1,53 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Lista de Promociones</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <div class="header-container">
+    <h2 class="header-title">Filtros</h2>
+    <div class="chip-filter">
+      <ion-chip 
+        *ngFor="let tipo of promotionTypes" 
+        [outline]="selectedPromotionType !== tipo.value"
+        color="primary"
+        (click)="onPromotionTypeSelect(tipo.value)">
+        {{ tipo.label }}
+      </ion-chip>
+    </div>
+  </div>
+
+  <div class="promo-list">
+    <ion-card *ngFor="let promocion of promociones" class="promotion-card">
+      <div class="promotion-badge">
+        {{ getTipoPromocionLabel(promocion.tipoPromocion) }}
+      </div>
+
+      <img [src]="promocion.businessImageUrl" 
+           [alt]="promocion.businessName" 
+           class="promo-img" />
+
+      <ion-card-header>
+        <ion-label>
+          <ion-icon name="calendar-outline"></ion-icon>
+          Válido hasta: {{ promocion.fechaPromoFin | date:'dd/MM/yyyy' }}
+        </ion-label>
+
+        <ion-card-title>
+          {{ promocion.tituloPromocion }}
+        </ion-card-title>
+
+        <ion-card-subtitle>
+          {{ promocion.businessName }}
+        </ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <p>{{ promocion.condiciones}}</p>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content>

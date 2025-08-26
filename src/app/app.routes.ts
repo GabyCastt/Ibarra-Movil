@@ -63,6 +63,10 @@ export const routes: Routes = [
   {
     path: 'eliminar-negocio/:id',
     loadComponent: () => import('./eliminar-negocio/eliminar-negocio.page').then( m => m.EliminarNegocioPage)
+  },
+  {
+    path: 'promociones-publicas',
+    loadComponent: () => import('./promociones-publicas/promociones-publicas.page').then( m => m.PromocionesPublicasPage)
   }
 
 ];
