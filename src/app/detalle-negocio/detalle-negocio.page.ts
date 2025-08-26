@@ -135,16 +135,9 @@ export class DetalleNegocioPage implements OnInit {
   }
 
   openAdministrationPanel(): void {
-    console.log('Opening administration panel');
-
-    this.showInfoToast('Panel de administración - Funcionalidad próximamente');
+     console.log('Navigating to promotions with business ID:', this.businessId);
+  this.router.navigate(['/promociones', this.businessId]);
   }
-
-  openDeleteFunctionality(): void {
-    console.log('Opening delete functionality');
-    this.showInfoToast('Eliminar negocio - Funcionalidad próximamente');
-  }
-
   async saveBusinessChanges(): Promise<void> {
     if (!this.business || !this.businessId) {
       console.error('Cannot save: business or businessId is missing');
