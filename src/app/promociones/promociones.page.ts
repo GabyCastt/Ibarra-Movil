@@ -1,15 +1,14 @@
-// promociones.page.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { 
-  IonContent, 
-  IonHeader, 
-  IonTitle, 
-  IonToolbar, 
-  IonCard, 
-  IonCardHeader, 
-  IonCardTitle, 
+import {
+  IonContent,
+  IonHeader,
+  IonTitle,
+  IonToolbar,
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
   IonCardContent,
   IonCardSubtitle,
   IonImg,
@@ -19,19 +18,19 @@ import {
   ModalController,
   AlertController,
   RefresherCustomEvent,
-  IonLabel, 
-  IonButtons, 
+  IonLabel,
+  IonButtons,
   IonBadge,
   IonChip,
   IonRefresher,
-  IonRefresherContent
+  IonRefresherContent,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { add, calendar, ticket, time, pricetag } from 'ionicons/icons';
 import { PromocionesService, Promocion } from '../services/promociones.service';
 import { CrearPromocionPage } from '../crear-promocion/crear-promocion.page';
 import { AuthService } from '../services/auth.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-promociones',
@@ -39,11 +38,11 @@ import { ActivatedRoute } from '@angular/router';
   styleUrls: ['./promociones.page.scss'],
   standalone: true,
   imports: [
-    CommonModule, 
-    FormsModule, 
-    IonContent, 
-    IonHeader, 
-    IonTitle, 
+    CommonModule,
+    FormsModule,
+    IonContent,
+    IonHeader,
+    IonTitle,
     IonToolbar,
     IonCard,
     IonCardHeader,
@@ -54,33 +53,33 @@ import { ActivatedRoute } from '@angular/router';
     IonButton,
     IonSpinner,
     IonIcon,
-    IonLabel, 
-    IonButtons, 
+    IonLabel,
+    IonButtons,
     IonBadge,
     IonChip,
     IonRefresher,
-    IonRefresherContent
-  ]
+    IonRefresherContent,
+  ],
 })
 export class PromocionesPage implements OnInit {
   promociones: Promocion[] = [];
   isLoading: boolean = true;
-  businessId: number = 0; // Puedes obtener esto del usuario autenticado
+  businessId: number = 0;
 
   constructor(
     private promocionesService: PromocionesService,
     private authService: AuthService,
     private modalCtrl: ModalController,
     private alertController: AlertController,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private router: Router
   ) {
     addIcons({ add, calendar, ticket, time, pricetag });
   }
 
   ngOnInit() {
-
-    // Obtén el ID de los parámetros de la ruta
-    this.route.paramMap.subscribe(params => {
+    // Obtiene el ID de los parámetros de la ruta
+    this.route.paramMap.subscribe((params) => {
       this.businessId = +params.get('id')!;
       console.log('Business ID from route:', this.businessId);
       this.cargarPromociones();
@@ -94,69 +93,137 @@ export class PromocionesPage implements OnInit {
         if (response.success) {
           this.promociones = response.data;
         } else {
-          this.mostrarAlerta('Error', response.message || 'Error al cargar promociones');
+          this.mostrarAlerta(
+            'Error',
+            response.message || 'Error al cargar promociones'
+          );
         }
         this.isLoading = false;
       },
       error: (error) => {
         console.error('Error al cargar promociones:', error);
         this.isLoading = false;
-        
+
         if (error.status === 401) {
-          this.mostrarAlerta('Sesión expirada', 'Por favor inicia sesión nuevamente');
+          this.mostrarAlerta(
+            'Sesión expirada',
+            'Por favor inicia sesión nuevamente'
+          );
           this.authService.logout();
         } else {
           this.mostrarAlerta('Error', 'No se pudieron cargar las promociones');
         }
-      }
+      },
     });
   }
 
   async abrirModalCrear() {
     // Verificar si el usuario está autenticado
     if (!this.authService.isAuthenticated()) {
-      this.mostrarAlerta('Error', 'Debes iniciar sesión para crear promociones');
+      this.mostrarAlerta(
+        'Error',
+        'Debes iniciar sesión para crear promociones'
+      );
       return;
     }
 
     const modal = await this.modalCtrl.create({
       component: CrearPromocionPage,
       componentProps: {
-        businessId: this.businessId
-      }
+        businessId: this.businessId,
+      },
     });
-    
+
     modal.onDidDismiss().then((result) => {
       if (result.role === 'confirm') {
         this.crearPromocion(result.data.promocion, result.data.archivo);
       }
     });
-    
+
     await modal.present();
   }
 
   crearPromocion(promocion: any, archivo: File) {
+    // Verifica que tenemos todos los campos requeridos
+    if (
+      !promocion.businessId ||
+      !promocion.tipoPromocion ||
+      !promocion.tituloPromocion ||
+      !promocion.fechaPromoInicio ||
+      !promocion.fechaPromoFin ||
+      !promocion.condiciones
+    ) {
+      this.mostrarAlerta('Error', 'Faltan campos requeridos en la promoción');
+      return;
+    }
+
+    // Verificar que el archivo sea válido
+    if (!archivo || archivo.size === 0) {
+      this.mostrarAlerta('Error', 'El archivo de imagen no es válido');
+      return;
+    }
+
+    console.log('Creando promoción con datos:', promocion);
+    console.log(
+      'Archivo seleccionado:',
+      archivo.name,
+      archivo.type,
+      archivo.size
+    );
+
     this.promocionesService.crearPromocion(promocion, archivo).subscribe({
       next: (response) => {
+        console.log('Respuesta del servidor:', response);
         if (response.success) {
           this.mostrarAlerta('Éxito', 'Promoción creada correctamente');
-          this.cargarPromociones(); // Recargar la lista
+          this.cargarPromociones();
         } else {
-          this.mostrarAlerta('Error', response.message || 'Error al crear la promoción');
+          this.mostrarAlerta(
+            'Error',
+            response.message || 'Error al crear la promoción'
+          );
         }
       },
       error: (error) => {
-        console.error('Error al crear promoción:', error);
-        
+        console.error('Error completo:', error);
+        console.error('Error status:', error.status);
+        console.error('Error message:', error.message);
+        console.error('Error response:', error.error);
+
         if (error.status === 401) {
-          this.mostrarAlerta('Sesión expirada', 'Por favor inicia sesión nuevamente');
+          this.mostrarAlerta(
+            'Sesión expirada',
+            'Por favor inicia sesión nuevamente'
+          );
           this.authService.logout();
         } else if (error.status === 400) {
-          this.mostrarAlerta('Error', 'Datos inválidos. Verifica la información.');
+          this.mostrarAlerta(
+            'Error',
+            'Datos inválidos: ' +
+              (error.error?.message || 'Verifica la información')
+          );
+        } else if (error.status === 500) {
+          // Maneja específicamente el error 500 del Content-Type
+          if (error.error?.message?.includes('Content-Type')) {
+            this.mostrarAlerta(
+              'Error',
+              'Problema con el formato de la imagen. Intenta con otra imagen o verifica el tipo de archivo.'
+            );
+          } else {
+            this.mostrarAlerta(
+              'Error',
+              'Error interno del servidor: ' +
+                (error.error?.message || 'Intenta más tarde')
+            );
+          }
         } else {
-          this.mostrarAlerta('Error', 'Error al crear la promoción');
+          this.mostrarAlerta(
+            'Error',
+            'Error al crear la promoción: ' +
+              (error.error?.message || error.message)
+          );
         }
-      }
+      },
     });
   }
 
@@ -171,9 +238,9 @@ export class PromocionesPage implements OnInit {
     const alert = await this.alertController.create({
       header: titulo,
       message: mensaje,
-      buttons: ['OK']
+      buttons: ['OK'],
     });
-    
+
     await alert.present();
   }
 
@@ -182,7 +249,7 @@ export class PromocionesPage implements OnInit {
     return new Date(dateString).toLocaleDateString('es-ES', {
       day: '2-digit',
       month: '2-digit',
-      year: 'numeric'
+      year: 'numeric',
     });
   }
 
@@ -191,31 +258,35 @@ export class PromocionesPage implements OnInit {
     const today = new Date();
     const startDate = new Date(promocion.fechaPromoInicio);
     const endDate = new Date(promocion.fechaPromoFin);
-    
+
     return today >= startDate && today <= endDate;
   }
 
   // Método para obtener el color del chip según el tipo de promoción
   getChipColor(tipoPromocion: string): string {
     const colors: { [key: string]: string } = {
-      'DESCUENTO_PORCENTAJE': 'success',
-      'DESCUENTO_FIJO': 'primary',
-      'COMPRA_LLEVAS': 'warning',
-      'ENVIO_GRATIS': 'tertiary'
+      DESCUENTO_PORCENTAJE: 'success',
+      DESCUENTO_FIJO: 'primary',
+      COMPRA_LLEVAS: 'warning',
+      ENVIO_GRATIS: 'tertiary',
     };
-    
+
     return colors[tipoPromocion] || 'medium';
   }
 
   // Método para obtener el texto del tipo de promoción
   getTipoPromocionText(tipoPromocion: string): string {
     const textos: { [key: string]: string } = {
-      'DESCUENTO_PORCENTAJE': 'Descuento %',
-      'DESCUENTO_FIJO': 'Descuento Fijo',
-      'COMPRA_LLEVAS': 'Compra y Llevas',
-      'ENVIO_GRATIS': 'Envío Gratis'
+      DESCUENTO_PORCENTAJE: 'Descuento %',
+      DESCUENTO_FIJO: 'Descuento Fijo',
+      COMPRA_LLEVAS: 'Compra y Llevas',
+      ENVIO_GRATIS: 'Envío Gratis',
     };
-    
+
     return textos[tipoPromocion] || tipoPromocion;
+  }
+  goBack(): void {
+    console.log('Going back to mis-negocios');
+    this.router.navigate(['/detalle-negocio', this.businessId]);
   }
 }
