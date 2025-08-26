@@ -115,7 +115,6 @@ export class DetallePrivadoService {
       return throwError(() => new Error('Invalid business ID'));
     }
 
-
     return this.getPrivateBusinesses('', 0, 100).pipe(
       map(response => {
         console.log('Private businesses list response:', response);
@@ -185,13 +184,130 @@ export class DetallePrivadoService {
   }
 
   updateBusiness(businessId: number, updateData: UpdateBusinessRequest): Observable<any> {
-    console.log('Updating business:', { businessId, updateData });
+    console.log('=== UPDATE BUSINESS SERVICE ===');
+    console.log('Business ID:', businessId);
+    console.log('Update Data:', updateData);
     
-    return this.http.put(`${this.apiUrl}/business/${businessId}`, updateData, {
-      headers: this.getAuthHeaders()
-    }).pipe(
-      tap(response => console.log('Update business response:', response)),
-      catchError(this.handleError)
+    if (!businessId || businessId <= 0) {
+      console.error('Invalid business ID:', businessId);
+      return throwError(() => new Error('ID de negocio inválido'));
+    }
+
+    if (!updateData || Object.keys(updateData).length === 0) {
+      console.error('No update data provided');
+      return throwError(() => new Error('No hay datos para actualizar'));
+    }
+
+    let headers: HttpHeaders;
+    try {
+      headers = this.getAuthHeaders();
+      console.log('Headers created successfully');
+    } catch (error) {
+      console.error('Error creating auth headers:', error);
+      return throwError(() => error);
+    }
+
+    const cleanedData: UpdateBusinessRequest = {};
+    
+    if (updateData.commercialName !== undefined && updateData.commercialName !== null) {
+      cleanedData.commercialName = updateData.commercialName.trim();
+    }
+    
+    if (updateData.description !== undefined && updateData.description !== null) {
+      cleanedData.description = updateData.description.trim();
+    }
+    
+    if (updateData.email !== undefined && updateData.email !== null) {
+      const email = updateData.email.trim();
+      if (email && !this.isValidEmail(email)) {
+        return throwError(() => new Error('Formato de email inválido'));
+      }
+      cleanedData.email = email;
+    }
+    
+    ['facebook', 'instagram', 'tiktok', 'website', 'whatsappNumber', 'address'].forEach(field => {
+      const value = (updateData as any)[field];
+      if (value !== undefined && value !== null) {
+        (cleanedData as any)[field] = value.toString().trim();
+      }
+    });
+
+    if (updateData.acceptsWhatsappOrders !== undefined) {
+      cleanedData.acceptsWhatsappOrders = Boolean(updateData.acceptsWhatsappOrders);
+    }
+
+
+    if (updateData.googleMapsCoordinates !== undefined && updateData.googleMapsCoordinates !== null) {
+      cleanedData.googleMapsCoordinates = updateData.googleMapsCoordinates.trim();
+    }
+
+    const url = `${this.businessUrl}/${businessId}`;
+    
+    console.log('=== MAKING UPDATE REQUEST ===');
+    console.log('URL:', url);
+    console.log('Method: PUT');
+    console.log('Headers:', {
+      'Authorization': headers.get('Authorization') ? 'Bearer [TOKEN_EXISTS]' : 'NO_TOKEN',
+      'Content-Type': headers.get('Content-Type')
+    });
+    console.log('Cleaned Data:', JSON.stringify(cleanedData, null, 2));
+
+    return this.http.put(url, cleanedData, { headers }).pipe(
+      tap(response => {
+        console.log('=== UPDATE SUCCESS ===');
+        console.log('Update response:', response);
+      }),
+      catchError((error: HttpErrorResponse) => {
+        console.error('=== UPDATE ERROR ===');
+        console.error('Status:', error.status);
+        console.error('Status Text:', error.statusText);
+        console.error('Error Body:', error.error);
+        console.error('Full Error:', error);
+        
+        let errorMessage = 'Error al actualizar el negocio';
+        
+        switch (error.status) {
+          case 400:
+            if (error.error?.message) {
+              errorMessage = `Datos inválidos: ${error.error.message}`;
+            } else if (error.error?.errors && Array.isArray(error.error.errors)) {
+              errorMessage = `Errores de validación: ${error.error.errors.join(', ')}`;
+            } else {
+              errorMessage = 'Datos inválidos. Verifica que todos los campos estén correctos.';
+            }
+            break;
+            
+          case 401:
+            errorMessage = 'No autorizado. Tu sesión ha expirado, por favor inicia sesión nuevamente.';
+            localStorage.removeItem('jwt_token');
+            break;
+            
+          case 403:
+            errorMessage = 'No tienes permisos para editar este negocio. Solo el propietario puede modificarlo.';
+            break;
+            
+          case 404:
+            errorMessage = 'El negocio no fue encontrado o ha sido eliminado.';
+            break;
+            
+          case 422:
+            errorMessage = 'Los datos enviados no pueden ser procesados. Verifica los campos requeridos.';
+            break;
+            
+          case 500:
+            errorMessage = 'Error interno del servidor. Inténtalo más tarde.';
+            break;
+            
+          default:
+            if (error.error?.message) {
+              errorMessage = error.error.message;
+            } else if (error.message) {
+              errorMessage = error.message;
+            }
+        }
+        
+        return throwError(() => new Error(errorMessage));
+      })
     );
   }
 
@@ -291,6 +407,11 @@ export class DetallePrivadoService {
       tap(response => console.log('Deletion request response:', response)),
       catchError(this.handleError)
     );
+  }
+
+  private isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   }
 
   private handleError(error: HttpErrorResponse): Observable<never> {

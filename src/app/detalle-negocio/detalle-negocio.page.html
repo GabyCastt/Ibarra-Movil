@@ -9,31 +9,53 @@
 
 <ion-content [fullscreen]="true">
   <div *ngIf="loading" class="loading-container">
-    <ion-spinner></ion-spinner>
+    <div class="loading-spinner"></div>
     <p>Cargando detalles del negocio...</p>
   </div>
 
   <div *ngIf="error" class="error-container">
-    <ion-icon name="alert-circle-outline" size="large"></ion-icon>
+    <div class="error-icon">⚠️</div>
     <p>{{ error }}</p>
-    <ion-button fill="clear" (click)="loadBusinessDetails()">Reintentar</ion-button>
+    <button class="retry-button" (click)="loadBusinessDetails()">Reintentar</button>
   </div>
 
   <div *ngIf="!loading && !error && business" class="business-content">
     
+    <div class="business-header">
+      <div class="logo-container" *ngIf="business.logoUrl">
+        <img [src]="business.logoUrl" [alt]="business.commercialName" class="business-logo"
+             (error)="handleImageError($event, 'logo')"/>
+      </div>
+      
+      <div class="header-info">
+        <h1 class="business-title">{{ business.commercialName }}</h1>
+        <p class="representative" *ngIf="business.representativeName">
+          <span class="rep-icon">👤</span>
+          {{ business.representativeName }}
+        </p>
+        <div class="status-badge" 
+             [class.validated]="business.validationStatus === 'VALIDATED'" 
+             [class.pending]="business.validationStatus === 'PENDING'"
+             [class.rejected]="business.validationStatus === 'REJECTED'">
+          {{ business.validationStatus === 'VALIDATED' ? 'Validado' : 
+             business.validationStatus === 'PENDING' ? 'Pendiente' : 'Rechazado' }}
+        </div>
+      </div>
+    </div>
+
     <div class="carousel-container" *ngIf="business.photos && business.photos.length > 0">
+      <div class="carousel-header">
+        <h3>📷 Imágenes del Negocio</h3>
+      </div>
+      
       <div class="carousel-wrapper">
         <div class="carousel-main">
-          <button class="carousel-button prev" (click)="prevImage()" *ngIf="hasMultipleImages">
-            <ion-icon name="chevron-back-outline"></ion-icon>
-          </button>
+          <button class="carousel-button prev" (click)="prevImage()" *ngIf="hasMultipleImages">‹</button>
           <div class="image-container">
             <img [src]="currentImage" [alt]="business.commercialName" class="carousel-image" 
                  (error)="handleImageError($event, 'carousel')">
           </div>
-          <button class="carousel-button next" (click)="nextImage()" *ngIf="hasMultipleImages">
-            <ion-icon name="chevron-forward-outline"></ion-icon>
-          </button>
+          <button class="carousel-button next" (click)="nextImage()" *ngIf="hasMultipleImages">›</button>
         </div>
         
         <div class="carousel-indicators" *ngIf="hasMultipleImages">
@@ -47,211 +69,265 @@
       </div>
     </div>
 
-    <div class="business-header">
-      <div class="logo-container" *ngIf="business.logoUrl">
-        <img [src]="business.logoUrl" [alt]="business.commercialName" class="business-logo"
-             (error)="handleImageError($event, 'logo')"/>
-      </div>
-      
-      <div class="header-info">
-        <h1>{{ business.commercialName }}</h1>
-        <p class="representative" *ngIf="business.representativeName">
-          <ion-icon name="person-outline"></ion-icon>
-          {{ business.representativeName }}
-        </p>
-        <ion-badge [color]="business.validationStatus === 'VALIDATED' ? 'success' : 'warning'">
-          {{ business.validationStatus === 'VALIDATED' ? 'Validado' : 'Pendiente' }}
-        </ion-badge>
-      </div>
+    <div class="no-images" *ngIf="!business.photos || business.photos.length === 0">
+      <div class="no-images-icon">📷</div>
+      <p>No hay imágenes disponibles</p>
     </div>
 
-    <div class="section">
-      <h3>Descripción</h3>
-      <p class="description">{{ business.description }}</p>
+    <div class="form-group">
+      <label class="form-label">📝 Descripción</label>
+      <div class="textarea-display">{{ business.description || 'Sin descripción disponible' }}</div>
     </div>
 
-    <div class="section">
-      <h3>Información de Contacto</h3>
-      <div class="contact-grid">
-        <div class="contact-item" *ngIf="business.phone">
-          <ion-icon name="call-outline"></ion-icon>
-          <div>
-            <span class="label">Teléfono</span>
-            <span class="value">{{ business.phone }}</span>
+    <div class="form-row">
+      <div class="form-group half-width" *ngIf="formattedSchedules.length > 0">
+        <label class="form-label">🕐 Horarios de Atención</label>
+        <div class="schedules-container">
+          <div class="schedule-item" *ngFor="let schedule of formattedSchedules">
+            <span class="day">{{ schedule.day }}</span>
+            <span class="hours" [class.closed]="schedule.hours === 'Cerrado'">{{ schedule.hours }}</span>
           </div>
-          <ion-button size="small" fill="clear" (click)="callPhone()">
-            <ion-icon name="call"></ion-icon>
-          </ion-button>
+        </div>
+      </div>
+
+      <div class="form-group half-width" 
+           *ngIf="business.facebook || business.instagram || business.tiktok || business.website">
+        <label class="form-label">📱 Redes Sociales</label>
+        <div class="social-media-container">
+          <div class="social-item" *ngIf="business.instagram">
+            <span class="social-icon">📷</span>
+            <span class="social-label">Instagram</span>
+            <button class="social-button" (click)="openSocialMedia('instagram')">Ver</button>
+          </div>
+          <div class="social-item" *ngIf="business.facebook">
+            <span class="social-icon">📘</span>
+            <span class="social-label">Facebook</span>
+            <button class="social-button" (click)="openSocialMedia('facebook')">Ver</button>
+          </div>
+          <div class="social-item" *ngIf="business.tiktok">
+            <span class="social-icon">🎵</span>
+            <span class="social-label">TikTok</span>
+            <button class="social-button" (click)="openSocialMedia('tiktok')">Ver</button>
+          </div>
+          <div class="social-item" *ngIf="business.website">
+            <span class="social-icon">🌐</span>
+            <span class="social-label">Sitio Web</span>
+            <button class="social-button" (click)="openSocialMedia('website')">Visitar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">📞 Información de Contacto</label>
+      <div class="contact-container">
+        <div class="contact-item" *ngIf="business.phone">
+          <div class="contact-icon">📞</div>
+          <div class="contact-info">
+            <span class="contact-label">Teléfono</span>
+            <span class="contact-value">{{ business.phone }}</span>
+          </div>
+          <button class="contact-button" (click)="callPhone()">Llamar</button>
         </div>
         
         <div class="contact-item" *ngIf="business.email">
-          <ion-icon name="mail-outline"></ion-icon>
-          <div>
-            <span class="label">Email</span>
-            <span class="value">{{ business.email }}</span>
+          <div class="contact-icon">📧</div>
+          <div class="contact-info">
+            <span class="contact-label">Email</span>
+            <span class="contact-value">{{ business.email }}</span>
           </div>
-          <ion-button size="small" fill="clear" (click)="sendEmail()">
-            <ion-icon name="mail"></ion-icon>
-          </ion-button>
+          <button class="contact-button" (click)="sendEmail()">Escribir</button>
         </div>
         
         <div class="contact-item" *ngIf="business.whatsappNumber">
-          <ion-icon name="logo-whatsapp"></ion-icon>
-          <div>
-            <span class="label">WhatsApp</span>
-            <span class="value">{{ business.whatsappNumber }}</span>
+          <div class="contact-icon">💬</div>
+          <div class="contact-info">
+            <span class="contact-label">WhatsApp</span>
+            <span class="contact-value">{{ business.whatsappNumber }}</span>
           </div>
-          <ion-button size="small" fill="clear" (click)="openWhatsApp()">
-            <ion-icon name="chatbubble"></ion-icon>
-          </ion-button>
+          <button class="contact-button whatsapp" (click)="openWhatsApp()">Chatear</button>
         </div>
       </div>
     </div>
 
-    <div class="section">
-      <h3>Ubicación</h3>
-      <div class="location-info">
-        <div class="address">
-          <ion-icon name="location-outline"></ion-icon>
-          <span>{{ business.address }}</span>
+    <div class="form-group">
+      <label class="form-label">📍 Ubicación</label>
+      <div class="location-container">
+        <div class="location-info">
+          <div class="address">
+            <span class="location-icon">📍</span>
+            <span>{{ business.address || 'Dirección no especificada' }}</span>
+          </div>
+          <div class="sector" *ngIf="business.parishCommunitySector">
+            <span class="sector-label">Sector:</span>
+            <span>{{ business.parishCommunitySector }}</span>
+          </div>
         </div>
-        <div class="sector" *ngIf="business.parishCommunitySector">
-          <span class="sector-label">Sector:</span>
-          <span>{{ business.parishCommunitySector }}</span>
-        </div>
-        <ion-button fill="outline" size="small" (click)="openMaps()" *ngIf="business.googleMapsCoordinates">
-          <ion-icon name="map-outline" slot="start"></ion-icon>
-          Ver en Mapa
-        </ion-button>
+        <button class="map-button" (click)="openMaps()" *ngIf="business.googleMapsCoordinates">
+          <span class="map-icon">🗺️</span>
+          <span>Ver en Mapa</span>
+        </button>
       </div>
     </div>
 
-    <div class="section" *ngIf="business.facebook || business.instagram || business.tiktok || business.website">
-      <h3>Redes Sociales</h3>
-      <div class="social-grid">
-        <ion-button fill="outline" (click)="openSocialMedia('facebook')" *ngIf="business.facebook">
-          <ion-icon name="logo-facebook" slot="start"></ion-icon>
-          Facebook
-        </ion-button>
-        <ion-button fill="outline" (click)="openSocialMedia('instagram')" *ngIf="business.instagram">
-          <ion-icon name="logo-instagram" slot="start"></ion-icon>
-          Instagram
-        </ion-button>
-        <ion-button fill="outline" (click)="openSocialMedia('tiktok')" *ngIf="business.tiktok">
-          <ion-icon name="logo-tiktok" slot="start"></ion-icon>
-          TikTok
-        </ion-button>
-        <ion-button fill="outline" (click)="openSocialMedia('website')" *ngIf="business.website">
-          <ion-icon name="globe-outline" slot="start"></ion-icon>
-          Sitio Web
-        </ion-button>
+    <div class="form-row">
+      <div class="info-card">
+        <div class="info-icon">🏪</div>
+        <div class="info-content">
+          <h4>Tipo de Venta</h4>
+          <p>{{ salePlaceText }}</p>
+        </div>
       </div>
-    </div>
-
-    <div class="section" *ngIf="formattedSchedules.length > 0">
-      <h3>Horarios de Atención</h3>
-      <div class="schedules-container">
-        <div class="schedule-item" *ngFor="let schedule of formattedSchedules">
-          <span class="day">{{ schedule.day }}</span>
-          <span class="hours" [class.closed]="schedule.hours === 'Cerrado'">{{ schedule.hours }}</span>
+      
+      <div class="info-card">
+        <div class="info-icon">🚚</div>
+        <div class="info-content">
+          <h4>Delivery</h4>
+          <p>{{ deliveryText }}</p>
+        </div>
+      </div>
+      
+      <div class="info-card" *ngIf="business.category">
+        <div class="info-icon">🏷️</div>
+        <div class="info-content">
+          <h4>Categoría</h4>
+          <p>{{ business.category.name || 'Sin categoría' }}</p>
         </div>
       </div>
     </div>
 
-    <div class="section">
-      <h3>Información Adicional</h3>
-      <div class="info-grid">
-        <div class="info-item">
-          <ion-icon name="storefront-outline"></ion-icon>
-          <span>{{ salePlaceText }}</span>
-        </div>
-        <div class="info-item">
-          <ion-icon name="bicycle-outline"></ion-icon>
-          <span>{{ deliveryText }}</span>
-        </div>
-        <div class="info-item" *ngIf="business.acceptsWhatsappOrders">
-          <ion-icon name="checkmark-circle-outline"></ion-icon>
-          <span>Acepta pedidos por WhatsApp</span>
+    <div class="form-group" *ngIf="business.acceptsWhatsappOrders">
+      <div class="whatsapp-orders">
+        <div class="whatsapp-icon">✅</div>
+        <div class="whatsapp-text">
+          <h4>Pedidos por WhatsApp</h4>
+          <p>Este negocio acepta pedidos a través de WhatsApp</p>
         </div>
       </div>
     </div>
 
-    <div class="action-buttons">
-      <ion-button expand="block" fill="solid" (click)="openAdminModal()">
-        <ion-icon name="settings-outline" slot="start"></ion-icon>
-        Administrar Negocio
-      </ion-button>
-      <ion-button expand="block" fill="outline" color="danger" (click)="openDeleteModal()">
-        <ion-icon name="trash-outline" slot="start"></ion-icon>
-        Solicitar Eliminación
-      </ion-button>
+    <div class="action-section">
+      <h3 class="action-title">Opciones del Negocio</h3>
+      <div class="action-buttons-grid">
+        <button class="action-btn cancel-btn" (click)="goBack()">
+          <span class="btn-icon">↩️</span>
+          <span>Cancelar</span>
+        </button>
+        <button class="action-btn edit-btn" (click)="openAdminModal()">
+          <span class="btn-icon">✏️</span>
+          <span>Editar datos del negocio</span>
+        </button>
+        <button class="action-btn delete-btn" (click)="openDeleteModal()">
+          <span class="btn-icon">🗑️</span>
+          <span>Solicitar Eliminación</span>
+        </button>
+        <button class="action-btn admin-btn" (click)="openAdministrationPanel()">
+          <span class="btn-icon">⚙️</span>
+          <span>Administrar negocio</span>
+        </button>
+      </div>
     </div>
   </div>
 
   <div class="modal-overlay" *ngIf="showAdminModal" (click)="closeAdminModal()">
     <div class="modal-container" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h2>Ver Detalles</h2>
+        <h2 class="modal-title">✏️ Editar Negocio</h2>
+        <p class="modal-subtitle">Actualiza la información de tu emprendimiento</p>
         <button class="close-button" (click)="closeAdminModal()">
-          <ion-icon name="close"></ion-icon>
+          <span>&times;</span>
         </button>
       </div>
 
       <div class="modal-content">
-        <ion-item>
-          <ion-label position="stacked">Nombre Comercial</ion-label>
-          <ion-input [(ngModel)]="editableBusiness.commercialName" placeholder="Nombre del negocio"></ion-input>
-        </ion-item>
+        <div class="form-group">
+          <label class="form-label">Nombre Comercial</label>
+          <div class="input-container">
+            <input type="text" [(ngModel)]="editableBusiness.commercialName" 
+                   placeholder="Nombre del negocio" class="form-input">
+          </div>
+        </div>
 
-        <ion-item>
-          <ion-label position="stacked">Descripción</ion-label>
-          <ion-textarea [(ngModel)]="editableBusiness.description" rows="4" placeholder="Describe tu negocio"></ion-textarea>
-        </ion-item>
+        <div class="form-group">
+          <label class="form-label">Descripción</label>
+          <div class="input-container">
+            <textarea [(ngModel)]="editableBusiness.description" rows="4" 
+                      placeholder="Describe tu negocio" class="form-textarea"></textarea>
+          </div>
+        </div>
 
-        <ion-item>
-          <ion-label position="stacked">Email</ion-label>
-          <ion-input [(ngModel)]="editableBusiness.email" type="email" placeholder="correo@ejemplo.com"></ion-input>
-        </ion-item>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <div class="input-container">
+            <input type="email" [(ngModel)]="editableBusiness.email" 
+                   placeholder="correo@ejemplo.com" class="form-input">
+          </div>
+        </div>
 
-        <ion-item>
-          <ion-label position="stacked">Dirección</ion-label>
-          <ion-textarea [(ngModel)]="editableBusiness.address" rows="2" placeholder="Dirección completa"></ion-textarea>
-        </ion-item>
+        <div class="form-group">
+          <label class="form-label">Dirección</label>
+          <div class="input-container">
+            <textarea [(ngModel)]="editableBusiness.address" rows="2" 
+                      placeholder="Dirección completa" class="form-textarea"></textarea>
+          </div>
+        </div>
 
-        <ion-item>
-          <ion-label position="stacked">Facebook</ion-label>
-          <ion-input [(ngModel)]="editableBusiness.facebook" placeholder="@usuario o URL completa"></ion-input>
-        </ion-item>
+        <div class="form-row">
+          <div class="form-group half-width">
+            <label class="form-label">Facebook</label>
+            <div class="input-container">
+              <input type="text" [(ngModel)]="editableBusiness.facebook" 
+                     placeholder="@usuario o URL completa" class="form-input">
+            </div>
+          </div>
 
-        <ion-item>
-          <ion-label position="stacked">Instagram</ion-label>
-          <ion-input [(ngModel)]="editableBusiness.instagram" placeholder="@usuario o URL completa"></ion-input>
-        </ion-item>
+          <div class="form-group half-width">
+            <label class="form-label">Instagram</label>
+            <div class="input-container">
+              <input type="text" [(ngModel)]="editableBusiness.instagram" 
+                     placeholder="@usuario o URL completa" class="form-input">
+            </div>
+          </div>
+        </div>
 
-        <ion-item>
-          <ion-label position="stacked">TikTok</ion-label>
-          <ion-input [(ngModel)]="editableBusiness.tiktok" placeholder="@usuario o URL completa"></ion-input>
-        </ion-item>
+        <div class="form-row">
+          <div class="form-group half-width">
+            <label class="form-label">TikTok</label>
+            <div class="input-container">
+              <input type="text" [(ngModel)]="editableBusiness.tiktok" 
+                     placeholder="@usuario o URL completa" class="form-input">
+            </div>
+          </div>
 
-        <ion-item>
-          <ion-label position="stacked">Sitio Web</ion-label>
-          <ion-input [(ngModel)]="editableBusiness.website" placeholder="https://misitio.com"></ion-input>
-        </ion-item>
+          <div class="form-group half-width">
+            <label class="form-label">Sitio Web</label>
+            <div class="input-container">
+              <input type="url" [(ngModel)]="editableBusiness.website" 
+                     placeholder="https://misitio.com" class="form-input">
+            </div>
+          </div>
+        </div>
 
-        <ion-item>
-          <ion-label position="stacked">WhatsApp</ion-label>
-          <ion-input [(ngModel)]="editableBusiness.whatsappNumber" placeholder="593999999999"></ion-input>
-        </ion-item>
+        <div class="form-group">
+          <label class="form-label">WhatsApp</label>
+          <div class="input-container">
+            <input type="tel" [(ngModel)]="editableBusiness.whatsappNumber" 
+                   placeholder="593999999999" class="form-input">
+          </div>
+        </div>
 
-        <ion-item>
-          <ion-checkbox [(ngModel)]="editableBusiness.acceptsWhatsappOrders"></ion-checkbox>
-          <ion-label>Acepta pedidos por WhatsApp</ion-label>
-        </ion-item>
+        <div class="form-group">
+          <div class="checkbox-container">
+            <input type="checkbox" id="whatsapp-orders" 
+                   [(ngModel)]="editableBusiness.acceptsWhatsappOrders" class="form-checkbox">
+            <label for="whatsapp-orders" class="checkbox-label">Acepta pedidos por WhatsApp</label>
+          </div>
+        </div>
       </div>
 
       <div class="modal-footer">
-        <ion-button fill="clear" (click)="closeAdminModal()">Cancelar</ion-button>
-        <ion-button fill="solid" (click)="saveBusinessChanges()">Guardar Cambios</ion-button>
+        <button class="cancel-button" (click)="closeAdminModal()">Cancelar</button>
+        <button class="save-button" (click)="saveBusinessChanges()">Guardar Cambios</button>
       </div>
     </div>
   </div>
@@ -259,9 +335,10 @@
   <div class="modal-overlay" *ngIf="showDeleteModal" (click)="closeDeleteModal()">
     <div class="modal-container delete-modal" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h2>Solicitar Eliminación</h2>
+        <h2 class="modal-title">🗑️ Solicitar Eliminación</h2>
+        <p class="modal-subtitle">¿Por qué deseas eliminar tu negocio?</p>
         <button class="close-button" (click)="closeDeleteModal()">
-          <ion-icon name="close"></ion-icon>
+          <span>&times;</span>
         </button>
       </div>
 
@@ -270,23 +347,26 @@
           Esta acción enviará una solicitud para eliminar tu negocio. ¿Cuál es el motivo?
         </p>
 
-        <ion-radio-group [(ngModel)]="selectedDeleteReason">
-          <ion-item *ngFor="let reason of deleteReasons">
-            <ion-label>{{ reason }}</ion-label>
-            <ion-radio slot="start" [value]="reason"></ion-radio>
-          </ion-item>
-        </ion-radio-group>
+        <div class="reasons-container">
+          <div class="reason-item" *ngFor="let reason of deleteReasons">
+            <input type="radio" [id]="reason" [value]="reason" 
+                   [(ngModel)]="selectedDeleteReason" name="deleteReason" class="reason-radio">
+            <label [for]="reason" class="reason-label">{{ reason }}</label>
+          </div>
+        </div>
 
-        <ion-item>
-          <ion-label position="stacked">Comentarios adicionales (opcional)</ion-label>
-          <ion-textarea [(ngModel)]="deleteComment" rows="4" 
-                       placeholder="Explica más detalles sobre el motivo..."></ion-textarea>
-        </ion-item>
+        <div class="form-group">
+          <label class="form-label">Comentarios adicionales (opcional)</label>
+          <div class="input-container">
+            <textarea [(ngModel)]="deleteComment" rows="4" 
+                      placeholder="Explica más detalles sobre el motivo..." class="form-textarea"></textarea>
+          </div>
+        </div>
       </div>
 
       <div class="modal-footer">
-        <ion-button fill="clear" (click)="closeDeleteModal()">Cancelar</ion-button>
-        <ion-button fill="solid" color="danger" (click)="requestDeletion()">Solicitar Eliminación</ion-button>
+        <button class="cancel-button" (click)="closeDeleteModal()">Cancelar</button>
+        <button class="delete-confirm-button" (click)="requestDeletion()">Solicitar Eliminación</button>
       </div>
     </div>
   </div>
@@ -294,11 +374,11 @@
   <div class="modal-overlay" *ngIf="showDeleteConfirmModal">
     <div class="modal-container confirm-modal">
       <div class="modal-header">
-        <h2>Confirmar Eliminación</h2>
+        <h2 class="modal-title">⚠️ Confirmar Eliminación</h2>
       </div>
 
       <div class="modal-content">
-        <ion-icon name="warning-outline" class="warning-icon"></ion-icon>
+        <div class="warning-icon">⚠️</div>
         <p><strong>¿Estás seguro de que deseas solicitar la eliminación de este negocio?</strong></p>
         <p>Esta acción no se puede deshacer. Una vez procesada la solicitud, tu negocio será eliminado del sistema.</p>
         <div class="reason-summary">
@@ -307,8 +387,8 @@
       </div>
 
       <div class="modal-footer">
-        <ion-button fill="clear" (click)="cancelDeletionConfirm()">Cancelar</ion-button>
-        <ion-button fill="solid" color="danger" (click)="confirmDeletion()">Sí, Eliminar</ion-button>
+        <button class="cancel-button" (click)="cancelDeletionConfirm()">Cancelar</button>
+        <button class="delete-confirm-button" (click)="confirmDeletion()">Sí, Eliminar</button>
       </div>
     </div>
   </div>
