@@ -27,7 +27,7 @@ export interface ApiResponse {
 export class PromocionesService {
   private apiUrl = 'http://34.10.172.54:8080';
 
-  constructor(private http: HttpClient, private authService: AuthService) {}
+  constructor(private http: HttpClient, private authService: AuthService) { }
 
   private getHeaders(): HttpHeaders {
     const token = this.authService.getToken();
@@ -48,6 +48,20 @@ export class PromocionesService {
       }
     );
   }
+
+  getPromotionPublic(promotionType?: string): Observable<ApiResponse> {
+    let params = new HttpParams();
+
+    if (promotionType) {
+      params = params.set('promotionType', promotionType);
+    }
+
+    return this.http.get<ApiResponse>(
+      `${this.apiUrl}/promotions/business/public`,
+      { params }
+    );
+  }
+
 
   crearPromocion(dto: any, photo: File): Observable<ApiResponse> {
     const formData = new FormData();

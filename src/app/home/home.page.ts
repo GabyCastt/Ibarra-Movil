@@ -33,6 +33,7 @@ import { LoginPage } from '../login/login.page';
 import { Router } from '@angular/router';
 import { NegociosService } from '../services/negocios.service';
 import { AuthService } from '../services/auth.service';
+import { Promocion, PromocionesService } from '../services/promociones.service';
 
 @Component({
   selector: 'app-home',
@@ -45,31 +46,31 @@ export class HomePage implements OnInit {
   isAuthenticated = false;
   userData: any = null;
   categories: any[] = [];
+  promociones: Promocion[] = [];
+ promotionTypes = [
+  { value: '', label: 'Todas' },
+  { value: 'COMBO', label: 'Combo especial' },
+  { value: 'DOSXUNO', label: '2x1' },
+  { value: 'DESCUENTO_FIJO', label: 'Descuento fijo' },
+  { value: 'DESCUENTO_PORCENTAJE', label: 'Descuento %' }
+];
 
-  // Datos estáticos para destacados
-  featuredBusinesses: any[] = [
-    {
-      id: 1,
-      name: 'Arte Andino',
-      location: 'Centro de Ibarra',
-      logoUrl: 'assets/icon/ArteAndino.jpg',
-      description: 'Artesanías locales y productos tradicionales',
-    },
-    {
-      id: 2,
-      name: 'Café del Río',
-      location: 'Malecón de Ibarra',
-      logoUrl: 'assets/icon/CafeDelRio.jpg',
-      description: 'Café orgánico y gastronomía local',
-    },
-    {
-      id: 3,
-      name: 'Moda Imbabura',
-      location: 'Calle Flores',
-      logoUrl: 'assets/icon/ModaImbabura.jpg',
-      description: 'Ropa y accesorios de diseño local',
-    },
-  ];
+selectedPromotionType: string = '';
+
+onPromotionTypeSelect(value: string) {
+  this.selectedPromotionType = value;
+  this.loadPromotions(value);
+}
+  tipoPromocionMap: { [key: string]: string } = {
+    'COMBO': 'Combo especial',
+    'DOSXUNO': '2x1',
+    'DESCUENTO_FIJO': 'Descuento fijo',
+    'DESCUENTO_PORCENTAJE': 'Descuento %'
+  };
+
+  getTipoPromocionLabel(tipo: string): string {
+    return this.tipoPromocionMap[tipo] || "Promoción";
+  }
 
   // Datos estáticos para eventos
   upcomingEvents: any[] = [
@@ -96,6 +97,7 @@ export class HomePage implements OnInit {
   constructor(
     private modalCtrl: ModalController,
     private alertController: AlertController,
+    private promocionesService: PromocionesService,
     private router: Router,
     private negociosService: NegociosService,
     private loadingCtrl: LoadingController,
@@ -128,6 +130,7 @@ export class HomePage implements OnInit {
     this.checkAuthStatus();
     await this.loadCategories();
     this.setupAuthSubscription();
+    this.loadPromotions();
   }
 
   private setupAuthSubscription() {
@@ -147,6 +150,25 @@ export class HomePage implements OnInit {
       this.userData = this.authService.getCurrentUser();
     }
   }
+
+  private loadPromotions(promotionType?: string) {
+  this.promocionesService.getPromotionPublic(promotionType).subscribe({
+    next: (response) => {
+      if (response.success) {
+        this.promociones = response.data;
+      } else {
+        console.error('Error loading promotions:', response.message);
+      }
+    },
+    error: (error) => {
+      console.error('Error loading promotions:', error);
+    },
+  });
+}
+
+onPromotionTypeChange() {
+  this.loadPromotions(this.selectedPromotionType);
+}
 
   private async loadCategories() {
     await this.showLoading();
@@ -222,13 +244,13 @@ export class HomePage implements OnInit {
   }
 
   openCategory(category: any) {
-  this.router.navigate(['/negocios'], {
-    queryParams: { 
-      categoria: category.id,
-      categoriaNombre: category.name // Pasamos ambos para mayor seguridad
-    }
-  });
-}
+    this.router.navigate(['/negocios'], {
+      queryParams: {
+        categoria: category.id,
+        categoriaNombre: category.name // Pasamos ambos para mayor seguridad
+      }
+    });
+  }
 
   openBusiness(business: any) {
     this.router.navigate(['/negocio-detalle', business.id]);
@@ -240,6 +262,10 @@ export class HomePage implements OnInit {
     } else if (type === 'events') {
       this.router.navigate(['/eventos']);
     }
+  }
+
+  openBusinessById(businessId: number) {
+    this.router.navigate(['/detalle-publico', businessId]);
   }
 
   async showWelcomeAlert() {
