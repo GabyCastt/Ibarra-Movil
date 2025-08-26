@@ -94,7 +94,7 @@ export class DetalleNegocioPage implements OnInit {
       },
       error: (error: any) => {
         console.error('Error loading business details:', error);
-        this.error = 'Error al cargar los detalles del negocio';
+        this.error = error.message || 'Error al cargar los detalles del negocio';
         this.loading = false;
         
         if (error.status) {
@@ -130,84 +130,142 @@ export class DetalleNegocioPage implements OnInit {
   }
 
   openAdminModal(): void {
-    console.log('Opening admin modal');
+    console.log('Opening edit data modal');
     this.editableBusiness = this.business ? { ...this.business } : {};
     this.showAdminModal = true;
   }
 
   closeAdminModal(): void {
-    console.log('Closing admin modal');
+    console.log('Closing edit data modal');
     this.showAdminModal = false;
     this.editableBusiness = {};
+  }
+
+  openAdministrationPanel(): void {
+    console.log('Opening administration panel');
+
+    this.showInfoToast('Panel de administración - Funcionalidad próximamente');
   }
 
   async saveBusinessChanges(): Promise<void> {
     if (!this.business || !this.businessId) {
       console.error('Cannot save: business or businessId is missing');
+      this.showErrorToast('Error: Información del negocio no disponible');
       return;
     }
 
-    console.log('Saving business changes...');
+    console.log('=== SAVING BUSINESS CHANGES ===');
+    console.log('Business ID:', this.businessId);
+    console.log('Original business:', this.business);
+    console.log('Editable business:', this.editableBusiness);
+
+    if (!this.editableBusiness.commercialName || this.editableBusiness.commercialName.trim() === '') {
+      this.showErrorToast('El nombre comercial es obligatorio');
+      return;
+    }
+
     const updateData: UpdateBusinessRequest = {};
     
-    if (this.editableBusiness.commercialName !== undefined && 
-        this.editableBusiness.commercialName !== this.business.commercialName) {
-      updateData.commercialName = this.editableBusiness.commercialName;
+    if (this.editableBusiness.commercialName !== undefined) {
+      updateData.commercialName = this.editableBusiness.commercialName.trim();
     }
-    if (this.editableBusiness.description !== undefined && 
-        this.editableBusiness.description !== this.business.description) {
-      updateData.description = this.editableBusiness.description;
+    
+    if (this.editableBusiness.description !== undefined) {
+      updateData.description = this.editableBusiness.description ? this.editableBusiness.description.trim() : '';
     }
-    if (this.editableBusiness.facebook !== undefined && 
-        this.editableBusiness.facebook !== this.business.facebook) {
-      updateData.facebook = this.editableBusiness.facebook;
+
+    if (this.editableBusiness.facebook !== undefined && this.editableBusiness.facebook !== null) {
+      updateData.facebook = this.editableBusiness.facebook.trim();
     }
-    if (this.editableBusiness.instagram !== undefined && 
-        this.editableBusiness.instagram !== this.business.instagram) {
-      updateData.instagram = this.editableBusiness.instagram;
+    
+    if (this.editableBusiness.instagram !== undefined && this.editableBusiness.instagram !== null) {
+      updateData.instagram = this.editableBusiness.instagram.trim();
     }
-    if (this.editableBusiness.tiktok !== undefined && 
-        this.editableBusiness.tiktok !== this.business.tiktok) {
-      updateData.tiktok = this.editableBusiness.tiktok;
+    
+    if (this.editableBusiness.tiktok !== undefined && this.editableBusiness.tiktok !== null) {
+      updateData.tiktok = this.editableBusiness.tiktok.trim();
     }
-    if (this.editableBusiness.website !== undefined && 
-        this.editableBusiness.website !== this.business.website) {
-      updateData.website = this.editableBusiness.website;
+    
+    if (this.editableBusiness.website !== undefined && this.editableBusiness.website !== null) {
+      updateData.website = this.editableBusiness.website.trim();
     }
-    if (this.editableBusiness.email !== undefined && 
-        this.editableBusiness.email !== this.business.email) {
-      updateData.email = this.editableBusiness.email;
+    
+    if (this.editableBusiness.email !== undefined && this.editableBusiness.email !== null) {
+      updateData.email = this.editableBusiness.email.trim();
     }
-    if (this.editableBusiness.acceptsWhatsappOrders !== undefined && 
-        this.editableBusiness.acceptsWhatsappOrders !== this.business.acceptsWhatsappOrders) {
-      updateData.acceptsWhatsappOrders = this.editableBusiness.acceptsWhatsappOrders;
+    
+    if (this.editableBusiness.whatsappNumber !== undefined && this.editableBusiness.whatsappNumber !== null) {
+      updateData.whatsappNumber = this.editableBusiness.whatsappNumber.trim();
     }
-    if (this.editableBusiness.whatsappNumber !== undefined && 
-        this.editableBusiness.whatsappNumber !== this.business.whatsappNumber) {
-      updateData.whatsappNumber = this.editableBusiness.whatsappNumber;
+    
+    if (this.editableBusiness.address !== undefined && this.editableBusiness.address !== null) {
+      updateData.address = this.editableBusiness.address.trim();
     }
-    if (this.editableBusiness.address !== undefined && 
-        this.editableBusiness.address !== this.business.address) {
-      updateData.address = this.editableBusiness.address;
+
+    if (this.editableBusiness.acceptsWhatsappOrders !== undefined) {
+      updateData.acceptsWhatsappOrders = Boolean(this.editableBusiness.acceptsWhatsappOrders);
     }
+
     if (this.editableBusiness.googleMapsCoordinates !== undefined && 
         this.editableBusiness.googleMapsCoordinates !== this.business.googleMapsCoordinates) {
       updateData.googleMapsCoordinates = this.editableBusiness.googleMapsCoordinates;
     }
 
+    console.log('=== FINAL UPDATE DATA ===');
+    console.log('Update payload:', JSON.stringify(updateData, null, 2));
+
+    if (Object.keys(updateData).length === 0) {
+      this.showInfoToast('No hay cambios para guardar');
+      this.closeAdminModal();
+      return;
+    }
+
     try {
-      console.log('Update data:', updateData);
-      await this.detallePrivadoService.updateBusiness(this.businessId, updateData).toPromise();
+      this.loading = true;
+      
+      console.log('Calling updateBusiness with:', {
+        businessId: this.businessId,
+        updateData: updateData
+      });
+
+      const response = await this.detallePrivadoService.updateBusiness(this.businessId, updateData).toPromise();
+      
+      console.log('Update response:', response);
       
       if (this.business) {
-        Object.assign(this.business, this.editableBusiness);
+        Object.assign(this.business, updateData);
+        console.log('Updated local business:', this.business);
       }
       
       this.showSuccessToast('Negocio actualizado exitosamente');
       this.closeAdminModal();
-    } catch (error) {
-      console.error('Error updating business:', error);
-      this.showErrorToast('Error al actualizar el negocio');
+
+      
+    } catch (error: any) {
+      console.error('=== ERROR UPDATING BUSINESS ===');
+      console.error('Full error object:', error);
+      console.error('Error status:', error.status);
+      console.error('Error message:', error.message);
+      console.error('Error body:', error.error);
+      
+      let errorMessage = 'Error al actualizar el negocio';
+      
+      if (error.status === 400) {
+        errorMessage = 'Datos inválidos. Verifica que todos los campos estén correctos.';
+      } else if (error.status === 401) {
+        errorMessage = 'No tienes autorización. Por favor, inicia sesión nuevamente.';
+        this.authService.logout();
+      } else if (error.status === 403) {
+        errorMessage = 'No tienes permisos para editar este negocio.';
+      } else if (error.status === 404) {
+        errorMessage = 'El negocio no fue encontrado.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      this.showErrorToast(errorMessage);
+    } finally {
+      this.loading = false;
     }
   }
 
@@ -242,12 +300,23 @@ export class DetalleNegocioPage implements OnInit {
       comment: this.deleteComment
     });
 
+    try {
+      await this.detallePrivadoService.requestDeletion(
+        this.businessId, 
+        this.selectedDeleteReason, 
+        this.deleteComment
+      ).toPromise();
 
-    this.showSuccessToast('Solicitud de eliminación enviada');
-    this.showDeleteConfirmModal = false;
-    this.closeDeleteModal();
-    
-    this.router.navigate(['/mis-negocios']);
+      this.showSuccessToast('Solicitud de eliminación enviada');
+      this.showDeleteConfirmModal = false;
+      this.closeDeleteModal();
+      
+      this.router.navigate(['/mis-negocios']);
+    } catch (error) {
+      console.error('Error requesting deletion:', error);
+      this.showErrorToast('Error al solicitar eliminación');
+      this.showDeleteConfirmModal = false;
+    }
   }
 
   cancelDeletionConfirm(): void {
@@ -341,6 +410,16 @@ export class DetalleNegocioPage implements OnInit {
       duration: 3000,
       position: 'top',
       color: 'danger'
+    });
+    toast.present();
+  }
+
+  async showInfoToast(message: string): Promise<void> {
+    const toast = await this.toastController.create({
+      message,
+      duration: 3000,
+      position: 'top',
+      color: 'primary'
     });
     toast.present();
   }
