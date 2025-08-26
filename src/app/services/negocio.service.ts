@@ -4,6 +4,7 @@ import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { AuthService } from './auth.service';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -81,6 +82,63 @@ export class NegocioService {
       );
   }
 
+  // Método para solicitar eliminación de negocio
+  requestBusinessDeletion(businessId: number, motivo: string, justificacion: string): Observable<any> {
+    const headers = this.getAuthHeaders();
+    let params = new HttpParams()
+      .set('motivo', motivo)
+      .set('justificacion', justificacion);
+
+    return this.http
+      .post(`${this.businessUrl}/deletion/${businessId}`, null, { headers, params })
+      .pipe(
+        catchError((error) => {
+          if (error.status === 401) {
+            this.authService.logout();
+          }
+          return throwError(() => new Error(this.getErrorMessage(error)));
+        })
+      );
+  }
+
+  getDeletionRequests(status: 'PENDING' | 'APPROVED' | 'REJECTED'): Observable<any> {
+    const params = new HttpParams().set('status', status);
+
+    return this.http
+      .get<any>(`${this.businessUrl}/deletion`, {
+        headers: this.getAuthHeaders(),
+        params
+      })
+      .pipe(
+        map((response) => {
+          // Verificar si la respuesta es un array directo o tiene estructura anidada
+          let deletionRequests = [];
+          
+          if (Array.isArray(response)) {
+            deletionRequests = response;
+          } else if (response?.data && Array.isArray(response.data)) {
+            deletionRequests = response.data;
+          } else if (response?.content && Array.isArray(response.content)) {
+            deletionRequests = response.content;
+          } else {
+            deletionRequests = [];
+          }
+
+          // Mapear cada solicitud de eliminación con la estructura esperada
+          return deletionRequests.map((deletion: any) => ({
+            id: deletion.id || 0,
+            businessName: deletion.businessName || deletion.business?.name || 'Sin nombre',
+            motivo: deletion.motivo || deletion.reason || '',
+            justificacion: deletion.justificacion || deletion.justification || '',
+            status: deletion.status || 'PENDING',
+            requestedBy: deletion.requestedBy || deletion.user?.name || deletion.userName || 'No especificado',
+            createdAt: deletion.createdAt || deletion.requestDate || new Date().toISOString()
+          }));
+        }),
+        catchError(this.handleError)
+      );
+  }
+
   private extractLogoUrl(photos: any[]): string {
     if (!photos || photos.length === 0) {
       return 'assets/icon/ibarra.jpg';
@@ -105,6 +163,21 @@ export class NegocioService {
         )
       );
   }
+
+  // MÉTODO HANDLEERROR QUE FALTABA
+  private handleError = (error: any): Observable<never> => {
+    console.error('Error en NegocioService:', error);
+    
+    // Si el error es 401, cerrar sesión
+    if (error.status === 401) {
+      this.authService.logout();
+    }
+    
+    // Crear mensaje de error personalizado
+    const errorMessage = this.getErrorMessage(error);
+    
+    return throwError(() => new Error(errorMessage));
+  };
 
   private getErrorMessage(error: any): string {
     if (error.status === 401) {

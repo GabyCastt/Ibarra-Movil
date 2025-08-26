@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, AlertController, ToastController } from '@ionic/angular';
+import { IonicModule, AlertController, ToastController, ModalController } from '@ionic/angular';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DetallePrivadoService, Business, UpdateBusinessRequest } from '../services/detalle-privado.service';
 import { AuthService } from '../services/auth.service';
@@ -31,7 +31,8 @@ export class DetalleNegocioPage implements OnInit {
     private detallePrivadoService: DetallePrivadoService,
     private authService: AuthService,
     private alertController: AlertController,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private modalController: ModalController
   ) {}
 
   ngOnInit(): void {
@@ -138,10 +139,40 @@ export class DetalleNegocioPage implements OnInit {
      console.log('Navigating to promotions with business ID:', this.businessId);
   this.router.navigate(['/promociones', this.businessId]);
   }
-  openDeleteFunctionality(): void {
-    console.log('Navigating to delete with business ID:', this.businessId);
-  this.router.navigate(['/eliminar-negocio', this.businessId]);
+
+  async openDeleteFunctionality(): Promise<void> {
+    console.log('Opening delete functionality modal for business ID:', this.businessId);
+    
+    try {
+      const modal = await this.modalController.create({
+        component: (await import('../eliminar-negocio/eliminar-negocio.page')).EliminarNegocioPage,
+        componentProps: {
+          businessId: this.businessId,
+          businessName: this.business?.commercialName || 'Negocio sin nombre'
+        },
+        backdropDismiss: false,
+        cssClass: 'delete-business-modal'
+      });
+      await modal.present();
+      
+      // Manejar el resultado cuando se cierre el modal
+      const { data } = await modal.onWillDismiss();
+      
+      if (data === true) {
+        // Si la eliminación fue exitosa, mostrar mensaje y volver
+        this.showSuccessToast('Solicitud de eliminación enviada correctamente');
+        setTimeout(() => {
+          this.goBack();
+        }, 1500);
+      }
+      
+    } catch (error) {
+      console.error('Error opening delete modal:', error);
+      // Como fallback, navegar a la página
+      this.router.navigate(['/eliminar-negocio', this.businessId]);
+    }
   }
+
   async saveBusinessChanges(): Promise<void> {
     if (!this.business || !this.businessId) {
       console.error('Cannot save: business or businessId is missing');
@@ -450,4 +481,13 @@ export class DetalleNegocioPage implements OnInit {
     }
     return 'Editar datos del negocio';
   }
+
+
+
+
+  
+
+
+
+
 }

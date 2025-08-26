@@ -1,13 +1,251 @@
 <ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>EliminarNegocio</ion-title>
+  <ion-toolbar color="danger">
+    <ion-title>
+      <ion-icon name="business-outline" slot="start"></ion-icon>
+      Gestión de Eliminación de Negocios
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="closeModal()">
+        <ion-icon name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">EliminarNegocio</ion-title>
-    </ion-toolbar>
-  </ion-header>
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="content-container">
+    <!-- Tabs de navegación -->
+    <ion-segment [(ngModel)]="viewMode" class="custom-segment">
+      <ion-segment-button value="create">
+        <ion-label>Nueva Solicitud</ion-label>
+        <ion-icon name="add-circle-outline"></ion-icon>
+      </ion-segment-button>
+      <ion-segment-button value="list">
+        <ion-label>Listar Solicitudes</ion-label>
+        <ion-icon name="list-outline"></ion-icon>
+      </ion-segment-button>
+    </ion-segment>
+
+    <!-- Sección: Crear Nueva Solicitud -->
+    <div *ngIf="viewMode === 'create'" class="section-content">
+      <ion-card class="main-card">
+        <ion-card-header>
+          <ion-card-title class="section-title">
+            <ion-icon name="trash-outline"></ion-icon>
+            Solicitar Eliminación de Negocio
+          </ion-card-title>
+        </ion-card-header>
+        
+        <ion-card-content>
+          <form>
+            <ion-item class="form-item">
+              <ion-label position="stacked">Nombre del Negocio *</ion-label>
+              <ion-input 
+                [(ngModel)]="businessName" 
+                name="businessName"
+                placeholder="Nombre del negocio a eliminar"
+                [readonly]="!!businessId">
+              </ion-input>
+            </ion-item>
+
+            <ion-item class="form-item">
+              <ion-label position="stacked">Motivo de Eliminación *</ion-label>
+              <ion-select 
+                [(ngModel)]="motivo" 
+                name="motivo"
+                placeholder="Seleccione un motivo"
+                interface="popover">
+                <ion-select-option *ngFor="let motivoOption of motivos" [value]="motivoOption.value">
+                  {{ motivoOption.label }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+
+            <ion-item class="form-item textarea-item">
+              <ion-label position="stacked">Justificación Detallada *</ion-label>
+              <ion-textarea 
+                [(ngModel)]="justificacion" 
+                name="justificacion"
+                placeholder="Explique detalladamente los motivos de la solicitud de eliminación..."
+                rows="4"
+                maxlength="500"
+                counter="true">
+              </ion-textarea>
+            </ion-item>
+
+            <div class="form-actions">
+              <ion-button 
+                fill="clear" 
+                color="medium"
+                (click)="motivo = ''; justificacion = ''">
+                <ion-icon name="refresh-outline" slot="start"></ion-icon>
+                Limpiar
+              </ion-button>
+              
+              <ion-button 
+                color="danger"
+                [disabled]="!isFormValid || loading"
+                (click)="confirmDeletion()">
+                <ion-spinner name="crescent" *ngIf="loading"></ion-spinner>
+                <ion-icon name="send-outline" *ngIf="!loading" slot="start"></ion-icon>
+                <span *ngIf="!loading">Enviar Solicitud</span>
+                <span *ngIf="loading">Enviando...</span>
+              </ion-button>
+            </div>
+          </form>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- Sección: Listar Solicitudes -->
+    <div *ngIf="viewMode === 'list'" class="section-content">
+      <ion-card class="main-card">
+        <ion-card-header>
+          <ion-card-title class="section-title">
+            <ion-icon name="clipboard-outline"></ion-icon>
+            Gestión de Solicitudes de Eliminación
+          </ion-card-title>
+        </ion-card-header>
+        
+        <ion-card-content>
+          <!-- Filtros de estado -->
+          <div class="status-filters">
+            <ion-chip 
+              [class.active]="selectedStatus === 'PENDING'" 
+              (click)="selectedStatus = 'PENDING'; loadDeletionRequests()"
+              color="warning">
+              <ion-icon name="time-outline"></ion-icon>
+              <ion-label>Pendientes</ion-label>
+              <ion-badge color="light">{{ statusCounts.PENDING }}</ion-badge>
+            </ion-chip>
+            
+            <ion-chip 
+              [class.active]="selectedStatus === 'APPROVED'" 
+              (click)="selectedStatus = 'APPROVED'; loadDeletionRequests()"
+              color="success">
+              <ion-icon name="checkmark-circle-outline"></ion-icon>
+              <ion-label>Aprobadas</ion-label>
+              <ion-badge color="light">{{ statusCounts.APPROVED }}</ion-badge>
+            </ion-chip>
+            
+            <ion-chip 
+              [class.active]="selectedStatus === 'REJECTED'" 
+              (click)="selectedStatus = 'REJECTED'; loadDeletionRequests()"
+              color="danger">
+              <ion-icon name="close-circle-outline"></ion-icon>
+              <ion-label>Rechazadas</ion-label>
+              <ion-badge color="light">{{ statusCounts.REJECTED }}</ion-badge>
+            </ion-chip>
+          </div>
+
+          <!-- Barra de búsqueda -->
+          <ion-searchbar 
+            [(ngModel)]="searchTerm"
+            (ionInput)="onSearchChange($event)"
+            placeholder="Buscar por negocio, usuario o justificación..."
+            debounce="300"
+            show-clear-button="focus">
+          </ion-searchbar>
+
+          <!-- Loading spinner -->
+          <div *ngIf="loadingRequests" class="loading-container">
+            <ion-spinner name="crescent" color="danger"></ion-spinner>
+            <p>Cargando solicitudes...</p>
+          </div>
+
+          <!-- Lista de solicitudes -->
+          <div class="requests-container" *ngIf="!loadingRequests">
+            <ion-card 
+              *ngFor="let request of filteredRequests; trackBy: trackByRequestId" 
+              class="request-card"
+              [class.pending]="request.status === 'PENDING'"
+              [class.approved]="request.status === 'APPROVED'"
+              [class.rejected]="request.status === 'REJECTED'">
+              
+              <ion-card-header>
+                <div class="request-header">
+                  <ion-card-title class="business-name">
+                    {{ request.businessName }}
+                  </ion-card-title>
+                  <ion-chip 
+                    [color]="getStatusColor(request.status)"
+                    class="status-chip">
+                    <ion-label>{{ getStatusLabel(request.status) }}</ion-label>
+                  </ion-chip>
+                </div>
+              </ion-card-header>
+
+              <ion-card-content>
+                <div class="request-details">
+                  <div class="detail-item">
+                    <ion-icon name="document-text-outline" color="medium"></ion-icon>
+                    <div class="detail-content">
+                      <span class="detail-label">Motivo:</span>
+                      <span class="detail-value">{{ getMotivoLabel(request.motivo) }}</span>
+                    </div>
+                  </div>
+
+                  <div class="detail-item">
+                    <ion-icon name="person-outline" color="medium"></ion-icon>
+                    <div class="detail-content">
+                      <span class="detail-label">Solicitado por:</span>
+                      <span class="detail-value">{{ request.requestedBy }}</span>
+                    </div>
+                  </div>
+
+                  <div class="detail-item">
+                    <ion-icon name="calendar-outline" color="medium"></ion-icon>
+                    <div class="detail-content">
+                      <span class="detail-label">Fecha:</span>
+                      <span class="detail-value">
+                        {{ request.createdAt | date:'dd/MM/yyyy' }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="justification-section">
+                  <h4>
+                    <ion-icon name="clipboard-outline" color="medium"></ion-icon>
+                    Justificación:
+                  </h4>
+                  <p class="justification-text">{{ request.justificacion }}</p>
+                </div>
+
+                <div class="card-actions">
+                  <ion-button 
+                    fill="clear" 
+                    color="medium"
+                    size="small"
+                    (click)="viewRequestDetails(request)">
+                    <ion-icon name="eye-outline" slot="start"></ion-icon>
+                    Ver Detalles
+                  </ion-button>
+                </div>
+              </ion-card-content>
+            </ion-card>
+
+            <!-- Estado vacío -->
+            <div *ngIf="filteredRequests.length === 0" class="empty-state">
+              <ion-icon name="document-outline" color="medium" size="large"></ion-icon>
+              <h3>No se encontraron solicitudes</h3>
+              <p>No hay solicitudes que coincidan con los criterios de búsqueda.</p>
+            </div>
+          </div>
+
+          <!-- Scroll infinito -->
+          <ion-infinite-scroll threshold="100px">
+            <ion-infinite-scroll-content 
+              loading-spinner="bubbles"
+              loading-text="Cargando más solicitudes...">
+            </ion-infinite-scroll-content>
+          </ion-infinite-scroll>
+        </ion-card-content>
+      </ion-card>
+    </div>
+  </div>
 </ion-content>
