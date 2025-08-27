@@ -5,9 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import {
   IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonIcon,
-  IonContent, IonCard, IonCardContent, IonCardHeader, IonCardTitle,
-  IonItem, IonLabel, IonInput, IonChip, IonRadioGroup, IonList, 
-  IonRadio, IonTextarea, IonNote, IonSelect, IonSelectOption, 
+  IonContent, IonItem, IonInput, IonRadioGroup, IonRadio, IonTextarea, 
   IonSpinner
 } from '@ionic/angular/standalone';
 
@@ -18,10 +16,8 @@ import {
   standalone: true,
   imports: [
     CommonModule, FormsModule, IonHeader, IonToolbar, IonTitle, IonButtons,
-    IonButton, IonIcon, IonContent, IonCard, IonCardContent, IonCardHeader,
-    IonCardTitle, IonItem, IonLabel, IonInput, IonChip, IonRadioGroup, 
-    IonList, IonRadio, IonTextarea, IonNote, IonSelect, IonSelectOption, 
-    IonSpinner
+    IonButton, IonIcon, IonContent, IonItem, IonInput, IonRadioGroup, 
+    IonRadio, IonTextarea, IonSpinner
   ]
 })
 export class EliminarNegocioPage {
@@ -34,7 +30,7 @@ export class EliminarNegocioPage {
   loading: boolean = false;
 
   motivos = [
- { value: 'BUSINESS_CLOSURE', label: 'Cierre definitivo del negocio' },
+    { value: 'BUSINESS_CLOSURE', label: 'Cierre definitivo del negocio' },
     { value: 'CHANGE_BUSINESS_MODEL', label: 'Cambio de modelo de negocio' },
     { value: 'FINANCIAL_DIFFICULTIES', label: 'Dificultades financieras' },
     { value: 'RELOCATION', label: 'Reubicación o mudanza' },
