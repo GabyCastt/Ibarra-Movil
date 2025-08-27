@@ -24,15 +24,28 @@ declare var L: any;
 })
 export class RegistroEmprendimientoPage implements OnInit, AfterViewInit {
   @ViewChild('mapContainer', { static: false }) mapContainer!: ElementRef;
-  
+
   registerBusiness!: FormGroup;
   currentDate!: string;
 
   logoFile!: File;
   carrouselPhotos: File[] = [];
   categories: any[] = [];
+  parishes: any[] = [];
   isLoading = false;
-  
+  selectedType: string | null = null;
+  selectedParishType: string = '';
+
+  parishTypes = [
+    { label: 'Rural', value: 'RURAL' },
+    { label: 'Urbana', value: 'URBANA' }
+  ];
+
+  onParishTypeSelect(type: string) {
+    this.selectedParishType = type;
+    this.loadParish(type);
+  }
+
   // Variables para el mapa
   map: any;
   marker: any;
@@ -49,22 +62,26 @@ export class RegistroEmprendimientoPage implements OnInit, AfterViewInit {
 
   async ngOnInit() {
     await this.loadCategories();
+    this.loadParish("RURAL");
     this.currentDate = this.getDateInEcuador();
     this.registerBusiness.patchValue({
       registrationDate: this.currentDate,
     });
-    
+
     // Cargar Leaflet dinámicamente
     await this.loadLeafletScript();
+  
   }
 
   ngAfterViewInit() {
     // El mapa se inicializará cuando el usuario haga clic en "Abrir Mapa"
   }
 
+
+
   private async loadLeafletScript() {
     if (typeof L !== 'undefined') {
-      return; 
+      return;
     }
 
     return new Promise<void>((resolve) => {
@@ -96,6 +113,24 @@ export class RegistroEmprendimientoPage implements OnInit, AfterViewInit {
     }
   }
 
+private loadParish(type?: string) {
+  this.negocioService.getListParish(type).subscribe({
+    next: (response) => {
+      this.parishes = response;
+
+      if (this.parishes.length > 0) {
+        this.registerBusiness.patchValue({
+          parishId: this.parishes[0].id,
+        });
+      }
+    },
+    error: (error) => {
+      console.error('Error loading parishes:', error);
+    },
+  });
+}
+
+
   private initializeForm() {
     this.registerBusiness = this.fb.group({
       categoryId: [null, [Validators.required]],
@@ -114,6 +149,7 @@ export class RegistroEmprendimientoPage implements OnInit, AfterViewInit {
       receivedUdelSupport: [false],
       udelSupportDetails: ['', [Validators.maxLength(200)]],
       registrationDate: [''],
+      parishId: [null, [Validators.required]],
       facebook: ['', [Validators.maxLength(100)]],
       instagram: ['', [Validators.maxLength(100)]],
       tiktok: ['', [Validators.maxLength(100)]],
@@ -128,8 +164,8 @@ export class RegistroEmprendimientoPage implements OnInit, AfterViewInit {
       const whatsappControl = this.registerBusiness.get('whatsappNumber');
       if (accepts) {
         whatsappControl?.setValidators([
-          Validators.required, 
-          Validators.maxLength(9), 
+          Validators.required,
+          Validators.maxLength(9),
           Validators.pattern('^[0-9]+$')
         ]);
       } else {
@@ -190,7 +226,7 @@ export class RegistroEmprendimientoPage implements OnInit, AfterViewInit {
     if (this.marker) {
       this.marker.setLatLng(latlng);
     }
-    
+
     const coordinates = `${latlng.lat.toFixed(6)}, ${latlng.lng.toFixed(6)}`;
     this.registerBusiness.patchValue({
       googleMapsCoordinates: coordinates
@@ -203,7 +239,7 @@ export class RegistroEmprendimientoPage implements OnInit, AfterViewInit {
         (position) => {
           const lat = position.coords.latitude;
           const lng = position.coords.longitude;
-          
+
           this.map.setView([lat, lng], 15);
           this.updateMarkerPosition({ lat, lng });
         },
@@ -220,7 +256,7 @@ export class RegistroEmprendimientoPage implements OnInit, AfterViewInit {
         (position) => {
           const lat = position.coords.latitude;
           const lng = position.coords.longitude;
-          
+
           this.map.setView([lat, lng], 15);
           this.updateMarkerPosition({ lat, lng });
           this.toastService.show('Ubicación actualizada', 'success');
@@ -328,20 +364,20 @@ export class RegistroEmprendimientoPage implements OnInit, AfterViewInit {
   // =================== VALIDACIONES ADICIONALES ===================
   private validateCoordinates(coordinates: string): boolean {
     if (!coordinates) return false;
-    
+
     // Formato esperado: "lat, lng" o "lat,lng"
     const coordRegex = /^-?\d+\.?\d*\s*,\s*-?\d+\.?\d*$/;
     if (!coordRegex.test(coordinates)) return false;
-    
+
     const [lat, lng] = coordinates.split(',').map(coord => parseFloat(coord.trim()));
-    
+
     // Validar rangos válidos de latitud y longitud
     return lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
   }
 
   private validateScheduleFormat(schedule: string): boolean {
     if (!schedule) return false;
-    
+
     // Formato: "HH:MM - HH:MM" o "HH:MM a HH:MM"
     const scheduleRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]\s*[-a]\s*([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
     return scheduleRegex.test(schedule.trim());
@@ -350,7 +386,7 @@ export class RegistroEmprendimientoPage implements OnInit, AfterViewInit {
   private validateEcuadorianPhone(phone: string): boolean {
     // Números ecuatorianos: celulares empiezan con 9, fijos con 2-7
     if (phone.length !== 9) return false;
-    
+
     const firstDigit = phone.charAt(0);
     return ['2', '3', '4', '5', '6', '7', '9'].includes(firstDigit);
   }
@@ -369,13 +405,13 @@ export class RegistroEmprendimientoPage implements OnInit, AfterViewInit {
     // Validar horarios
     const schedules = this.registerBusiness.get('schedules')?.value;
     if (schedules) {
-        if (!this.validateScheduleFormat(schedules)) {
-          this.toastService.show(
-            `Formato de horario inválido. Use el formato "HH:MM - HH:MM"`,
-            'warning'
-          );
-          return false;
-        }
+      if (!this.validateScheduleFormat(schedules)) {
+        this.toastService.show(
+          `Formato de horario inválido. Use el formato "HH:MM - HH:MM"`,
+          'warning'
+        );
+        return false;
+      }
     }
 
     //Validar Horario 1
@@ -417,7 +453,7 @@ export class RegistroEmprendimientoPage implements OnInit, AfterViewInit {
 
     for (const file of Array.from(files)) {
       const extension = file.name.split('.').pop()?.toLowerCase();
-      
+
       if (!extension || !allowedExtensions.includes(extension)) {
         await this.toastService.show(
           `Formato no permitido para ${file.name}. Solo JPG o PNG`,
@@ -425,7 +461,7 @@ export class RegistroEmprendimientoPage implements OnInit, AfterViewInit {
         );
         continue;
       }
-      
+
       if (file.size > maxSize) {
         await this.toastService.show(
           `El archivo ${file.name} supera los 2 MB`,
@@ -479,17 +515,17 @@ export class RegistroEmprendimientoPage implements OnInit, AfterViewInit {
     return new Promise((resolve) => {
       const img = new Image();
       const url = URL.createObjectURL(file);
-      
+
       img.onload = () => {
         URL.revokeObjectURL(url);
         resolve(img.width >= 800 && img.height >= 600);
       };
-      
+
       img.onerror = () => {
         URL.revokeObjectURL(url);
         resolve(false);
       };
-      
+
       img.src = url;
     });
   }
@@ -536,9 +572,9 @@ export class RegistroEmprendimientoPage implements OnInit, AfterViewInit {
       tiktok: formValue.tiktok?.trim() || '',
       udelSupportDetails: formValue.udelSupportDetails?.trim() || '',
       productsServices: formValue.productsServices?.trim(),
-      
+
       googleMapsCoordinates: formValue.googleMapsCoordinates?.trim().replace(/\s+/g, ' '),
-      
+
       acceptsWhatsappOrders: !!formValue.acceptsWhatsappOrders,
       receivedUdelSupport: !!formValue.receivedUdelSupport,
 
@@ -579,16 +615,16 @@ export class RegistroEmprendimientoPage implements OnInit, AfterViewInit {
     }
 
     this.isLoading = true;
-    
+
     try {
       const formValue = this.sanitizeFormData(this.registerBusiness.value);
-      
-      const fullWhatsApp = formValue.acceptsWhatsappOrders 
-        ? `${formValue.countryCode}${formValue.whatsappNumber}` 
+
+      const fullWhatsApp = formValue.acceptsWhatsappOrders
+        ? `${formValue.countryCode}${formValue.whatsappNumber}`
         : '';
       const fullPhone = `${formValue.countryCodePhone}${formValue.phone}`;
 
-      const fullSchedules = `${formValue.schedules}` + " - " + `${formValue.schedules1}` ;
+      const fullSchedules = `${formValue.schedules}` + " - " + `${formValue.schedules1}`;
 
       const businessData = {
         ...formValue,
@@ -638,9 +674,9 @@ export class RegistroEmprendimientoPage implements OnInit, AfterViewInit {
       console.error('Error completo:', error);
       console.error('Status:', error.status);
       console.error('Response:', error.error);
-      
+
       let errorMessage = 'Error al registrar el negocio';
-      
+
       if (error.status === 400) {
         if (error.error?.message) {
           errorMessage = error.error.message;
@@ -656,7 +692,7 @@ export class RegistroEmprendimientoPage implements OnInit, AfterViewInit {
       } else if (error.message) {
         errorMessage = error.message;
       }
-      
+
       await this.toastService.show(errorMessage, 'danger');
     } finally {
       this.isLoading = false;

@@ -13,7 +13,7 @@
       <h2>Registro de Negocio</h2>
     </div>
   </div>
-  
+
   <div class="form-container">
     <div class="info-alert">
       <ion-icon name="information-circle-outline"></ion-icon>
@@ -60,7 +60,8 @@
     <div class="form-field-wrapper">
       <ion-item class="form-field" fill="outline" [class.error-field]="hasError('productsServices')">
         <ion-label position="stacked">Productos/Servicios <span class="required">*</span></ion-label>
-        <ion-input formControlName="productsServices" type="text" maxlength="50" placeholder="Ej: Comida, Ropa, Servicios..."></ion-input>
+        <ion-input formControlName="productsServices" type="text" maxlength="50"
+          placeholder="Ej: Comida, Ropa, Servicios..."></ion-input>
       </ion-item>
       <div class="error-message" *ngIf="hasError('productsServices')">
         {{ getErrorMessage('productsServices') }}
@@ -86,6 +87,31 @@
       </div>
     </div>
 
+     <div class="chip-filter">
+      <ion-chip 
+        *ngFor="let tipo of parishTypes" 
+        [outline]="selectedParishType !== tipo.value"
+        color="primary"
+        (click)="onParishTypeSelect(tipo.value)">
+        {{ tipo.label }}
+      </ion-chip>
+    </div>
+
+
+    <div class="form-field-wrapper">
+      <ion-item class="form-field" fill="outline" [class.error-field]="hasError('parishId')">
+        <ion-label position="stacked">Parroquia <span class="required">*</span></ion-label>
+        <ion-select formControlName="parishId" interface="popover">
+          <ion-select-option *ngFor="let parish of parishes" [value]="parish.id">
+            {{ parish.name }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+      <div class="error-message" *ngIf="hasError('parishId')">
+        {{ getErrorMessage('parishId') }}
+      </div>
+    </div>
+
     <!-- Sector comunitario -->
     <div class="form-field-wrapper">
       <ion-item class="form-field" fill="outline" [class.error-field]="hasError('parishCommunitySector')">
@@ -101,7 +127,8 @@
     <div class="form-field-wrapper">
       <ion-item class="form-field" fill="outline" [class.error-field]="hasError('description')">
         <ion-label position="stacked">Descripción <span class="required">*</span></ion-label>
-        <ion-textarea formControlName="description" placeholder="Escribe aquí..." autoGrow="true" maxlength="200"></ion-textarea>
+        <ion-textarea formControlName="description" placeholder="Escribe aquí..." autoGrow="true"
+          maxlength="200"></ion-textarea>
       </ion-item>
       <div class="error-message" *ngIf="hasError('description')">
         {{ getErrorMessage('description') }}
@@ -112,7 +139,8 @@
     <div class="form-field-wrapper">
       <ion-item class="form-field" fill="outline" [class.error-field]="hasError('address')">
         <ion-label position="stacked">Dirección <span class="required">*</span></ion-label>
-        <ion-textarea formControlName="address" placeholder="Escribe aquí..." autoGrow="true" maxlength="100"></ion-textarea>
+        <ion-textarea formControlName="address" placeholder="Escribe aquí..." autoGrow="true"
+          maxlength="100"></ion-textarea>
       </ion-item>
       <div class="error-message" *ngIf="hasError('address')">
         {{ getErrorMessage('address') }}
@@ -163,13 +191,13 @@
         <ion-label position="stacked">Coordenadas de Google Maps <span class="required">*</span></ion-label>
         <ion-input formControlName="googleMapsCoordinates" type="text" maxlength="100" readonly></ion-input>
       </ion-item>
-      
+
       <!-- Botón para abrir el mapa -->
       <ion-button fill="outline" color="primary" (click)="openMap()" class="map-button">
         <ion-icon name="location-outline" slot="start"></ion-icon>
         Seleccionar ubicación en el mapa
       </ion-button>
-      
+
       <div class="error-message" *ngIf="hasError('googleMapsCoordinates')">
         {{ getErrorMessage('googleMapsCoordinates') }}
       </div>
@@ -196,12 +224,13 @@
               Mi ubicación actual
             </ion-button>
           </div>
-          
+
           <!-- Contenedor del mapa -->
           <div #mapContainer class="map-container" id="map"></div>
-          
+
           <div class="map-actions">
-            <ion-button expand="block" (click)="confirmLocation()" [disabled]="!registerBusiness.get('googleMapsCoordinates')?.value">
+            <ion-button expand="block" (click)="confirmLocation()"
+              [disabled]="!registerBusiness.get('googleMapsCoordinates')?.value">
               <ion-icon name="checkmark-outline" slot="start"></ion-icon>
               Confirmar Ubicación
             </ion-button>
@@ -227,7 +256,7 @@
 
     <!-- Horarios -->
     <div class="form-field-wrapper">
-      <div >
+      <div>
         <ion-item fill="outline" [class.error-field]="hasError('schedules')">
           <ion-label position="stacked">Lunes a Viernes <span class="required">*</span></ion-label>
           <ion-input formControlName="schedules" type="text" placeholder="08:00 - 18:00"></ion-input>
@@ -258,7 +287,8 @@
     <div class="form-field-wrapper">
       <ion-item class="form-field" fill="outline" [class.error-field]="hasError('udelSupportDetails')">
         <ion-label position="stacked">Detalles del Apoyo UDEL (opcional)</ion-label>
-        <ion-textarea formControlName="udelSupportDetails" placeholder="Escribe aquí..." autoGrow="true" maxlength="200"></ion-textarea>
+        <ion-textarea formControlName="udelSupportDetails" placeholder="Escribe aquí..." autoGrow="true"
+          maxlength="200"></ion-textarea>
       </ion-item>
       <div class="error-message" *ngIf="hasError('udelSupportDetails')">
         {{ getErrorMessage('udelSupportDetails') }}
@@ -277,7 +307,8 @@
     <div class="form-field-wrapper">
       <ion-item class="form-field" fill="outline">
         <ion-label position="stacked">Facebook (opcional)</ion-label>
-        <ion-input formControlName="facebook" type="text" maxlength="100" placeholder="https://facebook.com/"></ion-input>
+        <ion-input formControlName="facebook" type="text" maxlength="100"
+          placeholder="https://facebook.com/"></ion-input>
       </ion-item>
     </div>
 
@@ -301,12 +332,8 @@
       <div class="upload-box" (dragover)="onDragOver($event)" (drop)="onDrop($event, 'logoFile')">
         <ion-icon name="folder-open" class="upload-icon"></ion-icon>
         <p>Arrastra tu logo aquí o haz clic para seleccionar</p>
-        <input 
-          id="logoFileInput" 
-          type="file" 
-          accept=".jpg,.jpeg,.png" 
-          title="Logo (JPG o PNG, máx. 2 MB, mín. 800x600 px)"
-          (change)="onFileChange($event, 'logoFile')" />
+        <input id="logoFileInput" type="file" accept=".jpg,.jpeg,.png"
+          title="Logo (JPG o PNG, máx. 2 MB, mín. 800x600 px)" (change)="onFileChange($event, 'logoFile')" />
       </div>
       <div class="file-name" *ngIf="logoFile">
         <ion-icon name="document-outline"></ion-icon>
@@ -330,11 +357,7 @@
       <div class="upload-box" (dragover)="onDragOver($event)" (drop)="onDrop($event, 'carrouselPhotos')">
         <ion-icon name="folder-open" class="upload-icon"></ion-icon>
         <p>Arrastra tus fotos aquí o haz clic para seleccionarlas</p>
-        <input 
-          id="carrouselPhotosInput" 
-          type="file" 
-          multiple 
-          accept=".jpg,.jpeg,.png"
+        <input id="carrouselPhotosInput" type="file" multiple accept=".jpg,.jpeg,.png"
           title="Fotos de productos (JPG o PNG, máx. 2 MB cada una)"
           (change)="onFileChange($event, 'carrouselPhotos')" />
       </div>
@@ -355,11 +378,7 @@
     </div>
 
     <!-- Botón de envío -->
-    <ion-button 
-      expand="block" 
-      type="submit" 
-      [disabled]="registerBusiness.invalid || isLoading"
-      class="submit-button">
+    <ion-button expand="block" type="submit" [disabled]="registerBusiness.invalid || isLoading" class="submit-button">
       <ng-container *ngIf="!isLoading">
         <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
         Registrar Negocio

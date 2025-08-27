@@ -164,6 +164,31 @@ export class NegocioService {
       );
   }
 
+  getParishes(): Observable<any> {
+    return this.http
+      .get<any>(`${this.apiUrl}/business/list-parish`, {
+      })
+      .pipe(
+        catchError((error) =>
+          throwError(() => new Error(this.getErrorMessage(error)))
+        )
+      );
+  }
+
+  getListParish(type?: string): Observable<any> {
+    const params = new HttpParams().set('type', type || '');
+
+    return this.http
+      .get<any>(`${this.apiUrl}/business/list-parish`, {
+        params
+      })
+      .pipe(
+        catchError((error) =>
+          throwError(() => new Error(this.getErrorMessage(error)))
+        )
+      );
+  }
+
   // MÉTODO HANDLEERROR QUE FALTABA
   private handleError = (error: any): Observable<never> => {
     console.error('Error en NegocioService:', error);
