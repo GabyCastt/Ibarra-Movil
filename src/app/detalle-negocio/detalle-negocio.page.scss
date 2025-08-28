@@ -130,7 +130,7 @@
   background: linear-gradient(135deg, #fef2f2, #fee2e2);
   border: 2px solid #fca5a5;
   border-radius: 16px;
-  padding: 20px;
+  padding: 24px;
   margin-bottom: 30px;
   display: flex;
   align-items: center;
@@ -140,12 +140,9 @@
   .rejection-icon {
     font-size: 28px;
     color: #dc2626;
-    flex-shrink: 0;
   }
 
   .rejection-text {
-    flex: 1;
-
     h4 {
       font-size: 16px;
       font-weight: 700;
@@ -157,7 +154,6 @@
       font-size: 14px;
       color: #dc2626;
       margin: 0;
-      line-height: 1.4;
     }
   }
 }
@@ -726,7 +722,7 @@
   }
 }
 
-/* Modal Styles */
+/* Modal Styles - Expandido */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -742,12 +738,12 @@
   box-sizing: border-box;
 }
 
-.modal-container {
+.expanded-modal-container {
   background: white;
   border-radius: 20px;
-  max-width: 600px;
+  max-width: 900px;
   width: 100%;
-  max-height: 90vh;
+  max-height: 95vh;
   overflow-y: auto;
   position: relative;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
@@ -813,50 +809,335 @@
 
 .modal-content {
   padding: 30px;
+  max-height: calc(95vh - 200px);
+  overflow-y: auto;
 
-  .form-input, .form-textarea {
-    width: 100%;
-    padding: 12px 16px;
-    border: 2px solid #e5e7eb;
-    border-radius: 8px;
-    font-size: 14px;
-    transition: all 0.3s ease;
-    box-sizing: border-box;
+  // Estilos del formulario reutilizados del registro
+  .form-field-wrapper {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+  }
 
-    &:focus {
-      outline: none;
-      border-color: var(--ion-color-primary);
-      box-shadow: 0 0 0 3px rgba(var(--ion-color-primary-rgb), 0.1);
+  .form-field {
+    --border-radius: 8px;
+    --highlight-color-focused: #dc2626;
+    --border-color: #d1d5db;
+    margin-bottom: 0;
+    
+    &.item-has-focus {
+      --border-color: #dc2626;
+    }
+
+    &.error-field {
+      --border-color: #ef4444;
+      --highlight-color-focused: #ef4444;
+      
+      ion-label {
+        color: #ef4444;
+      }
+    }
+
+    ion-label {
+      font-weight: 500;
+      color: #374151;
+    }
+
+    .required {
+      color: #dc2626;
+      font-weight: bold;
+      font-size: 14px;
     }
   }
 
-  .form-textarea {
-    resize: vertical;
-    min-height: 60px;
-  }
-
-  .input-container {
-    margin-top: 8px;
-  }
-
-  .checkbox-container {
+  .error-message {
+    color: #ef4444;
+    font-size: 12px;
+    margin: 4px 0 8px 16px;
+    min-height: 16px;
+    line-height: 1.2;
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin-top: 8px;
 
-    .form-checkbox {
-      width: 18px;
-      height: 18px;
-      accent-color: var(--ion-color-primary);
-    }
-
-    .checkbox-label {
-      font-size: 14px;
-      color: #374151;
-      cursor: pointer;
+    &::before {
+      content: '⚠️';
+      margin-right: 4px;
+      font-size: 10px;
     }
   }
+
+  .country {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+
+    ion-select {
+      min-width: 100px;
+    }
+
+    ion-input {
+      flex: 1;
+    }
+  }
+
+  // Estilos para secciones del modal
+  .section-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 30px 0 15px 0;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--ion-color-primary);
+  }
+
+  .subsection-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+    margin: 20px 0 10px 0;
+  }
+
+  .social-section, .files-section {
+    margin: 30px 0;
+    padding: 20px;
+    background: #f9fafb;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+  }
+
+  .schedule-section {
+    margin: 15px 0;
+    
+    ion-item {
+      margin-bottom: 10px;
+    }
+  }
+
+  // Estilos para filtro de parroquias
+  .chip-filter {
+    display: flex;
+    gap: 8px;
+    margin: 15px 0;
+    flex-wrap: wrap;
+
+    ion-chip {
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      &:hover {
+        transform: translateY(-1px);
+      }
+    }
+  }
+}
+
+// Estilos para archivos en el modal
+.upload-label {
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.upload-box {
+  border: 2px dashed #d1d5db;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  background-color: #f9fafb;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: #f0f9ff;
+    border-color: #3b82f6;
+  }
+  
+  &.dragover {
+    background-color: #eff6ff;
+    border-color: #2563eb;
+    border-style: solid;
+  }
+
+  .upload-icon {
+    font-size: 48px;
+    color: #fbbf24;
+    margin-bottom: 8px;
+  }
+
+  p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 14px;
+  }
+
+  input[type='file'] {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+}
+
+.upload-info {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-size: 12px;
+  color: #6b7280;
+
+  div {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  ion-icon {
+    font-size: 16px;
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 8px;
+    
+    div {
+      justify-content: center;
+    }
+  }
+}
+
+.file-name {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-size: 13px;
+  color: #374151;
+  background-color: #f3f4f6;
+  padding: 8px 12px;
+  border-radius: 6px;
+
+  ion-icon {
+    font-size: 16px;
+    margin-right: 8px;
+    color: #6b7280;
+  }
+
+  span {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  ion-button {
+    --padding-start: 4px;
+    --padding-end: 4px;
+    --color: #ef4444;
+    min-height: 24px;
+  }
+}
+
+.file-list {
+  margin-top: 8px;
+  max-height: 120px;
+  overflow-y: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 8px;
+  background-color: #f9fafb;
+
+  .file-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 8px;
+    margin-bottom: 4px;
+    background-color: white;
+    border-radius: 4px;
+    font-size: 13px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    ion-icon {
+      color: #6b7280;
+      margin-right: 8px;
+    }
+
+    span {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    ion-button {
+      --padding-start: 4px;
+      --padding-end: 4px;
+      --color: #ef4444;
+      min-height: 24px;
+    }
+  }
+}
+
+// Estilos para mostrar imágenes actuales
+.current-logo-section, .current-carousel-section {
+  margin: 20px 0;
+  padding: 15px;
+  background: #f0f9ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+}
+
+.current-image-preview {
+  text-align: center;
+  
+  .current-logo {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 2px solid #e5e7eb;
+  }
+}
+
+.current-images-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 10px;
+  margin-bottom: 10px;
+
+  .current-image-item {
+    text-align: center;
+    
+    .current-carousel-image {
+      width: 100%;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid #d1d5db;
+    }
+
+    .image-index {
+      font-size: 11px;
+      color: #6b7280;
+      margin: 4px 0 0 0;
+    }
+  }
+}
+
+.image-note {
+  font-size: 12px;
+  color: #6b7280;
+  font-style: italic;
+  margin: 8px 0 0 0;
+  text-align: center;
 }
 
 .modal-footer {
@@ -875,13 +1156,18 @@
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
   }
 
   .cancel-button {
     background: #6b7280;
     color: white;
 
-    &:hover {
+    &:hover:not(:disabled) {
       background: #4b5563;
       transform: translateY(-1px);
     }
@@ -891,11 +1177,20 @@
     background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-primary-shade));
     color: white;
     box-shadow: 0 4px 15px rgba(var(--ion-color-primary-rgb), 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-    &:hover {
+    &:hover:not(:disabled) {
       background: linear-gradient(135deg, var(--ion-color-primary-shade), var(--ion-color-primary-tint));
       transform: translateY(-1px);
       box-shadow: 0 6px 20px rgba(var(--ion-color-primary-rgb), 0.4);
+    }
+
+    ion-spinner {
+      --color: white;
+      width: 16px;
+      height: 16px;
     }
   }
 }
@@ -925,37 +1220,53 @@
     }
   }
 
-  .rejection-notice {
-    flex-direction: column;
-    text-align: center;
-    padding: 16px;
+  .expanded-modal-container {
+    max-width: 95vw;
+    max-height: 98vh;
+    margin: 10px;
+  }
 
-    .rejection-text h4 {
+  .modal-content {
+    padding: 20px;
+
+    .form-row {
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .section-title {
+      font-size: 16px;
+    }
+  }
+
+  .current-images-grid {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 8px;
+
+    .current-carousel-image {
+      height: 60px;
+    }
+  }
+
+  .upload-box {
+    padding: 15px;
+    
+    .upload-icon {
+      font-size: 36px;
+    }
+    
+    p {
       font-size: 14px;
     }
+  }
 
-    .rejection-text p {
-      font-size: 13px;
+  .modal-footer {
+    flex-direction: column;
+    padding: 15px 20px;
+
+    button {
+      width: 100%;
     }
-  }
-
-  .form-row {
-    flex-direction: column;
-  }
-
-  .half-width {
-    min-width: auto;
-  }
-
-  .contact-item {
-    flex-direction: column;
-    text-align: center;
-    gap: 12px;
-  }
-
-  .location-container {
-    flex-direction: column;
-    text-align: center;
   }
 
   .action-section {
@@ -978,13 +1289,129 @@
       }
     }
   }
+}
 
-  .modal-overlay {
-    padding: 10px;
+/* Estilos para el mapa en el modal de edición */
+.map-button {
+  margin-top: 8px;
+  margin-bottom: 0;
+  --color: #2563eb;
+  --border-color: #2563eb;
+  transition: transform 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+  
+  ion-icon {
+    margin-right: 8px;
+  }
+}
+
+.map-info {
+  padding: 16px;
+  background-color: #f0f9ff;
+  border-bottom: 1px solid #e0e7ff;
+  text-align: center;
+
+  p {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    color: #374151;
   }
 
-  .modal-container {
-    max-height: 95vh;
+  ion-button {
+    --color: #2563eb;
+    --border-color: #2563eb;
+  }
+
+  @media (max-width: 768px) {
+    padding: 12px;
+    
+    p {
+      font-size: 13px;
+    }
+  }
+}
+
+.map-container {
+  width: 100%;
+  height: 400px;
+  position: relative;
+  background-color: #f3f4f6;
+  
+  @media (max-width: 768px) {
+    height: 350px;
+  }
+}
+
+.map-actions {
+  padding: 16px;
+  background-color: white;
+  border-top: 1px solid #e5e7eb;
+
+  ion-button {
+    --background: #2563eb;
+    --background-hover: #1d4ed8;
+    --background-focused: #1d4ed8;
+    --color: white;
+    font-weight: 600;
+    
+    &[disabled] {
+      --background: #9ca3af;
+      --color: #6b7280;
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: 12px;
+  }
+}
+
+/* Estilos específicos para Leaflet en el modal */
+:global(.leaflet-container) {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+}
+
+:global(.leaflet-popup-content-wrapper) {
+  border-radius: 8px;
+}
+
+:global(.leaflet-control-zoom) {
+  border-radius: 8px;
+}
+
+:global(.leaflet-control-zoom a) {
+  border-radius: 4px;
+}
+
+/* Indicador de ubicación seleccionada */
+.coordinates-selected {
+  .map-button {
+    --color: #16a34a;
+    --border-color: #16a34a;
+  }
+}
+
+.form-field {
+  &.coordinates-filled {
+    --border-color: #16a34a;
+    
+    ion-input {
+      --color: #16a34a;
+      font-weight: 500;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .expanded-modal-container {
     border-radius: 15px;
   }
 
@@ -995,74 +1422,18 @@
     .modal-title {
       font-size: 20px;
     }
-  }
-
-  .modal-content {
-    padding: 20px;
-  }
-
-  .modal-footer {
-    flex-direction: column;
-    padding: 15px 20px;
-
-    button {
-      width: 100%;
-    }
-  }
-
-  .carousel-button {
-    width: 40px;
-    height: 40px;
-    font-size: 20px;
-
-    &.prev {
-      left: 10px;
-    }
-
-    &.next {
-      right: 10px;
-    }
-  }
-
-  .image-container {
-    height: 200px;
-  }
-
-  .info-card {
-    min-width: auto;
-  }
-}
-
-@media (max-width: 480px) {
-  .modal-header {
-    .modal-title {
-      font-size: 18px;
-    }
 
     .modal-subtitle {
       font-size: 12px;
     }
   }
 
-  .form-label {
-    font-size: 14px;
+  .modal-content {
+    padding: 15px;
   }
 
-  .business-header .header-info .business-title {
-    font-size: 20px;
-  }
-
-  .action-section .action-title {
-    font-size: 18px;
-  }
-
-  .action-section .action-buttons-grid .action-btn {
-    font-size: 12px;
-    padding: 12px 14px;
-    min-height: 65px;
-
-    .btn-subtitle {
-      font-size: 9px;
-    }
+  .current-logo {
+    width: 80px !important;
+    height: 80px !important;
   }
 }

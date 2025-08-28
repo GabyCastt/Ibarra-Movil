@@ -39,6 +39,81 @@ export class NegocioService {
       );
   }
 
+  // Método para actualizar negocio con archivos
+  updateBusinessWithFiles(businessId: number, formData: FormData): Observable<any> {
+    console.log('Updating business with files, ID:', businessId);
+    
+    if (!businessId || businessId <= 0) {
+      return throwError(() => new Error('ID de negocio inválido'));
+    }
+
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${this.authService.getToken()}`,
+      // No establecer Content-Type para FormData, el navegador lo hará automáticamente
+    });
+
+    // Usar el endpoint de actualización completa que maneja archivos
+    return this.http
+      .put(`${this.businessUrl}/update-complete/${businessId}`, formData, { headers })
+      .pipe(
+        catchError((error) => {
+          console.error('Error updating business with files:', error);
+          
+          if (error.status === 401) {
+            this.authService.logout();
+          }
+          
+          let errorMessage = 'Error al actualizar el negocio';
+          
+          if (error.status === 400) {
+            errorMessage = 'Datos inválidos. Verifica que todos los campos estén correctos.';
+          } else if (error.status === 403) {
+            errorMessage = 'No tienes permisos para editar este negocio.';
+          } else if (error.status === 404) {
+            errorMessage = 'El negocio no fue encontrado.';
+          } else if (error.status === 413) {
+            errorMessage = 'Los archivos son demasiado grandes.';
+          } else if (error.status === 422) {
+            errorMessage = 'Error de validación en el servidor.';
+          } else if (error.status === 500) {
+            errorMessage = 'Error del servidor. Intenta más tarde.';
+          } else if (error.error?.message) {
+            errorMessage = error.error.message;
+          }
+          
+          return throwError(() => new Error(errorMessage));
+        })
+      );
+  }
+
+  // Método alternativo para actualización de negocios rechazados específicamente
+  updateRejectedBusiness(businessId: number, formData: FormData): Observable<any> {
+    console.log('Updating rejected business with files, ID:', businessId);
+    
+    if (!businessId || businessId <= 0) {
+      return throwError(() => new Error('ID de negocio inválido'));
+    }
+
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${this.authService.getToken()}`,
+    });
+
+    // Endpoint específico para negocios rechazados
+    return this.http
+      .put(`${this.businessUrl}/update-rejected/${businessId}`, formData, { headers })
+      .pipe(
+        catchError((error) => {
+          console.error('Error updating rejected business:', error);
+          
+          if (error.status === 401) {
+            this.authService.logout();
+          }
+          
+          return throwError(() => new Error(this.getErrorMessage(error)));
+        })
+      );
+  }
+
   getBusinessesByUser(
     category: string = '',
     page: number = 0,
