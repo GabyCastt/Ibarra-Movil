@@ -49,15 +49,19 @@ export class PromocionesService {
     );
   }
 
-  getPromotionPublic(promotionType?: string): Observable<ApiResponse> {
+  getPromotionPublic(promotionType?: string, categoryId?: number): Observable<ApiResponse> {
     let params = new HttpParams();
 
     if (promotionType) {
       params = params.set('promotionType', promotionType);
     }
 
+    if (categoryId) {
+      params = params.set('categoryId', categoryId.toString());
+    }
+
     return this.http.get<ApiResponse>(
-      `${this.apiUrl}/promotions/business/public`,
+      `${this.apiUrl}/promotions/business/public/search`,
       { params }
     );
   }

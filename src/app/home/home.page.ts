@@ -60,7 +60,7 @@ export class HomePage implements OnInit {
 
   onPromotionTypeSelect(value: string) {
     this.selectedPromotionType = value;
-    this.loadPromotions(value);
+    this.loadPromotions(value, this.selectedCategoryId);
   }
   tipoPromocionMap: { [key: string]: string } = {
     COMBO: 'Combo especial',
@@ -68,6 +68,8 @@ export class HomePage implements OnInit {
     DESCUENTO_FIJO: 'Descuento fijo',
     DESCUENTO_PORCENTAJE: 'Descuento %',
   };
+
+  selectedCategoryId: number | undefined = undefined;
 
   getTipoPromocionLabel(tipo: string): string {
     return this.tipoPromocionMap[tipo] || 'Promoción';
@@ -143,6 +145,11 @@ export class HomePage implements OnInit {
     this.loadPromotions();
   }
 
+  onCategorySelect(event: any) {
+    this.selectedCategoryId = event.detail.value;
+    this.loadPromotions(this.selectedPromotionType, this.selectedCategoryId);
+  }
+
   private setupAuthSubscription() {
     this.authService.isAuthenticated$.subscribe((isAuthenticated) => {
       this.isAuthenticated = isAuthenticated;
@@ -161,8 +168,8 @@ export class HomePage implements OnInit {
     }
   }
 
-  private loadPromotions(promotionType?: string) {
-    this.promocionesService.getPromotionPublic(promotionType).subscribe({
+  private loadPromotions(promotionType?: string, categoryId?: number) {
+    this.promocionesService.getPromotionPublic(promotionType, categoryId).subscribe({
       next: (response) => {
         if (response.success) {
           this.promociones = response.data;
