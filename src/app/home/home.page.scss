@@ -1,14 +1,14 @@
 /* Variables de color */
 :host {
-  --primary-color: #D40000;  // Rojo institucional de Ibarra
-  --secondary-color: #FFD700; // Dorado complementario
-  --accent-color: #0057B8;   // Azul oscuro
-  --complementary-1: #2E8B57; // Verde bosque
-  --complementary-2: #FF8C00; // Naranja vibrante
-  --complementary-3: #9932CC; // Púrpura
+  --primary-color: #d40000; // Rojo institucional de Ibarra
+  --secondary-color: #ffd700; // Dorado complementario
+  --accent-color: #0057b8; // Azul oscuro
+  --complementary-1: #2e8b57; // Verde bosque
+  --complementary-2: #ff8c00; // Naranja vibrante
+  --complementary-3: #9932cc; // Púrpura
   --light-color: #f8f9fa;
   --dark-color: #343a40;
-  
+
   // Colores para categorías
   --category-1: var(--primary-color);
   --category-2: var(--secondary-color);
@@ -16,8 +16,8 @@
   --category-4: var(--complementary-1);
   --category-5: var(--complementary-2);
   --category-6: var(--complementary-3);
-  --category-7: #FF69B4;  // Rosa fuerte
-  --category-8: #00CED1;  // Turquesa
+  --category-7: #ff69b4; // Rosa fuerte
+  --category-8: #00ced1; // Turquesa
 }
 
 /* Estructura general */
@@ -30,12 +30,12 @@
   .title-content {
     display: flex;
     align-items: center;
-    
+
     .header-logo {
       height: 28px;
       margin-right: 10px;
     }
-    
+
     span {
       font-size: 1.1rem;
       font-weight: 600;
@@ -55,13 +55,13 @@
   height: 180px;
   overflow: hidden;
   margin-bottom: 16px;
-  
+
   .banner-image {
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
-  
+
   .banner-overlay {
     position: absolute;
     top: 0;
@@ -70,21 +70,21 @@
     height: 100%;
     background: rgba(0, 0, 0, 0.3);
   }
-  
+
   .banner-text {
     position: absolute;
     bottom: 20px;
     left: 20px;
     color: white;
     z-index: 1;
-    
+
     h1 {
       font-size: 1.8rem;
       font-weight: bold;
       margin: 0;
       text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
     }
-    
+
     p {
       margin: 5px 0 0;
       font-size: 1rem;
@@ -104,7 +104,7 @@
 /* Estilos para categorías */
 .scroll-container {
   padding: 8px 0 16px;
-  
+
   .category-item {
     display: flex;
     flex-direction: column;
@@ -112,27 +112,27 @@
     padding: 0 10px;
     cursor: pointer;
     transition: transform 0.3s ease;
-    
+
     &:hover {
       transform: translateY(-5px);
     }
     .category-icon {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  
-  ion-icon {
-    font-size: 1.8rem;
-    color: white;
-    filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.3));
-  }
-}
-   
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+
+      ion-icon {
+        font-size: 1.8rem;
+        color: white;
+        filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.3));
+      }
+    }
+
     span {
       font-size: 0.85rem;
       text-align: center;
@@ -149,7 +149,7 @@
   align-items: center;
   padding: 0 16px;
   margin: 20px 0 10px;
-  
+
   h2 {
     margin: 0;
     font-size: 1.3rem;
@@ -162,19 +162,19 @@
 .featured-slider,
 .events-container {
   padding-bottom: 10px;
-  
+
   .business-card,
   .event-card {
     width: 220px;
     margin: 0 5px;
     position: relative;
-    
+
     img {
       width: 100%;
       height: 120px;
       object-fit: cover;
     }
-    
+
     .business-badge {
       position: absolute;
       top: 10px;
@@ -186,20 +186,20 @@
       font-size: 0.7rem;
       font-weight: bold;
     }
-    
+
     ion-card-header {
       padding: 10px;
-      
+
       ion-card-title {
         font-size: 1rem;
         font-weight: 600;
       }
-      
+
       ion-card-subtitle {
         font-size: 0.8rem;
         display: flex;
         align-items: center;
-        
+
         ion-icon {
           margin-right: 3px;
           font-size: 0.9rem;
@@ -215,11 +215,11 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  
+
   ion-button {
     --border-color: var(--primary-color);
     --color: var(--primary-color);
-    
+
     ion-icon {
       font-size: 1.2rem;
     }
@@ -229,24 +229,101 @@
 /* Accesibilidad */
 @media (prefers-contrast: more) {
   :host {
-    --primary-color: #D40000;
+    --primary-color: #d40000;
     --secondary-color: #ff8c00;
   }
-  
+
   .hero-banner .banner-text {
     text-shadow: 2px 2px 4px black;
   }
 }
 
-
- .promotion-badge {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background-color: var(--primary-color);
-      color: white;
-      padding: 3px 8px;
-      border-radius: 12px;
-      font-size: 0.7rem;
-      font-weight: bold;
+.promotion-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: var(--primary-color);
+  color: white;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: bold;
+}
+/* Estilos para la sección de resultados de búsqueda */
+.search-results-section {
+  margin: 16px 0;
+  
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 16px;
+    margin-bottom: 16px;
+    
+    h2 {
+      font-size: 1.1rem;
+      margin: 0;
+      color: var(--ion-color-dark);
     }
+  }
+}
+
+.business-thumbnail {
+  border-radius: 8px;
+  object-fit: cover;
+  width: 60px;
+  height: 60px;
+}
+
+.no-results {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--ion-color-medium);
+  
+  ion-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    color: var(--ion-color-medium);
+  }
+  
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+  }
+}
+
+.search-loading {
+  text-align: center;
+  padding: 30px 20px;
+  
+  ion-spinner {
+    margin-bottom: 16px;
+    color: var(--ion-color-primary);
+  }
+  
+  p {
+    margin: 0;
+    color: var(--ion-color-medium);
+    font-size: 0.9rem;
+  }
+}
+
+// Estilos para los items de resultado
+ion-item {
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --min-height: 80px;
+  
+  ion-label {
+    h3 {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    
+    p {
+      margin: 2px 0;
+      font-size: 0.8rem;
+      color: var(--ion-color-medium);
+    }
+  }
+}

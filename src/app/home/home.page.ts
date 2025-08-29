@@ -3,6 +3,7 @@ import {
   ModalController,
   LoadingController,
   AlertController,
+  InfiniteScrollCustomEvent,
 } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -34,7 +35,7 @@ import { Router } from '@angular/router';
 import { NegociosService } from '../services/negocios.service';
 import { AuthService } from '../services/auth.service';
 import { Promocion, PromocionesService } from '../services/promociones.service';
-
+import { BusquedaService } from '../services/busqueda.service';
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
@@ -47,30 +48,38 @@ export class HomePage implements OnInit {
   userData: any = null;
   categories: any[] = [];
   promociones: Promocion[] = [];
- promotionTypes = [
-  { value: '', label: 'Todas' },
-  { value: 'COMBO', label: 'Combo especial' },
-  { value: 'DOSXUNO', label: '2x1' },
-  { value: 'DESCUENTO_FIJO', label: 'Descuento fijo' },
-  { value: 'DESCUENTO_PORCENTAJE', label: 'Descuento %' }
-];
+  promotionTypes = [
+    { value: '', label: 'Todas' },
+    { value: 'COMBO', label: 'Combo especial' },
+    { value: 'DOSXUNO', label: '2x1' },
+    { value: 'DESCUENTO_FIJO', label: 'Descuento fijo' },
+    { value: 'DESCUENTO_PORCENTAJE', label: 'Descuento %' },
+  ];
 
-selectedPromotionType: string = '';
+  selectedPromotionType: string = '';
 
-onPromotionTypeSelect(value: string) {
-  this.selectedPromotionType = value;
-  this.loadPromotions(value);
-}
+  onPromotionTypeSelect(value: string) {
+    this.selectedPromotionType = value;
+    this.loadPromotions(value);
+  }
   tipoPromocionMap: { [key: string]: string } = {
-    'COMBO': 'Combo especial',
-    'DOSXUNO': '2x1',
-    'DESCUENTO_FIJO': 'Descuento fijo',
-    'DESCUENTO_PORCENTAJE': 'Descuento %'
+    COMBO: 'Combo especial',
+    DOSXUNO: '2x1',
+    DESCUENTO_FIJO: 'Descuento fijo',
+    DESCUENTO_PORCENTAJE: 'Descuento %',
   };
 
   getTipoPromocionLabel(tipo: string): string {
-    return this.tipoPromocionMap[tipo] || "Promoción";
+    return this.tipoPromocionMap[tipo] || 'Promoción';
   }
+  searchTerm: string = '';
+  resultadosBusqueda: any[] = [];
+  isSearching: boolean = false;
+  hasSearchResults: boolean = false;
+  currentSearchPage: number = 0;
+  searchPageSize: number = 10;
+  hasMoreSearchResults: boolean = true;
+  totalSearchElements: number = 0;
 
   // Datos estáticos para eventos
   upcomingEvents: any[] = [
@@ -101,7 +110,8 @@ onPromotionTypeSelect(value: string) {
     private router: Router,
     private negociosService: NegociosService,
     private loadingCtrl: LoadingController,
-    private authService: AuthService
+    private authService: AuthService,
+    private busquedaService: BusquedaService
   ) {
     addIcons({
       locationOutline,
@@ -152,23 +162,23 @@ onPromotionTypeSelect(value: string) {
   }
 
   private loadPromotions(promotionType?: string) {
-  this.promocionesService.getPromotionPublic(promotionType).subscribe({
-    next: (response) => {
-      if (response.success) {
-        this.promociones = response.data;
-      } else {
-        console.error('Error loading promotions:', response.message);
-      }
-    },
-    error: (error) => {
-      console.error('Error loading promotions:', error);
-    },
-  });
-}
+    this.promocionesService.getPromotionPublic(promotionType).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.promociones = response.data;
+        } else {
+          console.error('Error loading promotions:', response.message);
+        }
+      },
+      error: (error) => {
+        console.error('Error loading promotions:', error);
+      },
+    });
+  }
 
-onPromotionTypeChange() {
-  this.loadPromotions(this.selectedPromotionType);
-}
+  onPromotionTypeChange() {
+    this.loadPromotions(this.selectedPromotionType);
+  }
 
   private async loadCategories() {
     await this.showLoading();
@@ -247,8 +257,8 @@ onPromotionTypeChange() {
     this.router.navigate(['/negocios'], {
       queryParams: {
         categoria: category.id,
-        categoriaNombre: category.name // Pasamos ambos para mayor seguridad
-      }
+        categoriaNombre: category.name, // Pasamos ambos para mayor seguridad
+      },
     });
   }
 
@@ -321,15 +331,138 @@ onPromotionTypeChange() {
     await alert.present();
   }
 
-  searchItems(event: any) {
+  //FUNCIONES DEL BUSCADOR
+  async searchItems(event: any) {
     const term = event.target.value;
-    if (term.trim() !== '') {
-      this.router.navigate(['/busqueda'], {
-        queryParams: { q: term },
+    this.searchTerm = term;
+
+    if (term.trim() === '') {
+      this.clearSearch();
+      return;
+    }
+
+    this.isSearching = true;
+    this.currentSearchPage = 0;
+    this.hasMoreSearchResults = true;
+
+    try {
+      const loading = await this.loadingCtrl.create({
+        message: 'Buscando...',
+        spinner: 'crescent',
+        duration: 3000,
       });
+      await loading.present();
+
+      this.busquedaService
+        .buscarNegocios(term, this.currentSearchPage, this.searchPageSize)
+        .subscribe({
+          next: (response) => {
+            if (response && response.content) {
+              this.resultadosBusqueda = response.content;
+              this.hasSearchResults = this.resultadosBusqueda.length > 0;
+              this.totalSearchElements = response.totalElements;
+
+              // Verifica si hay más resultados
+              this.hasMoreSearchResults =
+                this.currentSearchPage + 1 < response.totalPages;
+            } else {
+              this.resultadosBusqueda = [];
+              this.hasSearchResults = false;
+              this.totalSearchElements = 0;
+              this.hasMoreSearchResults = false;
+            }
+          },
+          error: (error) => {
+            console.error('Error en búsqueda:', error);
+            this.resultadosBusqueda = [];
+            this.hasSearchResults = false;
+            this.totalSearchElements = 0;
+            this.hasMoreSearchResults = false;
+          },
+          complete: () => {
+            loading.dismiss();
+            this.isSearching = false;
+          },
+        });
+    } catch (error) {
+      console.error('Error:', error);
+      this.isSearching = false;
+      this.resultadosBusqueda = [];
+      this.hasSearchResults = false;
     }
   }
 
+  clearSearch() {
+    this.searchTerm = '';
+    this.resultadosBusqueda = [];
+    this.hasSearchResults = false;
+    this.isSearching = false;
+    this.currentSearchPage = 0;
+    this.hasMoreSearchResults = true;
+    this.totalSearchElements = 0;
+  }
+
+  loadMoreSearchResults(event: any) {
+    if (!this.hasMoreSearchResults || this.isSearching) {
+      (event as InfiniteScrollCustomEvent).target.complete();
+      return;
+    }
+
+    this.currentSearchPage++;
+
+    this.busquedaService
+      .buscarNegocios(
+        this.searchTerm,
+        this.currentSearchPage,
+        this.searchPageSize
+      )
+      .subscribe({
+        next: (response) => {
+          if (response && response.content) {
+            const nuevosResultados = response.content;
+            this.resultadosBusqueda = [
+              ...this.resultadosBusqueda,
+              ...nuevosResultados,
+            ];
+
+            // Actualiza si hay más resultados
+            this.hasMoreSearchResults =
+              this.currentSearchPage + 1 < response.totalPages;
+          }
+        },
+        error: (error) => {
+          console.error('Error cargando más resultados:', error);
+          this.hasMoreSearchResults = false;
+        },
+        complete: () => {
+          (event as InfiniteScrollCustomEvent).target.complete();
+        },
+      });
+  }
+
+  openBusinessFromSearch(businessId: number) {
+    this.router.navigate(['/detalle-publico', businessId]);
+    this.clearSearch();
+  }
+
+  getBusinessImage(negocio: any): string {
+    // Buscar la imagen LOGO primero
+    const logo = negocio.photos?.find(
+      (photo: any) => photo.photoType === 'LOGO'
+    );
+    if (logo) return logo.url;
+
+    // Si no hay LOGO, buscar cualquier imagen SLIDE
+    const slide = negocio.photos?.find(
+      (photo: any) => photo.photoType === 'SLIDE'
+    );
+    if (slide) return slide.url;
+
+    // Si no hay imágenes, usa una por defecto
+    return 'assets/icon/logo-GAD-IBARRA.png';
+  }
+
+  onSearchFocus() {}
   navigateTo(page: string) {
     if (page === 'registro-emprendimiento' && !this.isAuthenticated) {
       this.showLoginForRegister();
@@ -379,7 +512,7 @@ onPromotionTypeChange() {
       this.userData = data.userData;
       await this.showWelcomeAlert();
     } else if (data?.navigateToRegister) {
-      // Navegar al registro cuando el usuario cierra el modal para registrarse
+      // Navega al registro cuando el usuario cierra el modal para registrarse
       this.router.navigate(['/registro-app']);
     }
   }
