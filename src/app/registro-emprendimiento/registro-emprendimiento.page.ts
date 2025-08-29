@@ -140,7 +140,7 @@ private loadParish(type?: string) {
       phone: ['', [Validators.required, Validators.maxLength(9), Validators.pattern('^[0-9]+$')]],
       website: ['', [Validators.maxLength(100)]],
       description: ['', [Validators.required, Validators.maxLength(200)]],
-      parishCommunitySector: ['', [Validators.required, Validators.maxLength(50)]],
+      parishCommunitySector: ['Paris', [Validators.required, Validators.maxLength(50)]],
       acceptsWhatsappOrders: [false],
       whatsappNumber: [''],
       googleMapsCoordinates: ['', [Validators.required, Validators.maxLength(100)]],
@@ -155,7 +155,6 @@ private loadParish(type?: string) {
       tiktok: ['', [Validators.maxLength(100)]],
       address: ['', [Validators.required, Validators.maxLength(100)]],
       schedules: ['', [Validators.required, Validators.maxLength(100)]],
-      schedules1: ['', [Validators.required, Validators.maxLength(100)]],
       productsServices: ['', [Validators.required, Validators.maxLength(50)]],
     });
 
@@ -329,10 +328,6 @@ private loadParish(type?: string) {
         'required': 'El horario es obligatorio',
         'maxlength': 'Máximo 100 caracteres'
       },
-      'schedules1': {
-        'required': 'El horario es obligatorio',
-        'maxlength': 'Máximo 100 caracteres'
-      }
     };
 
     // Buscar mensaje específico
@@ -375,13 +370,6 @@ private loadParish(type?: string) {
     return lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
   }
 
-  private validateScheduleFormat(schedule: string): boolean {
-    if (!schedule) return false;
-
-    // Formato: "HH:MM - HH:MM" o "HH:MM a HH:MM"
-    const scheduleRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]\s*[-a]\s*([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
-    return scheduleRegex.test(schedule.trim());
-  }
 
   private validateEcuadorianPhone(phone: string): boolean {
     // Números ecuatorianos: celulares empiezan con 9, fijos con 2-7
@@ -397,28 +385,6 @@ private loadParish(type?: string) {
     if (!this.validateCoordinates(coordinates)) {
       this.toastService.show(
         'Las coordenadas del mapa no son válidas',
-        'warning'
-      );
-      return false;
-    }
-
-    // Validar horarios
-    const schedules = this.registerBusiness.get('schedules')?.value;
-    if (schedules) {
-      if (!this.validateScheduleFormat(schedules)) {
-        this.toastService.show(
-          `Formato de horario inválido. Use el formato "HH:MM - HH:MM"`,
-          'warning'
-        );
-        return false;
-      }
-    }
-
-    //Validar Horario 1
-    const schedule1 = this.registerBusiness.get('schedule1')?.value;
-    if (schedule1 && !this.validateScheduleFormat(schedule1)) {
-      this.toastService.show(
-        `Formato de horario inválido para Horario 1. Use el formato "HH:MM - HH:MM"`,
         'warning'
       );
       return false;
