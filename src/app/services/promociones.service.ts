@@ -27,7 +27,7 @@ export interface ApiResponse {
 export class PromocionesService {
   private apiUrl = 'http://34.10.172.54:8080';
 
-  constructor(private http: HttpClient, private authService: AuthService) { }
+  constructor(private http: HttpClient, private authService: AuthService) {}
 
   private getHeaders(): HttpHeaders {
     const token = this.authService.getToken();
@@ -62,11 +62,9 @@ export class PromocionesService {
     );
   }
 
-
   crearPromocion(dto: any, photo: File): Observable<ApiResponse> {
     const formData = new FormData();
 
-    // Asegura de que el DTO tenga exactamente los campos que espera el backend
     const promocionDto = {
       businessId: dto.businessId,
       tipoPromocion: dto.tipoPromocion,
@@ -94,6 +92,51 @@ export class PromocionesService {
       `${this.apiUrl}/promotions/business/create`,
       formData,
       { headers }
+    );
+  }
+
+  editarPromocion(id: number, dto: any, photo?: File): Observable<ApiResponse> {
+    const formData = new FormData();
+
+    const promocionDto = {
+      titlePromotion: dto.tituloPromocion,
+      promoType: dto.tipoPromocion,
+      conditions: dto.condiciones,
+      datePromoStart: dto.fechaPromoInicio,
+      datePromoEnd: dto.fechaPromoFin,
+      businessId: dto.businessId,
+    };
+
+    formData.append(
+      'dto',
+      new Blob([JSON.stringify(promocionDto)], {
+        type: 'application/json',
+      })
+    );
+
+    if (photo) {
+      formData.append('photo', photo);
+    }
+
+    const headers = this.getHeaders();
+
+    return this.http.put<ApiResponse>(
+      `${this.apiUrl}/promotions/business/update/${id}`,
+      formData,
+      { headers }
+    );
+  }
+
+  eliminarPromocion(id: number): Observable<ApiResponse> {
+    const headers = this.getHeaders();
+    const params = new HttpParams().set('promoId', id.toString());
+
+    return this.http.delete<ApiResponse>(
+      `${this.apiUrl}/promotions/business/delete`,
+      {
+        headers,
+        params,
+      }
     );
   }
 }

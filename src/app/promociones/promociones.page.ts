@@ -31,6 +31,7 @@ import { PromocionesService, Promocion } from '../services/promociones.service';
 import { CrearPromocionPage } from '../crear-promocion/crear-promocion.page';
 import { AuthService } from '../services/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { EditarPromocionPage } from '../editar-promocion/editar-promocion.page';
 
 @Component({
   selector: 'app-promociones',
@@ -68,7 +69,7 @@ export class PromocionesPage implements OnInit {
 
   constructor(
     private promocionesService: PromocionesService,
-    private authService: AuthService,
+    public authService: AuthService,
     private modalCtrl: ModalController,
     private alertController: AlertController,
     private route: ActivatedRoute,
@@ -118,7 +119,7 @@ export class PromocionesPage implements OnInit {
   }
 
   async abrirModalCrear() {
-    // Verificar si el usuario está autenticado
+    // Verifica si el usuario está autenticado
     if (!this.authService.isAuthenticated()) {
       this.mostrarAlerta(
         'Error',
@@ -157,7 +158,7 @@ export class PromocionesPage implements OnInit {
       return;
     }
 
-    // Verificar que el archivo sea válido
+    // Verifica que el archivo sea válido
     if (!archivo || archivo.size === 0) {
       this.mostrarAlerta('Error', 'El archivo de imagen no es válido');
       return;
@@ -226,7 +227,119 @@ export class PromocionesPage implements OnInit {
       },
     });
   }
+  async abrirModalEditar(promocion: Promocion) {
+    if (!this.authService.isAuthenticated()) {
+      this.mostrarAlerta(
+        'Error',
+        'Debes iniciar sesión para editar promociones'
+      );
+      return;
+    }
 
+    const modal = await this.modalCtrl.create({
+      component: EditarPromocionPage,
+      componentProps: {
+        promocion: {
+          ...promocion,
+          businessId: this.businessId,
+        },
+      },
+    });
+
+    modal.onDidDismiss().then((result) => {
+      if (result.role === 'confirm') {
+        this.editarPromocion(
+          promocion.idBusinessPromo!,
+          result.data.promocion,
+          result.data.archivo
+        );
+      }
+    });
+
+    await modal.present();
+  }
+
+  editarPromocion(id: number, promocion: any, archivo: File | null) {
+    if (
+      !promocion.tipoPromocion ||
+      !promocion.tituloPromocion ||
+      !promocion.fechaPromoInicio ||
+      !promocion.fechaPromoFin ||
+      !promocion.condiciones
+    ) {
+      this.mostrarAlerta('Error', 'Faltan campos requeridos en la promoción');
+      return;
+    }
+
+    this.promocionesService
+      .editarPromocion(id, promocion, archivo || undefined)
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.mostrarAlerta('Éxito', 'Promoción actualizada correctamente');
+            this.cargarPromociones();
+          } else {
+            this.mostrarAlerta(
+              'Error',
+              response.message || 'Error al actualizar la promoción'
+            );
+          }
+        },
+        error: (error) => {
+          console.error('Error al editar promoción:', error);
+          this.mostrarAlerta(
+            'Error',
+            'Error al actualizar la promoción: ' +
+              (error.error?.message || error.message)
+          );
+        },
+      });
+  }
+
+  async confirmarEliminacion(promocion: Promocion) {
+    const alert = await this.alertController.create({
+      header: 'Confirmar eliminación',
+      message: `¿Estás seguro de que quieres eliminar la promoción "${promocion.tituloPromocion}"? Esta acción no se puede deshacer.`,
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel',
+        },
+        {
+          text: 'Eliminar',
+          handler: () => {
+            this.eliminarPromocion(promocion.idBusinessPromo!);
+          },
+        },
+      ],
+    });
+
+    await alert.present();
+  }
+
+  eliminarPromocion(id: number) {
+    this.promocionesService.eliminarPromocion(id).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.mostrarAlerta('Éxito', 'Promoción eliminada correctamente');
+          this.cargarPromociones();
+        } else {
+          this.mostrarAlerta(
+            'Error',
+            response.message || 'Error al eliminar la promoción'
+          );
+        }
+      },
+      error: (error) => {
+        console.error('Error al eliminar promoción:', error);
+        this.mostrarAlerta(
+          'Error',
+          'Error al eliminar la promoción: ' +
+            (error.error?.message || error.message)
+        );
+      },
+    });
+  }
   doRefresh(event: any) {
     this.cargarPromociones();
     setTimeout(() => {
@@ -253,7 +366,7 @@ export class PromocionesPage implements OnInit {
     });
   }
 
-  // Verificar si una promoción está activa
+  // Verifica si una promoción está activa
   isPromocionActive(promocion: Promocion): boolean {
     const today = new Date();
     const startDate = new Date(promocion.fechaPromoInicio);
