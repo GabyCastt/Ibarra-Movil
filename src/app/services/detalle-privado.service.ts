@@ -115,7 +115,7 @@ export class DetallePrivadoService {
     
     return new HttpHeaders({
       'Authorization': `Bearer ${token}`
-      // No incluir Content-Type para FormData
+      // No incluir Content-Type para FormData - el navegador lo establece automáticamente
     });
   }
 
@@ -210,6 +210,7 @@ export class DetallePrivadoService {
     );
   }
 
+  // Método para actualizar negocios estándar (solo JSON, sin archivos)
   updateBusiness(businessId: number, updateData: UpdateBusinessRequest, businessStatus?: string): Observable<any> {
     console.log('=== UPDATE BUSINESS SERVICE ===');
     console.log('Business ID:', businessId);
@@ -235,14 +236,9 @@ export class DetallePrivadoService {
       return throwError(() => error);
     }
 
-    let url: string;
-    if (businessStatus === 'REJECTED') {
-      url = `${this.businessUrl}/update-rejected/${businessId}`;
-      console.log('Using rejected business endpoint');
-    } else {
-      url = `${this.businessUrl}/${businessId}`;
-      console.log('Using standard business endpoint');
-    }
+    // CAMBIO IMPORTANTE: Solo usar endpoint estándar para JSON sin archivos
+    const url = `${this.businessUrl}/${businessId}`;
+    console.log('Using standard business endpoint (JSON only)');
 
     const cleanedData = this.cleanUpdateData(updateData);
 
@@ -264,9 +260,9 @@ export class DetallePrivadoService {
     );
   }
 
-  // Método para actualizar negocio con archivos completos
-  updateBusinessWithFiles(businessId: number, formData: FormData): Observable<any> {
-    console.log('=== UPDATE BUSINESS WITH FILES ===');
+  // Método para actualizar negocios rechazados con archivos
+  updateRejectedBusinessWithFiles(businessId: number, formData: FormData): Observable<any> {
+    console.log('=== UPDATE REJECTED BUSINESS WITH FILES ===');
     console.log('Business ID:', businessId);
     
     if (!businessId || businessId <= 0) {
@@ -276,25 +272,129 @@ export class DetallePrivadoService {
     let headers: HttpHeaders;
     try {
       headers = this.getAuthHeadersForFormData();
-      console.log('FormData headers created successfully');
+      console.log('Headers created for rejected business update');
     } catch (error) {
       console.error('Error creating auth headers:', error);
       return throwError(() => error);
     }
 
-    // Endpoint específico para actualización completa con archivos
-    const url = `${this.businessUrl}/update-complete/${businessId}`;
+    const url = `${this.businessUrl}/update-rejected/${businessId}`;
     
-    console.log('=== MAKING UPDATE WITH FILES REQUEST ===');
+    console.log('=== MAKING REJECTED BUSINESS UPDATE REQUEST ===');
     console.log('URL:', url);
+    this.logFormData(formData, 'REJECTED BUSINESS FORM DATA');
 
     return this.http.put(url, formData, { headers }).pipe(
       tap(response => {
-        console.log('=== UPDATE WITH FILES SUCCESS ===');
-        console.log('Update response:', response);
+        console.log('=== REJECTED BUSINESS UPDATE SUCCESS ===');
+        console.log('Response:', response);
       }),
-      catchError(this.handleFileUpdateError.bind(this))
+      catchError(this.handleRejectedUpdateError.bind(this))
     );
+  }
+
+  // MÉTODO UNIFICADO CORREGIDO - Maneja correctamente cada tipo de negocio
+  updateBusinessUnified(businessId: number, businessStatus: string, updateData?: UpdateBusinessRequest, formData?: FormData): Observable<any> {
+    console.log('=== UNIFIED BUSINESS UPDATE ===');
+    console.log('Business ID:', businessId, 'Status:', businessStatus);
+    console.log('Has FormData:', !!formData, 'Has UpdateData:', !!updateData);
+
+    if (businessStatus === 'REJECTED') {
+      // Para negocios rechazados, usar endpoint específico (puede recibir FormData)
+      if (formData) {
+        return this.updateRejectedBusinessWithFiles(businessId, formData);
+      } else if (updateData) {
+        const url = `${this.businessUrl}/update-rejected/${businessId}`;
+        const headers = this.getAuthHeaders();
+        const cleanedData = this.cleanUpdateData(updateData);
+        
+        return this.http.put(url, cleanedData, { headers }).pipe(
+          tap(response => console.log('Rejected business updated (no files):', response)),
+          catchError(this.handleUpdateError.bind(this))
+        );
+      }
+    } else {
+      // Para negocios VALIDATED, APPROVED, PENDING: Solo JSON, NO FormData
+      if (formData) {
+        console.log('WARNING: Cannot send files to validated/approved businesses - using JSON only');
+        // Extraer datos JSON del FormData y enviar sin archivos
+        return this.extractDataFromFormDataAndUpdate(businessId, formData);
+      } else if (updateData) {
+        // Usar endpoint estándar con JSON únicamente
+        return this.updateBusiness(businessId, updateData, businessStatus);
+      }
+    }
+    
+    return throwError(() => new Error('Configuración de actualización inválida'));
+  }
+
+  // NUEVO MÉTODO: Extraer datos del FormData y enviar como JSON
+  private extractDataFromFormDataAndUpdate(businessId: number, formData: FormData): Observable<any> {
+    console.log('=== EXTRACTING DATA FROM FORMDATA FOR VALIDATED BUSINESS ===');
+    
+    // Obtener el blob de business data del FormData
+    const businessBlob = formData.get('business');
+    
+    if (!businessBlob || !(businessBlob instanceof Blob)) {
+      return throwError(() => new Error('No se encontraron datos de negocio en el FormData'));
+    }
+
+    return new Observable(observer => {
+      const reader = new FileReader();
+      
+      reader.onload = () => {
+        try {
+          const businessData = JSON.parse(reader.result as string);
+          console.log('Extracted business data:', businessData);
+          
+          // Convertir a UpdateBusinessRequest format
+          const updateRequest: UpdateBusinessRequest = {
+            categoryId: businessData.categoryId,
+            commercialName: businessData.commercialName,
+            phone: businessData.phone,
+            website: businessData.website || '',
+            description: businessData.description,
+            parishCommunitySector: businessData.parishCommunitySector,
+            acceptsWhatsappOrders: businessData.acceptsWhatsappOrders,
+            whatsappNumber: businessData.whatsappNumber || '',
+            googleMapsCoordinates: businessData.googleMapsCoordinates,
+            deliveryService: businessData.deliveryService,
+            salePlace: businessData.salePlace,
+            receivedUdelSupport: businessData.receivedUdelSupport,
+            udelSupportDetails: businessData.udelSupportDetails || '',
+            parishId: businessData.parishId,
+            facebook: businessData.facebook || '',
+            instagram: businessData.instagram || '',
+            tiktok: businessData.tiktok || '',
+            address: businessData.address,
+            schedules: businessData.schedules,
+            productsServices: businessData.productsServices,
+            email: businessData.email || ''
+          };
+
+          // Enviar como actualización JSON estándar
+          this.updateBusiness(businessId, updateRequest).subscribe({
+            next: (response) => {
+              observer.next(response);
+              observer.complete();
+            },
+            error: (error) => {
+              observer.error(error);
+            }
+          });
+
+        } catch (error) {
+          console.error('Error parsing business data from FormData:', error);
+          observer.error(new Error('Error al procesar los datos del negocio'));
+        }
+      };
+
+      reader.onerror = () => {
+        observer.error(new Error('Error al leer los datos del FormData'));
+      };
+
+      reader.readAsText(businessBlob);
+    });
   }
 
   getCategories(): Observable<any[]> {
@@ -308,23 +408,65 @@ export class DetallePrivadoService {
     );
   }
 
+  // MÉTODO MEJORADO PARA EXTRAER URLs DE FOTOS MÚLTIPLES
   getPhotoUrls(photos: any[]): string[] {
-    console.log('Processing photos:', photos);
+    console.log('🖼️ Processing photos for URLs:', photos);
     
     if (!photos || !Array.isArray(photos)) {
-      console.log('No photos available or photos is not an array');
+      console.log('❌ No photos available or photos is not an array');
       return [];
     }
     
-    const urls = photos
-      .map(photo => {
-        const url = photo?.url || photo?.photoUrl || '';
-        console.log('Photo object:', photo, 'Extracted URL:', url);
-        return url;
-      })
-      .filter(url => url && url.trim() !== '');
+    const urls: string[] = [];
     
-    console.log('Extracted photo URLs:', urls);
+    for (let i = 0; i < photos.length; i++) {
+      const photo = photos[i];
+      console.log(`📸 Processing photo ${i + 1}:`, photo);
+      
+      // Intentar múltiples propiedades posibles para la URL
+      let url = '';
+      
+      if (typeof photo === 'string' && photo.startsWith('http')) {
+        // Si el photo es directamente una string URL
+        url = photo;
+      } else if (typeof photo === 'object' && photo !== null) {
+        // Si es un objeto, buscar la URL en varias propiedades
+        url = photo.url || 
+              photo.photoUrl || 
+              photo.imageUrl || 
+              photo.src || 
+              photo.path || 
+              photo.link ||
+              photo.href ||
+              '';
+              
+        // Si tiene un objeto nested con URL
+        if (!url && photo.image) {
+          url = photo.image.url || photo.image.src || '';
+        }
+        
+        // Si tiene metadata con URL
+        if (!url && photo.metadata) {
+          url = photo.metadata.url || photo.metadata.src || '';
+        }
+      }
+      
+      // Validar que la URL sea válida
+      if (url && 
+          typeof url === 'string' && 
+          url.trim() !== '' && 
+          (url.startsWith('http://') || url.startsWith('https://'))) {
+        
+        urls.push(url.trim());
+        console.log(`✅ Valid URL found for photo ${i + 1}: ${url.substring(0, 50)}...`);
+      } else {
+        console.log(`❌ No valid URL found for photo ${i + 1}:`, photo);
+      }
+    }
+    
+    console.log(`🎯 Total valid photo URLs extracted: ${urls.length}/${photos.length}`);
+    console.log('📋 Final URLs:', urls.map((url, i) => `${i + 1}: ${url.substring(0, 50)}...`));
+    
     return urls;
   }
 
@@ -408,32 +550,6 @@ export class DetallePrivadoService {
     });
   }
 
-  // Método para preparar FormData completo para actualización
-  prepareUpdateFormData(businessData: any, logoFile?: File, carrouselPhotos?: File[]): FormData {
-    const formData = new FormData();
-
-    // Agregar archivos si existen
-    if (logoFile) {
-      formData.append('logoFile', logoFile);
-      console.log('Logo file added to FormData:', logoFile.name);
-    }
-
-    if (carrouselPhotos && carrouselPhotos.length > 0) {
-      carrouselPhotos.forEach((file, index) => {
-        formData.append('carrouselPhotos', file);
-        console.log(`Carousel photo ${index + 1} added:`, file.name);
-      });
-    }
-
-    // Agregar datos del negocio
-    const businessBlob = new Blob([JSON.stringify(businessData)], { type: 'application/json' });
-    formData.append('business', businessBlob);
-
-    console.log('Business data added to FormData:', JSON.stringify(businessData, null, 2));
-
-    return formData;
-  }
-
   // Método para validar coordenadas
   validateCoordinates(coordinates: string): boolean {
     if (!coordinates) return false;
@@ -464,6 +580,7 @@ export class DetallePrivadoService {
     return emailRegex.test(email);
   }
 
+  // Método corregido para evitar errores de TypeScript
   private cleanUpdateData(updateData: UpdateBusinessRequest): any {
     const cleanedData: any = {};
     
@@ -482,21 +599,29 @@ export class DetallePrivadoService {
       }
     }
     
-    // Procesar campos de texto
-    ['facebook', 'instagram', 'tiktok', 'website', 'whatsappNumber', 'address', 'phone', 'parishCommunitySector', 'productsServices', 'deliveryService', 'salePlace', 'schedules', 'udelSupportDetails'].forEach(field => {
+    // Procesar campos de texto - CORREGIDO
+    const textFields = ['facebook', 'instagram', 'tiktok', 'website', 'whatsappNumber', 'address', 'phone', 'parishCommunitySector', 'productsServices', 'deliveryService', 'salePlace', 'schedules', 'udelSupportDetails'];
+    
+    textFields.forEach(field => {
       const value = (updateData as any)[field];
-      if (value !== undefined && value !== null && value.toString().trim() !== '') {
-        (cleanedData as any)[field] = value.toString().trim();
+      
+      // Verificación de tipo más explícita
+      if (value !== undefined && 
+          value !== null && 
+          (typeof value === 'string' || typeof value === 'number') && 
+          String(value).trim() !== '') {
+        
+        (cleanedData as any)[field] = String(value).trim();
       }
     });
 
     // Procesar campos booleanos
-    if (updateData.acceptsWhatsappOrders !== undefined) {
-      cleanedData.acceptsWhatsappOrders = Boolean(updateData.acceptsWhatsappOrders);
+    if (typeof updateData.acceptsWhatsappOrders === 'boolean') {
+      cleanedData.acceptsWhatsappOrders = updateData.acceptsWhatsappOrders;
     }
 
-    if (updateData.receivedUdelSupport !== undefined) {
-      cleanedData.receivedUdelSupport = Boolean(updateData.receivedUdelSupport);
+    if (typeof updateData.receivedUdelSupport === 'boolean') {
+      cleanedData.receivedUdelSupport = updateData.receivedUdelSupport;
     }
 
     // Procesar IDs
@@ -504,15 +629,79 @@ export class DetallePrivadoService {
       cleanedData.categoryId = updateData.categoryId;
     }
 
-    if (updateData.parishId !== undefined && updateData.parishId !== null) {
+    if (updateData.parishId !== undefined && updateData.parishId !== null && typeof updateData.parishId === 'number') {
       cleanedData.parishId = updateData.parishId;
     }
 
-    if (updateData.googleMapsCoordinates !== undefined && updateData.googleMapsCoordinates !== null && updateData.googleMapsCoordinates.trim() !== '') {
+    if (updateData.googleMapsCoordinates !== undefined && 
+        updateData.googleMapsCoordinates !== null && 
+        typeof updateData.googleMapsCoordinates === 'string' &&
+        updateData.googleMapsCoordinates.trim() !== '') {
       cleanedData.googleMapsCoordinates = updateData.googleMapsCoordinates.trim();
     }
 
     return cleanedData;
+  }
+
+  private logFormData(formData: FormData, title: string): void {
+    console.log(`=== ${title} ===`);
+    
+    try {
+      const entries: string[] = [];
+      
+      const expectedFields = [
+        'logoFile',
+        'carrouselPhotos', 
+        'business'
+      ];
+      
+      expectedFields.forEach(field => {
+        try {
+          const value = formData.get(field);
+          if (value !== null) {
+            if (this.isFile(value)) {
+              entries.push(`${field}: File(${value.name}, ${value.size} bytes, ${value.type})`);
+            } else if (this.isBlob(value)) {
+              entries.push(`${field}: JSON Blob (${value.size} bytes)`);
+            } else if (typeof value === 'string') {
+              entries.push(`${field}: ${value}`);
+            } else {
+              entries.push(`${field}: ${String(value)}`);
+            }
+          }
+        } catch (fieldError) {
+          console.log(`Error processing field ${field}:`, fieldError);
+        }
+      });
+      
+      try {
+        const carrouselFiles = formData.getAll('carrouselPhotos');
+        if (carrouselFiles && carrouselFiles.length > 0) {
+          entries.push(`carrouselPhotos count: ${carrouselFiles.length}`);
+          carrouselFiles.forEach((file, index) => {
+            if (this.isFile(file)) {
+              entries.push(`carrouselPhotos[${index}]: File(${file.name}, ${file.size} bytes, ${file.type})`);
+            }
+          });
+        }
+      } catch (carrouselError) {
+        console.log('Error processing carousel files:', carrouselError);
+      }
+      
+      console.log('FormData content:', entries);
+      
+    } catch (error) {
+      console.log('FormData debugging error:', error);
+      console.log('FormData object exists:', typeof formData === 'object' && formData instanceof FormData);
+    }
+  }
+
+  private isFile(value: any): value is File {
+    return value instanceof File;
+  }
+
+  private isBlob(value: any): value is Blob {
+    return value instanceof Blob && !(value instanceof File);
   }
 
   private handleUpdateError(error: HttpErrorResponse): Observable<never> {
@@ -570,32 +759,37 @@ export class DetallePrivadoService {
     return throwError(() => new Error(errorMessage));
   }
 
-  private handleFileUpdateError(error: HttpErrorResponse): Observable<never> {
-    console.error('=== UPDATE WITH FILES ERROR ===');
+  private handleRejectedUpdateError(error: HttpErrorResponse): Observable<never> {
+    console.error('=== REJECTED BUSINESS UPDATE ERROR ===');
     console.error('Status:', error.status);
     console.error('Error Body:', error.error);
     
-    let errorMessage = 'Error al actualizar el negocio con archivos';
+    let errorMessage = 'Error al actualizar el negocio rechazado';
     
     switch (error.status) {
       case 400:
-        errorMessage = 'Datos o archivos inválidos. Verifica el formato y tamaño de las imágenes.';
+        if (error.error?.message) {
+          errorMessage = `Error de validación: ${error.error.message}`;
+        } else {
+          errorMessage = 'Datos inválidos. Verifica que todos los campos estén correctos.';
+        }
         break;
       case 401:
         errorMessage = 'No autorizado. Tu sesión ha expirado.';
         localStorage.removeItem('jwt_token');
         break;
       case 403:
-        errorMessage = 'No tienes permisos para editar este negocio.';
+        errorMessage = 'No tienes permisos para editar este negocio rechazado.';
         break;
       case 404:
-        errorMessage = 'El negocio no fue encontrado.';
-        break;
-      case 413:
-        errorMessage = 'Los archivos son demasiado grandes. Reduce el tamaño de las imágenes.';
+        errorMessage = 'El negocio rechazado no fue encontrado.';
         break;
       case 422:
-        errorMessage = 'Error de validación. Verifica que las imágenes cumplan los requisitos.';
+        if (error.error?.message) {
+          errorMessage = `Error de procesamiento: ${error.error.message}`;
+        } else {
+          errorMessage = 'Error de validación. El negocio regresará a estado PENDING una vez corregido.';
+        }
         break;
       case 500:
         errorMessage = 'Error del servidor. Intenta más tarde.';

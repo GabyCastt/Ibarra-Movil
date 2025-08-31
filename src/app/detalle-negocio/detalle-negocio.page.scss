@@ -158,18 +158,23 @@
   }
 }
 
-/* Carousel */
+/* Carousel - MEJORADO CON NAVEGACIÓN */
 .carousel-container {
   margin-bottom: 30px;
-}
-
-.carousel-header h3 {
-  color: #1f2937;
-  font-size: 18px;
-  font-weight: 600;
-  margin: 0 0 20px 0;
-  padding-bottom: 10px;
-  border-bottom: 2px solid var(--ion-color-primary);
+  
+  .carousel-header {
+    h3 {
+      color: #1f2937;
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0 0 20px 0;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--ion-color-primary);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
 }
 
 .carousel-wrapper {
@@ -177,51 +182,65 @@
   border-radius: 12px;
   overflow: hidden;
   background: #f9fafb;
+  position: relative;
 }
 
 .carousel-main {
   position: relative;
   display: flex;
   align-items: center;
-}
-
-.image-container {
-  width: 100%;
-  height: 300px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   background: #000;
-}
-
-.carousel-image {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: cover;
-  border-radius: 8px;
+  
+  .image-container {
+    width: 100%;
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    
+    .carousel-image {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      border-radius: 8px;
+      transition: transform 0.3s ease;
+      animation: slideIn 0.3s ease-out;
+    }
+  }
 }
 
 .carousel-button {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(var(--ion-color-primary-rgb), 0.8);
+  background: rgba(var(--ion-color-primary-rgb), 0.9);
   color: white;
   border: none;
-  width: 50px;
-  height: 50px;
+  width: 45px;
+  height: 45px;
   border-radius: 50%;
-  font-size: 24px;
+  font-size: 20px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
   z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 
   &:hover {
     background: rgba(var(--ion-color-primary-rgb), 1);
     transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+
+  &:active {
+    transform: translateY(-50%) scale(0.95);
+  }
+
+  ion-icon {
+    font-size: 18px;
   }
 
   &.prev {
@@ -233,26 +252,101 @@
   }
 }
 
+/* Contador de imágenes overlay */
+.image-counter {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  z-index: 5;
+}
+
 .carousel-indicators {
   display: flex;
   justify-content: center;
   padding: 15px;
   gap: 8px;
   background: #f3f4f6;
+  
+  .indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: none;
+    background: #d1d5db;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: #9ca3af;
+      transform: scale(1.1);
+    }
+
+    &.active {
+      background: var(--ion-color-primary);
+      transform: scale(1.3);
+      box-shadow: 0 0 0 2px rgba(var(--ion-color-primary-rgb), 0.3);
+    }
+  }
 }
 
-.indicator {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  border: none;
-  background: #d1d5db;
-  cursor: pointer;
-  transition: all 0.3s ease;
-
-  &.active {
-    background: var(--ion-color-primary);
-    transform: scale(1.2);
+/* Miniaturas para múltiples imágenes */
+.carousel-thumbnails {
+  background: #ffffff;
+  border-top: 1px solid #e5e7eb;
+  padding: 10px;
+  
+  .thumbnail-scroll {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 5px 0;
+    
+    &::-webkit-scrollbar {
+      height: 4px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 2px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: var(--ion-color-primary);
+      border-radius: 2px;
+    }
+  }
+  
+  .thumbnail-item {
+    flex-shrink: 0;
+    width: 60px;
+    height: 45px;
+    border-radius: 6px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      border-color: rgba(var(--ion-color-primary-rgb), 0.5);
+      transform: scale(1.05);
+    }
+    
+    &.active {
+      border-color: var(--ion-color-primary);
+      box-shadow: 0 0 0 1px rgba(var(--ion-color-primary-rgb), 0.3);
+    }
+    
+    .thumbnail-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
   }
 }
 
@@ -260,14 +354,35 @@
   text-align: center;
   padding: 60px 20px;
   color: #9ca3af;
-  background: #f9fafb;
+  background: linear-gradient(135deg, #f9fafb, #ffffff);
   border: 2px dashed #e5e7eb;
   border-radius: 12px;
   margin-bottom: 30px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: #d1d5db;
+    background: linear-gradient(135deg, #ffffff, #f9fafb);
+  }
 
   .no-images-icon {
-    font-size: 48px;
-    margin-bottom: 15px;
+    font-size: 64px;
+    margin-bottom: 20px;
+    opacity: 0.7;
+  }
+  
+  h4 {
+    color: #6b7280;
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+  }
+  
+  p {
+    color: #9ca3af;
+    font-size: 14px;
+    margin: 0;
+    line-height: 1.5;
   }
 }
 
@@ -761,6 +876,17 @@
   }
 }
 
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 .modal-header {
   background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-primary-shade));
   color: white;
@@ -812,11 +938,22 @@
   max-height: calc(95vh - 200px);
   overflow-y: auto;
 
-  // Estilos del formulario reutilizados del registro
   .form-field-wrapper {
     display: flex;
     flex-direction: column;
     margin-bottom: 15px;
+    position: relative;
+    
+    &.has-value {
+      .form-field {
+        --border-color: #10b981;
+        
+        ion-label {
+          color: #059669;
+          font-weight: 600;
+        }
+      }
+    }
   }
 
   .form-field {
@@ -881,7 +1018,6 @@
     }
   }
 
-  // Estilos para secciones del modal
   .section-title {
     font-size: 18px;
     font-weight: 600;
@@ -914,7 +1050,6 @@
     }
   }
 
-  // Estilos para filtro de parroquias
   .chip-filter {
     display: flex;
     gap: 8px;
@@ -932,7 +1067,6 @@
   }
 }
 
-// Estilos para archivos en el modal
 .upload-label {
   font-weight: 500;
   color: #374151;
@@ -1086,7 +1220,6 @@
   }
 }
 
-// Estilos para mostrar imágenes actuales
 .current-logo-section, .current-carousel-section {
   margin: 20px 0;
   padding: 15px;
@@ -1195,103 +1328,6 @@
   }
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .business-content {
-    padding: 16px;
-  }
-
-  .business-header {
-    flex-direction: column;
-    text-align: center;
-    padding: 24px;
-
-    .logo-container {
-      margin-bottom: 16px;
-    }
-
-    .business-logo {
-      width: 80px;
-      height: 80px;
-    }
-
-    .header-info .business-title {
-      font-size: 24px;
-    }
-  }
-
-  .expanded-modal-container {
-    max-width: 95vw;
-    max-height: 98vh;
-    margin: 10px;
-  }
-
-  .modal-content {
-    padding: 20px;
-
-    .form-row {
-      flex-direction: column;
-      gap: 0;
-    }
-
-    .section-title {
-      font-size: 16px;
-    }
-  }
-
-  .current-images-grid {
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-    gap: 8px;
-
-    .current-carousel-image {
-      height: 60px;
-    }
-  }
-
-  .upload-box {
-    padding: 15px;
-    
-    .upload-icon {
-      font-size: 36px;
-    }
-    
-    p {
-      font-size: 14px;
-    }
-  }
-
-  .modal-footer {
-    flex-direction: column;
-    padding: 15px 20px;
-
-    button {
-      width: 100%;
-    }
-  }
-
-  .action-section {
-    padding: 20px;
-
-    .action-buttons-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-
-      .action-btn {
-        width: 100%;
-        padding: 14px 16px;
-        font-size: 13px;
-        min-height: 70px;
-
-        .btn-subtitle {
-          font-size: 10px;
-        }
-      }
-    }
-  }
-}
-
-/* Estilos para el mapa en el modal de edición */
 .map-button {
   margin-top: 8px;
   margin-bottom: 0;
@@ -1372,7 +1408,6 @@
   }
 }
 
-/* Estilos específicos para Leaflet en el modal */
 :global(.leaflet-container) {
   width: 100%;
   height: 100%;
@@ -1391,7 +1426,6 @@
   border-radius: 4px;
 }
 
-/* Indicador de ubicación seleccionada */
 .coordinates-selected {
   .map-button {
     --color: #16a34a;
@@ -1410,7 +1444,177 @@
   }
 }
 
+/* Responsive Design */
+@media (max-width: 768px) {
+  .business-content {
+    padding: 16px;
+  }
+
+  .business-header {
+    flex-direction: column;
+    text-align: center;
+    padding: 24px;
+
+    .logo-container {
+      margin-bottom: 16px;
+    }
+
+    .business-logo {
+      width: 80px;
+      height: 80px;
+    }
+
+    .header-info .business-title {
+      font-size: 24px;
+    }
+  }
+
+  .carousel-main {
+    .image-container {
+      height: 250px;
+    }
+  }
+  
+  .carousel-button {
+    width: 35px;
+    height: 35px;
+    font-size: 16px;
+    
+    ion-icon {
+      font-size: 14px;
+    }
+    
+    &.prev {
+      left: 10px;
+    }
+
+    &.next {
+      right: 10px;
+    }
+  }
+  
+  .image-counter {
+    top: 10px;
+    right: 10px;
+    font-size: 11px;
+    padding: 3px 6px;
+  }
+  
+  .carousel-thumbnails {
+    .thumbnail-item {
+      width: 50px;
+      height: 38px;
+    }
+  }
+
+  .expanded-modal-container {
+    max-width: 95vw;
+    max-height: 98vh;
+    margin: 10px;
+  }
+
+  .modal-content {
+    padding: 20px;
+
+    .form-row {
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .section-title {
+      font-size: 16px;
+    }
+  }
+
+  .current-images-grid {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 8px;
+
+    .current-carousel-image {
+      height: 60px;
+    }
+  }
+
+  .upload-box {
+    padding: 15px;
+    
+    .upload-icon {
+      font-size: 36px;
+    }
+    
+    p {
+      font-size: 14px;
+    }
+  }
+
+  .modal-footer {
+    flex-direction: column;
+    padding: 15px 20px;
+
+    button {
+      width: 100%;
+    }
+  }
+
+  .action-section {
+    padding: 20px;
+
+    .action-buttons-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+
+      .action-btn {
+        width: 100%;
+        padding: 14px 16px;
+        font-size: 13px;
+        min-height: 70px;
+
+        .btn-subtitle {
+          font-size: 10px;
+        }
+      }
+    }
+  }
+}
+
 @media (max-width: 480px) {
+  .carousel-container .carousel-header h3 {
+    font-size: 16px;
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+  
+  .carousel-main {
+    .image-container {
+      height: 200px;
+    }
+  }
+  
+  .carousel-button {
+    width: 30px;
+    height: 30px;
+    font-size: 14px;
+    
+    &.prev {
+      left: 8px;
+    }
+
+    &.next {
+      right: 8px;
+    }
+  }
+  
+  .carousel-thumbnails {
+    padding: 8px;
+    
+    .thumbnail-item {
+      width: 45px;
+      height: 34px;
+    }
+  }
+
   .expanded-modal-container {
     border-radius: 15px;
   }
@@ -1435,5 +1639,83 @@
   .current-logo {
     width: 80px !important;
     height: 80px !important;
+  }
+}
+
+/* =================== NUEVOS ESTILOS PARA ADVERTENCIA =================== */
+
+/* Advertencia para negocios validados */
+.validation-warning {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  border: 2px solid #f59e0b;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 25px;
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  box-shadow: 0 4px 6px rgba(245, 158, 11, 0.1);
+
+  .warning-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .warning-text {
+    flex: 1;
+
+    h4 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #92400e;
+      margin: 0 0 8px 0;
+    }
+
+    p {
+      font-size: 14px;
+      color: #b45309;
+      margin: 0 0 8px 0;
+      line-height: 1.4;
+
+      &:last-of-type {
+        margin-bottom: 0;
+      }
+    }
+
+    ul {
+      margin: 8px 0 0 0;
+      padding-left: 20px;
+      color: #b45309;
+
+      li {
+        font-size: 13px;
+        margin-bottom: 4px;
+        
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .validation-warning {
+    padding: 15px;
+    
+    .warning-icon {
+      font-size: 20px;
+    }
+    
+    .warning-text {
+      h4 {
+        font-size: 14px;
+      }
+      
+      p, ul li {
+        font-size: 12px;
+      }
+    }
   }
 }

@@ -10,11 +10,14 @@
 <ion-content [fullscreen]="true" class="ion-padding">
   <div class="header-container">
     <h2 class="header-title">Filtros</h2>
+    <ion-select class="category-select" placeholder="Selecciona una categoría" (ionChange)="onCategorySelect($event)"
+      interface="popover">
+      <ion-select-option *ngFor="let category of categories" [value]="category.id">
+        {{ category.name }}
+      </ion-select-option>
+    </ion-select>
     <div class="chip-filter">
-      <ion-chip 
-        *ngFor="let tipo of promotionTypes" 
-        [outline]="selectedPromotionType !== tipo.value"
-        color="primary"
+      <ion-chip *ngFor="let tipo of promotionTypes" [outline]="selectedPromotionType !== tipo.value" color="primary"
         (click)="onPromotionTypeSelect(tipo.value)">
         {{ tipo.label }}
       </ion-chip>
@@ -27,9 +30,7 @@
         {{ getTipoPromocionLabel(promocion.tipoPromocion) }}
       </div>
 
-      <img [src]="promocion.businessImageUrl" 
-           [alt]="promocion.businessName" 
-           class="promo-img" />
+      <img [src]="promocion.businessImageUrl" [alt]="promocion.businessName" class="promo-img" />
 
       <ion-card-header>
         <ion-label>
