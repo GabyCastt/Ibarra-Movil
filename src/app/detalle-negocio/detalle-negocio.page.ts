@@ -167,9 +167,13 @@ export class DetalleNegocioPage implements OnInit {
         console.log('Business loaded successfully:', business);
         this.business = business;
         
+        // MEJORAR EL PROCESAMIENTO DE IMÁGENES
+        console.log('🖼️ Processing business photos:', business.photos);
         this.photoUrls = (business && business.photos && Array.isArray(business.photos)) 
           ? this.detallePrivadoService.getPhotoUrls(business.photos) 
           : [];
+        
+        console.log('📸 Final photoUrls array:', this.photoUrls);
         
         this.formattedSchedules = (business && business.schedules && Array.isArray(business.schedules)) 
           ? this.detallePrivadoService.formatSchedules(business.schedules) 
@@ -178,10 +182,14 @@ export class DetalleNegocioPage implements OnInit {
         // Configurar URLs actuales para la edición
         this.currentLogoUrl = business.logoUrl || '';
         this.currentCarrouselUrls = [...this.photoUrls];
+        
+        // Resetear índice del carrusel
+        this.currentImageIndex = 0;
           
         this.loading = false;
-        console.log('Business details loaded, photoUrls:', this.photoUrls.length);
-        console.log('Business validation status:', business.validationStatus);
+        console.log('✅ Business details loaded successfully');
+        console.log(`📊 Photo URLs count: ${this.photoUrls.length}`);
+        console.log(`🏢 Business validation status: ${business.validationStatus}`);
       },
       error: (error: any) => {
         console.error('Error loading business details:', error);
@@ -224,7 +232,7 @@ export class DetalleNegocioPage implements OnInit {
     this.loadParish(type);
   }
 
-  // =================== GESTIÓN DE ARCHIVOS ===================
+  // =================== GESTIÓN DE ARCHIVOS MEJORADA ===================
   
   async onFileChange(event: Event | DragEvent, tipo: 'logoFile' | 'carrouselPhotos') {
     const input = event.target instanceof HTMLInputElement ? event.target : null;
@@ -234,9 +242,13 @@ export class DetalleNegocioPage implements OnInit {
       return;
     }
 
+    console.log(`📁 Processing ${files.length} file(s) for ${tipo}`);
+
     const validFiles: File[] = [];
 
     for (const file of Array.from(files)) {
+      console.log(`📄 Validating file: ${file.name} (${file.size} bytes)`);
+      
       const validation = await this.detallePrivadoService.validateFile(file, tipo === 'logoFile' ? 'logo' : 'carousel');
       
       if (!validation.isValid) {
@@ -245,6 +257,7 @@ export class DetalleNegocioPage implements OnInit {
       }
 
       validFiles.push(file);
+      console.log(`✅ File validated: ${file.name}`);
     }
 
     if (validFiles.length === 0) {
@@ -254,13 +267,18 @@ export class DetalleNegocioPage implements OnInit {
 
     if (tipo === 'logoFile') {
       this.newLogoFile = validFiles[0];
+      console.log('🖼️ New logo file selected:', this.newLogoFile.name);
     } else if (tipo === 'carrouselPhotos') {
       const totalImages = this.newCarrouselPhotos.length + validFiles.length;
       if (totalImages > 5) {
         await this.showErrorToast('Máximo 5 imágenes permitidas en el carrusel');
         return;
       }
+      
+      // AGREGAR TODAS LAS IMÁGENES VÁLIDAS
       this.newCarrouselPhotos = [...this.newCarrouselPhotos, ...validFiles];
+      console.log('🎠 New carousel photos count:', this.newCarrouselPhotos.length);
+      console.log('🎠 New carousel files:', this.newCarrouselPhotos.map(f => f.name));
     }
 
     await this.showSuccessToast(`${validFiles.length} archivo(s) cargado(s) correctamente`);
@@ -280,8 +298,12 @@ export class DetalleNegocioPage implements OnInit {
       this.newLogoFile = null;
       const input = document.getElementById('editLogoFileInput') as HTMLInputElement;
       if (input) input.value = '';
+      console.log('🗑️ Logo file removed');
     } else if (tipo === 'carrouselPhotos' && typeof index === 'number') {
+      const removedFile = this.newCarrouselPhotos[index];
       this.newCarrouselPhotos.splice(index, 1);
+      console.log(`🗑️ Carousel photo removed: ${removedFile?.name}`);
+      console.log(`🎠 Remaining carousel photos: ${this.newCarrouselPhotos.length}`);
       this.showSuccessToast('Foto eliminada');
     }
   }
@@ -510,22 +532,38 @@ export class DetalleNegocioPage implements OnInit {
   private populateEditForm(): void {
     if (!this.business) return;
 
+    console.log('=== POPULATING FORM WITH BUSINESS DATA ===');
+    console.log('Business data:', this.business);
+
     // Separar los horarios combinados
     let weekdaySchedule = '';
     let weekendSchedule = '';
     
-    if (this.business.schedules && Array.isArray(this.business.schedules)) {
-      const weekdaySchedules = this.business.schedules.filter(s => s.dayOfWeek >= 1 && s.dayOfWeek <= 5);
-      const weekendSchedules = this.business.schedules.filter(s => s.dayOfWeek === 0 || s.dayOfWeek === 6);
-      
-      if (weekdaySchedules.length > 0) {
-        const schedule = weekdaySchedules[0];
-        weekdaySchedule = schedule.isClosed ? 'Cerrado' : `${schedule.openTime} - ${schedule.closeTime}`;
-      }
-      
-      if (weekendSchedules.length > 0) {
-        const schedule = weekendSchedules[0];
-        weekendSchedule = schedule.isClosed ? 'Cerrado' : `${schedule.openTime} - ${schedule.closeTime}`;
+    if (this.business.schedules) {
+      if (Array.isArray(this.business.schedules)) {
+        // Si schedules es un array de objetos
+        const weekdaySchedules = this.business.schedules.filter(s => s.dayOfWeek >= 1 && s.dayOfWeek <= 5);
+        const weekendSchedules = this.business.schedules.filter(s => s.dayOfWeek === 0 || s.dayOfWeek === 6);
+        
+        if (weekdaySchedules.length > 0) {
+          const schedule = weekdaySchedules[0];
+          weekdaySchedule = schedule.isClosed ? 'Cerrado' : `${schedule.openTime} - ${schedule.closeTime}`;
+        }
+        
+        if (weekendSchedules.length > 0) {
+          const schedule = weekendSchedules[0];
+          weekendSchedule = schedule.isClosed ? 'Cerrado' : `${schedule.openTime} - ${schedule.closeTime}`;
+        }
+      } else if (typeof this.business.schedules === 'string') {
+        // Si schedules es un string, hacer cast explícito
+        const schedulesString = this.business.schedules as string;
+        const parts = schedulesString.split(' - ');
+        if (parts.length >= 2) {
+          weekdaySchedule = `${parts[0]} - ${parts[1]}`;
+        }
+        if (parts.length >= 4) {
+          weekendSchedule = `${parts[2]} - ${parts[3]}`;
+        }
       }
     }
 
@@ -560,6 +598,7 @@ export class DetalleNegocioPage implements OnInit {
       }
     }
 
+    // Poblar el formulario con TODOS los datos
     this.editForm.patchValue({
       categoryId: this.business.category?.id || null,
       commercialName: this.business.commercialName || '',
@@ -586,6 +625,14 @@ export class DetalleNegocioPage implements OnInit {
       productsServices: this.business.productsServices || '',
       email: this.business.email || ''
     });
+
+    console.log('Form populated with values:', this.editForm.value);
+
+    // Si hay parroquia seleccionada, cargar el tipo correcto
+    if (this.business.parish?.type) {
+      this.selectedParishType = this.business.parish.type;
+      this.loadParish(this.business.parish.type);
+    }
   }
 
   closeAdminModal(): void {
@@ -596,6 +643,8 @@ export class DetalleNegocioPage implements OnInit {
     this.newCarrouselPhotos = [];
     this.editForm.reset();
   }
+
+  // =================== MÉTODO PRINCIPAL DE GUARDADO (CORREGIDO) ===================
 
   async saveBusinessChanges(): Promise<void> {
     if (!this.business || !this.businessId) {
@@ -615,86 +664,170 @@ export class DetalleNegocioPage implements OnInit {
     }
 
     console.log('=== SAVING BUSINESS CHANGES ===');
+    console.log('Business Status:', this.business.validationStatus);
 
     try {
       this.loading = true;
       const formValue = this.sanitizeFormData(this.editForm.value);
-
-      // Preparar datos según si hay archivos nuevos o no
       const hasNewFiles = this.newLogoFile || this.newCarrouselPhotos.length > 0;
 
-      if (hasNewFiles) {
-        await this.saveWithFiles(formValue);
+      console.log('Has new files:', hasNewFiles);
+      console.log('New logo file:', !!this.newLogoFile);
+      console.log('New carousel photos count:', this.newCarrouselPhotos.length);
+      console.log('Business status:', this.business.validationStatus);
+
+      if (this.business.validationStatus === 'REJECTED') {
+        // Negocios REJECTED: pueden usar FormData o JSON
+        if (hasNewFiles) {
+          await this.saveRejectedWithFiles(formValue);
+        } else {
+          await this.saveRejectedWithoutFiles(formValue);
+        }
       } else {
-        await this.saveWithoutFiles(formValue);
+        // Negocios VALIDATED, APPROVED, PENDING: solo JSON, NUNCA FormData
+        if (hasNewFiles) {
+          await this.showWarningAndSaveWithoutFiles(formValue);
+        } else {
+          await this.saveValidatedWithoutFiles(formValue);
+        }
       }
 
       this.showSuccessToast('Negocio actualizado exitosamente');
+      
+      // Limpiar archivos después de guardado exitoso
+      this.newLogoFile = null;
+      this.newCarrouselPhotos = [];
+      
       this.closeAdminModal();
       
-      // Recargar datos
-      setTimeout(() => {
-        this.loadBusinessDetails();
-      }, 500);
+      // Recargar datos con más intentos para imágenes múltiples
+      setTimeout(async () => {
+        await this.reloadBusinessData(hasNewFiles ? 6 : 2);
+      }, 1000);
 
+      // Mostrar mensaje específico según el estado
       if (this.business?.validationStatus === 'REJECTED') {
         setTimeout(() => {
-          this.showInfoToast('Tu negocio se ha actualizado. Será revisado nuevamente para validación.');
-        }, 1000);
+          this.showInfoToast('Tu negocio se ha actualizado y ahora está en estado PENDIENTE para una nueva validación.');
+        }, 2000);
+      } else {
+        setTimeout(() => {
+          this.showInfoToast('Tu negocio validado ha sido actualizado exitosamente. Nota: Las imágenes no se pueden cambiar en negocios validados.');
+        }, 2000);
       }
       
     } catch (error: any) {
       console.error('Error updating business:', error);
-      this.showErrorToast(error.message || 'Error al actualizar el negocio');
+      
+      // Limpiar archivos en caso de error también
+      this.newLogoFile = null;
+      this.newCarrouselPhotos = [];
+      
+      let errorMessage = 'Error al actualizar el negocio';
+      if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      this.showErrorToast(errorMessage);
     } finally {
       this.loading = false;
     }
   }
 
-  private sanitizeFormData(formValue: any): any {
-    return {
-      ...formValue,
-      commercialName: formValue.commercialName?.trim(),
-      description: formValue.description?.trim(),
-      address: formValue.address?.trim(),
-      parishCommunitySector: formValue.parishCommunitySector?.trim(),
-      website: formValue.website?.trim() || '',
-      facebook: formValue.facebook?.trim() || '',
-      instagram: formValue.instagram?.trim() || '',
-      tiktok: formValue.tiktok?.trim() || '',
-      udelSupportDetails: formValue.udelSupportDetails?.trim() || '',
-      productsServices: formValue.productsServices?.trim(),
-      email: formValue.email?.trim() || '',
-      googleMapsCoordinates: formValue.googleMapsCoordinates?.trim().replace(/\s+/g, ' '),
-      acceptsWhatsappOrders: !!formValue.acceptsWhatsappOrders,
-      receivedUdelSupport: !!formValue.receivedUdelSupport,
-      schedules: formValue.schedules?.trim(),
-      schedules1: formValue.schedules1?.trim()
-    };
-  }
+  // =================== MÉTODOS AUXILIARES DE GUARDADO ===================
 
-  private async saveWithFiles(formValue: any): Promise<void> {
+  // Guardar negocio rechazado con archivos
+  private async saveRejectedWithFiles(formValue: any): Promise<void> {
+    console.log('=== SAVING REJECTED BUSINESS WITH FILES ===');
+    console.log(`📁 Logo file: ${this.newLogoFile ? this.newLogoFile.name : 'None'}`);
+    console.log(`🎠 Carousel files: ${this.newCarrouselPhotos.length}`);
+    
     const formData = new FormData();
 
-    // Agregar archivos
+    // Agregar logo si existe
     if (this.newLogoFile) {
       formData.append('logoFile', this.newLogoFile);
-      console.log('New logo file added:', this.newLogoFile.name);
+      console.log('✅ Logo file added to FormData:', this.newLogoFile.name);
     }
 
-    this.newCarrouselPhotos.forEach((file) => {
+    // AGREGAR TODAS LAS FOTOS DEL CARRUSEL
+    this.newCarrouselPhotos.forEach((file, index) => {
       formData.append('carrouselPhotos', file);
-      console.log('New carousel photo added:', file.name);
+      console.log(`✅ Carousel photo ${index + 1} added to FormData:`, file.name);
     });
 
-    // Preparar datos del negocio
+    // Preparar datos del negocio para REJECTED
+    const businessData = this.prepareBusinessDataForRejected(formValue);
+    formData.append('business', new Blob([JSON.stringify(businessData)], { type: 'application/json' }));
+
+    console.log('📋 Business data for FormData:', JSON.stringify(businessData, null, 2));
+
+    const result = await lastValueFrom(
+      this.detallePrivadoService.updateRejectedBusinessWithFiles(this.businessId, formData)
+    );
+    
+    console.log('✅ Rejected update with files response:', result);
+  }
+
+  // Guardar negocio rechazado sin archivos
+  private async saveRejectedWithoutFiles(formValue: any): Promise<void> {
+    console.log('=== SAVING REJECTED BUSINESS WITHOUT FILES ===');
+    
+    const updateData: UpdateBusinessRequest = this.prepareUpdateDataFromForm(formValue);
+    console.log('📋 Rejected update data:', updateData);
+
+    const result = await lastValueFrom(
+      this.detallePrivadoService.updateBusinessUnified(
+        this.businessId, 
+        'REJECTED', 
+        updateData
+      )
+    );
+    
+    console.log('✅ Rejected update without files response:', result);
+  }
+
+  // Mostrar advertencia y guardar negocio validado sin archivos
+  private async showWarningAndSaveWithoutFiles(formValue: any): Promise<void> {
+    console.log('=== WARNING: VALIDATED BUSINESS WITH FILES - SAVING WITHOUT FILES ===');
+    
+    // Mostrar advertencia al usuario
+    await this.showWarningToast('Los negocios validados no pueden cambiar sus imágenes. Solo se actualizarán los datos.');
+    
+    // Esperar un momento para que el usuario vea la advertencia
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // Guardar sin archivos
+    await this.saveValidatedWithoutFiles(formValue);
+  }
+
+  // Guardar negocio validado sin archivos
+  private async saveValidatedWithoutFiles(formValue: any): Promise<void> {
+    console.log('=== SAVING VALIDATED BUSINESS WITHOUT FILES ===');
+    
+    const updateData: UpdateBusinessRequest = this.prepareUpdateDataFromForm(formValue);
+    console.log('📋 Validated update data:', updateData);
+
+    const result = await lastValueFrom(
+      this.detallePrivadoService.updateBusinessUnified(
+        this.businessId, 
+        this.business?.validationStatus || '', 
+        updateData
+      )
+    );
+    
+    console.log('✅ Validated update response:', result);
+  }
+
+  // Preparar datos de negocio para negocios rechazados (formato completo)
+  private prepareBusinessDataForRejected(formValue: any): any {
     const fullWhatsApp = formValue.acceptsWhatsappOrders
       ? `${formValue.countryCode}${formValue.whatsappNumber}`
       : '';
     const fullPhone = `${formValue.countryCodePhone}${formValue.phone}`;
     const fullSchedules = `${formValue.schedules} - ${formValue.schedules1}`;
 
-    const businessData = {
+    return {
       categoryId: formValue.categoryId,
       commercialName: formValue.commercialName?.trim(),
       phone: fullPhone,
@@ -718,23 +851,10 @@ export class DetalleNegocioPage implements OnInit {
       email: formValue.email?.trim() || '',
       registrationDate: this.business?.registrationDate || new Date().toISOString()
     };
-
-    formData.append('business', new Blob([JSON.stringify(businessData)], { type: 'application/json' }));
-
-    console.log('FormData prepared with business data:', JSON.stringify(businessData, null, 2));
-
-    // Decidir qué endpoint usar según el estado del negocio
-    let result;
-    if (this.business?.validationStatus === 'REJECTED') {
-      result = await lastValueFrom(this.negocioService.updateRejectedBusiness(this.businessId, formData));
-    } else {
-      result = await lastValueFrom(this.negocioService.updateBusinessWithFiles(this.businessId, formData));
-    }
-    
-    console.log('Update with files response:', result);
   }
 
-  private async saveWithoutFiles(formValue: any): Promise<void> {
+  // Preparar datos de actualización desde el formulario (formato UpdateBusinessRequest)
+  private prepareUpdateDataFromForm(formValue: any): UpdateBusinessRequest {
     const updateData: UpdateBusinessRequest = {
       commercialName: formValue.commercialName?.trim(),
       description: formValue.description?.trim(),
@@ -771,17 +891,46 @@ export class DetalleNegocioPage implements OnInit {
       updateData.schedules = `${formValue.schedules} - ${formValue.schedules1}`;
     }
 
-    console.log('Update data:', updateData);
+    return updateData;
+  }
 
-    const result = await lastValueFrom(
-      this.detallePrivadoService.updateBusiness(
-        this.businessId, 
-        updateData, 
-        this.business?.validationStatus
-      )
-    );
-    
-    console.log('Update without files response:', result);
+  // Método auxiliar para mostrar toast de advertencia
+  async showWarningToast(message: string): Promise<void> {
+    const toast = await this.toastController.create({
+      message,
+      duration: 4000,
+      position: 'top',
+      color: 'warning',
+      buttons: [
+        {
+          text: 'Entendido',
+          role: 'cancel'
+        }
+      ]
+    });
+    toast.present();
+  }
+
+  private sanitizeFormData(formValue: any): any {
+    return {
+      ...formValue,
+      commercialName: formValue.commercialName?.trim(),
+      description: formValue.description?.trim(),
+      address: formValue.address?.trim(),
+      parishCommunitySector: formValue.parishCommunitySector?.trim(),
+      website: formValue.website?.trim() || '',
+      facebook: formValue.facebook?.trim() || '',
+      instagram: formValue.instagram?.trim() || '',
+      tiktok: formValue.tiktok?.trim() || '',
+      udelSupportDetails: formValue.udelSupportDetails?.trim() || '',
+      productsServices: formValue.productsServices?.trim(),
+      email: formValue.email?.trim() || '',
+      googleMapsCoordinates: formValue.googleMapsCoordinates?.trim().replace(/\s+/g, ' '),
+      acceptsWhatsappOrders: !!formValue.acceptsWhatsappOrders,
+      receivedUdelSupport: !!formValue.receivedUdelSupport,
+      schedules: formValue.schedules?.trim(),
+      schedules1: formValue.schedules1?.trim()
+    };
   }
 
   private markFormGroupTouched(formGroup: FormGroup) {
@@ -791,11 +940,101 @@ export class DetalleNegocioPage implements OnInit {
     });
   }
 
-  // =================== FUNCIONES EXISTENTES ===================
+  // MÉTODO MEJORADO PARA RECARGAR DATOS CON MÚLTIPLES IMÁGENES
+  private async reloadBusinessData(maxRetries: number = 6): Promise<void> {
+    console.log('=== STARTING ENHANCED BUSINESS DATA RELOAD ===');
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        console.log(`🔄 Reloading business data (Attempt ${attempt}/${maxRetries})`);
+        
+        // Esperar más tiempo en cada intento para múltiples imágenes
+        if (attempt > 1) {
+          const waitTime = attempt * 2000; // 2s, 4s, 6s, 8s, etc.
+          console.log(`⏳ Waiting ${waitTime}ms before retry...`);
+          await new Promise(resolve => setTimeout(resolve, waitTime));
+        }
+        
+        const business = await lastValueFrom(
+          this.detallePrivadoService.getBusinessDetails(this.businessId)
+        );
+        
+        console.log(`✅ Business reloaded successfully (attempt ${attempt}):`, business);
+        console.log(`📊 Server response - Photos count: ${business.photos?.length || 0}`);
+        console.log(`📊 Server response - Photos data:`, business.photos);
+        
+        // Actualizar datos del negocio inmediatamente
+        this.business = business;
+        this.currentLogoUrl = business.logoUrl || '';
+        
+        // Procesar fotos con más detalle
+        const previousPhotoCount = this.photoUrls.length;
+        const newPhotoUrls = (business && business.photos && Array.isArray(business.photos)) 
+          ? this.detallePrivadoService.getPhotoUrls(business.photos) 
+          : [];
+        
+        console.log(`📸 Photo URLs processing:`);
+        console.log(`   - Previous count: ${previousPhotoCount}`);
+        console.log(`   - New count: ${newPhotoUrls.length}`);
+        console.log(`   - New URLs:`, newPhotoUrls);
+        
+        // Actualizar formattedSchedules
+        this.formattedSchedules = (business && business.schedules && Array.isArray(business.schedules)) 
+          ? this.detallePrivadoService.formatSchedules(business.schedules) 
+          : [];
+        
+        // LÓGICA MEJORADA PARA ACTUALIZACIÓN DE FOTOS
+        const hadNewFiles = this.newCarrouselPhotos.length > 0 || this.newLogoFile !== null;
+        
+        // Siempre actualizar si hay cambios o es el primer intento
+        if (newPhotoUrls.length !== previousPhotoCount || attempt === 1) {
+          this.photoUrls = newPhotoUrls;
+          this.currentCarrouselUrls = [...this.photoUrls];
+          this.currentImageIndex = 0; // Resetear al primer índice
+          
+          console.log(`🎯 Photo URLs updated: ${this.photoUrls.length} photos`);
+          console.log(`📋 Current photo URLs:`, this.photoUrls);
+          
+          // Si obtuvimos las imágenes esperadas, salir exitosamente
+          if (newPhotoUrls.length > 0 || !hadNewFiles) {
+            console.log('✅ Photo update successful, breaking reload loop');
+            break;
+          }
+        }
+        
+        // Si es el último intento, actualizar de todos modos
+        if (attempt === maxRetries) {
+          console.log('⚠️ Final attempt: updating photos regardless');
+          this.photoUrls = newPhotoUrls;
+          this.currentCarrouselUrls = [...this.photoUrls];
+          this.currentImageIndex = 0;
+          break;
+        }
+        
+        // Si no había archivos nuevos, salir después del primer intento exitoso
+        if (!hadNewFiles && attempt >= 2) {
+          console.log('ℹ️ No new files were uploaded, ending reload');
+          break;
+        }
+        
+      } catch (error) {
+        console.error(`❌ Error reloading business data (attempt ${attempt}):`, error);
+        if (attempt === maxRetries) {
+          this.showErrorToast('Error al recargar los datos del negocio');
+        }
+      }
+    }
+    
+    console.log('🏁 Business data reload completed');
+    console.log(`📊 Final state - Photos: ${this.photoUrls.length}, Current index: ${this.currentImageIndex}`);
+  }
+
+  // =================== CARRUSEL DE IMÁGENES ===================
 
   nextImage(): void {
     if (this.photoUrls && Array.isArray(this.photoUrls) && this.photoUrls.length > 0) {
       this.currentImageIndex = (this.currentImageIndex + 1) % this.photoUrls.length;
+      console.log(`🎠 Next image: ${this.currentImageIndex + 1}/${this.photoUrls.length}`);
     }
   }
 
@@ -804,6 +1043,7 @@ export class DetalleNegocioPage implements OnInit {
       this.currentImageIndex = this.currentImageIndex === 0 
         ? this.photoUrls.length - 1 
         : this.currentImageIndex - 1;
+      console.log(`🎠 Previous image: ${this.currentImageIndex + 1}/${this.photoUrls.length}`);
     }
   }
 
@@ -814,8 +1054,11 @@ export class DetalleNegocioPage implements OnInit {
         Array.isArray(this.photoUrls) && 
         index < this.photoUrls.length) {
       this.currentImageIndex = index;
+      console.log(`🎠 Selected image: ${this.currentImageIndex + 1}/${this.photoUrls.length}`);
     }
   }
+
+  // =================== FUNCIONES EXISTENTES ===================
 
   openAdministrationPanel(): void {
     console.log('Navigating to promotions with business ID:', this.businessId);
@@ -1010,16 +1253,34 @@ export class DetalleNegocioPage implements OnInit {
   canEditBusiness(): boolean {
     if (!this.business) return false;
     
-    const editableStatuses = ['VALIDATED', 'REJECTED', 'PENDING'];
+    // Permitir edición para VALIDATED, REJECTED y PENDING
+    const editableStatuses = ['VALIDATED', 'REJECTED', 'PENDING', 'APPROVED'];
     return editableStatuses.includes(this.business.validationStatus);
   }
 
   get editButtonText(): string {
     if (!this.business) return 'Editar datos del negocio';
     
-    if (this.business.validationStatus === 'REJECTED') {
-      return 'Corregir y editar negocio';
+    switch (this.business.validationStatus) {
+      case 'REJECTED':
+        return 'Corregir y editar negocio';
+      case 'VALIDATED':
+      case 'APPROVED':
+        return 'Editar negocio validado';
+      case 'PENDING':
+        return 'Editar negocio pendiente';
+      default:
+        return 'Editar datos del negocio';
     }
-    return 'Editar datos del negocio';
+  }
+
+  // Método auxiliar para verificar si hay archivos seleccionados (para el HTML)
+  get hasFilesSelected(): boolean {
+    return !!(this.newLogoFile || (this.newCarrouselPhotos && this.newCarrouselPhotos.length > 0));
+  }
+
+  // Método auxiliar para verificar si es un negocio que no permite cambios de archivos
+  get isValidatedBusiness(): boolean {
+    return this.business?.validationStatus !== 'REJECTED';
   }
 }

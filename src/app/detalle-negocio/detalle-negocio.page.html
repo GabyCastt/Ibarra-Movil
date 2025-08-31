@@ -51,35 +51,67 @@
       </div>
     </div>
 
+    <!-- Carrusel mejorado con flechas de navegación -->
     <div class="carousel-container" *ngIf="business.photos && business.photos.length > 0">
       <div class="carousel-header">
-        <h3>📷 Imágenes del Negocio</h3>
+        <h3>📷 Imágenes del Negocio ({{ currentImageIndex + 1 }}/{{ photoUrls.length }})</h3>
       </div>
       
       <div class="carousel-wrapper">
         <div class="carousel-main">
-          <button class="carousel-button prev" (click)="prevImage()" *ngIf="hasMultipleImages">‹</button>
+          <!-- Flecha anterior -->
+          <button class="carousel-button prev" (click)="prevImage()" *ngIf="hasMultipleImages">
+            <ion-icon name="chevron-back-outline"></ion-icon>
+          </button>
+          
+          <!-- Contenedor de imagen -->
           <div class="image-container">
             <img [src]="currentImage" [alt]="business.commercialName" class="carousel-image" 
                  (error)="handleImageError($event, 'carousel')">
           </div>
-          <button class="carousel-button next" (click)="nextImage()" *ngIf="hasMultipleImages">›</button>
+          
+          <!-- Flecha siguiente -->
+          <button class="carousel-button next" (click)="nextImage()" *ngIf="hasMultipleImages">
+            <ion-icon name="chevron-forward-outline"></ion-icon>
+          </button>
+          
+          <!-- Contador de imágenes (overlay) -->
+          <div class="image-counter" *ngIf="hasMultipleImages">
+            {{ currentImageIndex + 1 }} / {{ photoUrls.length }}
+          </div>
         </div>
         
+        <!-- Indicadores de puntos -->
         <div class="carousel-indicators" *ngIf="hasMultipleImages">
           <button 
             *ngFor="let photo of business.photos; let i = index" 
             class="indicator"
             [class.active]="i === currentImageIndex"
-            (click)="selectImage(i)">
+            (click)="selectImage(i)"
+            [title]="'Imagen ' + (i + 1)">
           </button>
+        </div>
+        
+        <!-- Vista de miniaturas (opcional para más de 3 imágenes) -->
+        <div class="carousel-thumbnails" *ngIf="photoUrls.length > 3">
+          <div class="thumbnail-scroll">
+            <div 
+              *ngFor="let url of photoUrls; let i = index" 
+              class="thumbnail-item"
+              [class.active]="i === currentImageIndex"
+              (click)="selectImage(i)">
+              <img [src]="url" [alt]="'Miniatura ' + (i + 1)" class="thumbnail-image">
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
+    <!-- Vista de estado sin imágenes mejorada -->
     <div class="no-images" *ngIf="!business.photos || business.photos.length === 0">
       <div class="no-images-icon">📷</div>
-      <p>No hay imágenes disponibles</p>
+      <h4>No hay imágenes disponibles</h4>
+      <p>Este negocio aún no ha subido imágenes de sus productos o servicios</p>
     </div>
 
     <div class="form-group">
@@ -256,6 +288,23 @@
       </div>
 
       <div class="modal-content">
+        
+        <!-- NUEVA SECCIÓN: Advertencia para negocios validados -->
+        <div *ngIf="isValidatedBusiness && hasFilesSelected" class="validation-warning">
+          <div class="warning-icon">⚠️</div>
+          <div class="warning-text">
+            <h4>Advertencia: Negocio Validado</h4>
+            <p>Los negocios validados no pueden cambiar sus imágenes. Solo se actualizarán los datos del formulario.</p>
+            <p><strong>Archivos seleccionados que se ignorarán:</strong></p>
+            <ul>
+              <li *ngIf="newLogoFile">Logo: {{ newLogoFile.name }}</li>
+              <li *ngFor="let photo of newCarrouselPhotos; let i = index">
+                Foto {{ i + 1 }}: {{ photo.name }}
+              </li>
+            </ul>
+          </div>
+        </div>
+
         <form [formGroup]="editForm">
           <!-- Categoría -->
           <div class="form-field-wrapper">
@@ -592,7 +641,6 @@
               </div>
             </div>
 
-            <!-- Upload de logo -->
             <div class="form-field-wrapper">
               <label class="upload-label">Nuevo Logo (Opcional)</label>
               <div class="upload-box" (dragover)="onDragOver($event)" (drop)="onDrop($event, 'logoFile')">
@@ -627,7 +675,6 @@
               <p class="image-note">Estas fotos serán reemplazadas si subes nuevas</p>
             </div>
 
-            <!-- Upload de carrusel -->
             <div class="form-field-wrapper">
               <label class="upload-label">
                 Nuevas Fotos del Carrusel (Opcional) - Máximo 5 fotos
