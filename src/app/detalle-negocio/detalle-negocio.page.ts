@@ -275,7 +275,7 @@ export class DetalleNegocioPage implements OnInit {
       console.log('🖼️ New logo file selected:', this.newLogoFile.name);
     } else if (tipo === 'carrouselPhotos') {
       const totalImages = this.newCarrouselPhotos.length + validFiles.length;
-      if (totalImages > 5) {
+      if (totalImages > 6) {
         await this.showErrorToast('Máximo 5 imágenes permitidas en el carrusel');
         return;
       }
@@ -731,6 +731,7 @@ export class DetalleNegocioPage implements OnInit {
 
       // Mostrar mensaje específico según el estado
       if (this.business?.validationStatus === 'REJECTED') {
+        this.business.validationStatus = 'PENDING';
         setTimeout(() => {
           this.showInfoToast('Tu negocio se ha actualizado y ahora está en estado PENDIENTE para una nueva validación.');
         }, 2000);
