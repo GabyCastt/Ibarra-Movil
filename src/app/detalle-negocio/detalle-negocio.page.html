@@ -52,7 +52,7 @@
     </div>
 
     <!-- Carrusel mejorado con flechas de navegación -->
-    <div class="carousel-container" *ngIf="business.photos && business.photos.length > 0">
+    <div class="carousel-container" *ngIf="photoUrls && photoUrls.length > 0">
       <div class="carousel-header">
         <h3>📷 Imágenes del Negocio ({{ currentImageIndex + 1 }}/{{ photoUrls.length }})</h3>
       </div>
@@ -84,7 +84,7 @@
         <!-- Indicadores de puntos -->
         <div class="carousel-indicators" *ngIf="hasMultipleImages">
           <button 
-            *ngFor="let photo of business.photos; let i = index" 
+            *ngFor="let url of photoUrls; let i = index" 
             class="indicator"
             [class.active]="i === currentImageIndex"
             (click)="selectImage(i)"
@@ -108,7 +108,7 @@
     </div>
 
     <!-- Vista de estado sin imágenes mejorada -->
-    <div class="no-images" *ngIf="!business.photos || business.photos.length === 0">
+    <div class="no-images" *ngIf="!photoUrls || photoUrls.length === 0">
       <div class="no-images-icon">📷</div>
       <h4>No hay imágenes disponibles</h4>
       <p>Este negocio aún no ha subido imágenes de sus productos o servicios</p>

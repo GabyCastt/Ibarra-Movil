@@ -170,7 +170,7 @@ export class DetalleNegocioPage implements OnInit {
         // MEJORAR EL PROCESAMIENTO DE IMÁGENES
         console.log('🖼️ Processing business photos:', business.photos);
         this.photoUrls = (business && business.photos && Array.isArray(business.photos)) 
-          ? this.detallePrivadoService.getPhotoUrls(business.photos) 
+          ? this.detallePrivadoService.getBusinessCarouselPhotoUrls(business.photos) 
           : [];
         
         console.log('📸 Final photoUrls array:', this.photoUrls);
@@ -512,8 +512,14 @@ export class DetalleNegocioPage implements OnInit {
 
     // Validar teléfono ecuatoriano si aplica
     const countryCode = this.editForm.get('countryCodePhone')?.value;
-    const phone = this.editForm.get('phone')?.value;
+    let phone = this.editForm.get('phone')?.value;
     if (countryCode === '+593' && phone) {
+      const digitsOnly = String(phone).replace(/\\D/g, '');
+      if (digitsOnly.length === 10 && digitsOnly.startsWith('0')) {
+        const normalized = digitsOnly.substring(1);
+        this.editForm.patchValue({ phone: normalized });
+        phone = normalized;
+      }
       if (!this.detallePrivadoService.validateEcuadorianPhone(phone)) {
         this.showErrorToast('Número de teléfono ecuatoriano inválido');
         return false;
@@ -591,6 +597,10 @@ export class DetalleNegocioPage implements OnInit {
       } else {
         phoneNumber = phone;
       }
+      // Normalizar Ecuador: si son 10 dígitos y empiezan con 0, quitar 0
+      if (phoneCode === '+593' && phoneNumber && phoneNumber.length === 10 && phoneNumber.startsWith('0')) {
+        phoneNumber = phoneNumber.substring(1);
+      }
     }
 
     let whatsappCode = '+593';
@@ -605,6 +615,10 @@ export class DetalleNegocioPage implements OnInit {
         whatsappNumber = whatsapp.substring(2);
       } else {
         whatsappNumber = whatsapp;
+      }
+      // Normalizar Ecuador: si son 10 dígitos y empiezan con 0, quitar 0
+      if (whatsappCode === '+593' && whatsappNumber && whatsappNumber.length === 10 && whatsappNumber.startsWith('0')) {
+        whatsappNumber = whatsappNumber.substring(1);
       }
     }
 
@@ -831,10 +845,17 @@ export class DetalleNegocioPage implements OnInit {
 
   // Preparar datos de negocio para negocios rechazados (formato completo)
   private prepareBusinessDataForRejected(formValue: any): any {
-    const fullWhatsApp = formValue.acceptsWhatsappOrders
-      ? `${formValue.countryCode}${formValue.whatsappNumber}`
-      : '';
-    const fullPhone = `${formValue.countryCodePhone}${formValue.phone}`;
+    const waDigits = String(formValue.whatsappNumber || '').replace(/\D/g, '');
+    const waLocal = (formValue.countryCode === '+593' && waDigits.length === 10 && waDigits.startsWith('0'))
+      ? waDigits.substring(1)
+      : waDigits;
+    const fullWhatsApp = formValue.acceptsWhatsappOrders ? `${formValue.countryCode}${waLocal}` : '';
+
+    const phDigits = String(formValue.phone || '').replace(/\D/g, '');
+    const phLocal = (formValue.countryCodePhone === '+593' && phDigits.length === 10 && phDigits.startsWith('0'))
+      ? phDigits.substring(1)
+      : phDigits;
+    const fullPhone = `${formValue.countryCodePhone}${phLocal}`;
     const fullSchedules = `${formValue.schedules} - ${formValue.schedules1}`;
 
     return {
@@ -888,12 +909,20 @@ export class DetalleNegocioPage implements OnInit {
 
     // Agregar teléfono completo
     if (formValue.phone) {
-      updateData.phone = `${formValue.countryCodePhone}${formValue.phone}`;
+      const phDigits = String(formValue.phone || '').replace(/\D/g, '');
+      const phLocal = (formValue.countryCodePhone === '+593' && phDigits.length === 10 && phDigits.startsWith('0'))
+        ? phDigits.substring(1)
+        : phDigits;
+      updateData.phone = `${formValue.countryCodePhone}${phLocal}`;
     }
 
     // Agregar WhatsApp si está habilitado
     if (formValue.acceptsWhatsappOrders && formValue.whatsappNumber) {
-      updateData.whatsappNumber = `${formValue.countryCode}${formValue.whatsappNumber}`;
+      const waDigits = String(formValue.whatsappNumber || '').replace(/\D/g, '');
+      const waLocal = (formValue.countryCode === '+593' && waDigits.length === 10 && waDigits.startsWith('0'))
+        ? waDigits.substring(1)
+        : waDigits;
+      updateData.whatsappNumber = `${formValue.countryCode}${waLocal}`;
     }
 
     // Combinar horarios
@@ -980,7 +1009,7 @@ export class DetalleNegocioPage implements OnInit {
         // Procesar fotos con más detalle
         const previousPhotoCount = this.photoUrls.length;
         const newPhotoUrls = (business && business.photos && Array.isArray(business.photos)) 
-          ? this.detallePrivadoService.getPhotoUrls(business.photos) 
+          ? this.detallePrivadoService.getBusinessCarouselPhotoUrls(business.photos) 
           : [];
         
         console.log(`📸 Photo URLs processing:`);
