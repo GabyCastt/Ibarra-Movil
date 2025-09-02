@@ -631,6 +631,9 @@
           <!-- Sección de archivos -->
           <div class="files-section">
             <h4 class="section-title">Imágenes del Negocio</h4>
+            <p *ngIf="isValidatedBusiness" class="files-hint">
+              Nota: Solo puedes cambiar imágenes cuando el negocio está RECHAZADO. En estados VALIDADOS o PENDIENTES, las imágenes no se pueden modificar.
+            </p>
             
             <!-- Logo actual y nuevo -->
             <div class="current-logo-section" *ngIf="currentLogoUrl">
@@ -647,6 +650,7 @@
                 <ion-icon name="folder-open" class="upload-icon"></ion-icon>
                 <p>Arrastra tu logo aquí o haz clic para seleccionar</p>
                 <input id="editLogoFileInput" type="file" accept=".jpg,.jpeg,.png"
+                  [disabled]="isValidatedBusiness"
                   title="Logo (JPG o PNG, máx. 2 MB, mín. 800x600 px)" (change)="onFileChange($event, 'logoFile')" />
               </div>
               <div class="file-name" *ngIf="newLogoFile">
@@ -683,6 +687,7 @@
                 <ion-icon name="folder-open" class="upload-icon"></ion-icon>
                 <p>Arrastra tus fotos aquí o haz clic para seleccionarlas</p>
                 <input id="editCarrouselPhotosInput" type="file" multiple accept=".jpg,.jpeg,.png"
+                  [disabled]="isValidatedBusiness"
                   title="Fotos de productos (JPG o PNG, máx. 2 MB cada una)"
                   (change)="onFileChange($event, 'carrouselPhotos')" />
               </div>

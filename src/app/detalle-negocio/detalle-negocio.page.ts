@@ -235,6 +235,11 @@ export class DetalleNegocioPage implements OnInit {
   // =================== GESTIÓN DE ARCHIVOS MEJORADA ===================
   
   async onFileChange(event: Event | DragEvent, tipo: 'logoFile' | 'carrouselPhotos') {
+    // Evitar carga de archivos cuando el negocio no está REJECTED
+    if (this.isValidatedBusiness) {
+      await this.showWarningToast('Las imágenes solo pueden cambiarse cuando el negocio está RECHAZADO.');
+      return;
+    }
     const input = event.target instanceof HTMLInputElement ? event.target : null;
     const files = input?.files?.length ? input.files : (event as DragEvent).dataTransfer?.files;
 
@@ -286,6 +291,11 @@ export class DetalleNegocioPage implements OnInit {
 
   onDrop(event: DragEvent, tipo: 'logoFile' | 'carrouselPhotos') {
     event.preventDefault();
+    // Evitar drag&drop cuando el negocio no está REJECTED
+    if (this.isValidatedBusiness) {
+      this.showWarningToast('Las imágenes solo pueden cambiarse cuando el negocio está RECHAZADO.');
+      return;
+    }
     this.onFileChange(event, tipo);
   }
 

@@ -564,7 +564,8 @@ export class DetallePrivadoService {
   // Método para validar horarios
   validateScheduleFormat(schedule: string): boolean {
     if (!schedule) return false;
-    const scheduleRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]\s*[-a]\s*([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+    // Formato 24h: HH:MM - HH:MM (permite espacios alrededor del guion)
+    const scheduleRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]\s*-\s*([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
     return scheduleRegex.test(schedule.trim());
   }
 
