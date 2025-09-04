@@ -409,7 +409,7 @@ export class RegistroAppPage implements OnInit {
       await loading.present();
 
       // Ruta al archivo en assets
-      const filePath = 'assets/documentos/Plantilla Acuerdo.pdf';
+      const filePath = 'assets/documentos/PlantillaAcuerdo.pdf';
 
       // Usamos el HttpClient para obtener el archivo como blob
       this.http.get(filePath, { responseType: 'blob' }).subscribe(
@@ -422,7 +422,7 @@ export class RegistroAppPage implements OnInit {
           // Crear enlace temporal
           const link = document.createElement('a');
           link.href = url;
-          link.download = 'Plantilla Acuerdo Comercializacion.pdf';
+          link.download = 'PlantillaAcuerdo.pdf';
 
           // Disparar el click
           document.body.appendChild(link);
