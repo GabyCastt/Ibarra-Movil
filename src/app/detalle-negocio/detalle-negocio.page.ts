@@ -187,7 +187,7 @@ export class DetalleNegocioPage implements OnInit {
         this.currentImageIndex = 0;
           
         this.loading = false;
-        console.log('✅ Business details loaded successfully');
+    console.log('[OK] Business details loaded successfully');
         console.log(`📊 Photo URLs count: ${this.photoUrls.length}`);
         console.log(`🏢 Business validation status: ${business.validationStatus}`);
       },
@@ -252,7 +252,7 @@ export class DetalleNegocioPage implements OnInit {
     const validFiles: File[] = [];
 
     for (const file of Array.from(files)) {
-      console.log(`📄 Validating file: ${file.name} (${file.size} bytes)`);
+      console.log(`[FILE] Validating file: ${file.name} (${file.size} bytes)`);
       
       const validation = await this.detallePrivadoService.validateFile(file, tipo === 'logoFile' ? 'logo' : 'carousel');
       
@@ -262,7 +262,7 @@ export class DetalleNegocioPage implements OnInit {
       }
 
       validFiles.push(file);
-      console.log(`✅ File validated: ${file.name}`);
+      console.log(`[OK] File validated: ${file.name}`);
     }
 
     if (validFiles.length === 0) {
@@ -772,13 +772,13 @@ export class DetalleNegocioPage implements OnInit {
     // Agregar logo si existe
     if (this.newLogoFile) {
       formData.append('logoFile', this.newLogoFile);
-      console.log('✅ Logo file added to FormData:', this.newLogoFile.name);
+      console.log('[OK] Logo file added to FormData:', this.newLogoFile.name);
     }
 
     // AGREGAR TODAS LAS FOTOS DEL CARRUSEL
     this.newCarrouselPhotos.forEach((file, index) => {
       formData.append('carrouselPhotos', file);
-      console.log(`✅ Carousel photo ${index + 1} added to FormData:`, file.name);
+      console.log(`[OK] Carousel photo ${index + 1} added to FormData:`, file.name);
     });
 
     // Preparar datos del negocio para REJECTED
@@ -791,7 +791,7 @@ export class DetalleNegocioPage implements OnInit {
       this.detallePrivadoService.updateRejectedBusinessWithFiles(this.businessId, formData)
     );
     
-    console.log('✅ Rejected update with files response:', result);
+    console.log('[OK] Rejected update with files response:', result);
   }
 
   // Guardar negocio rechazado sin archivos
@@ -809,7 +809,7 @@ export class DetalleNegocioPage implements OnInit {
       )
     );
     
-    console.log('✅ Rejected update without files response:', result);
+    console.log('[OK] Rejected update without files response:', result);
   }
 
   // Mostrar advertencia y guardar negocio validado sin archivos
@@ -841,7 +841,7 @@ export class DetalleNegocioPage implements OnInit {
       )
     );
     
-    console.log('✅ Validated update response:', result);
+    console.log('[OK] Validated update response:', result);
   }
 
   // Preparar datos de negocio para negocios rechazados (formato completo)
@@ -999,7 +999,7 @@ export class DetalleNegocioPage implements OnInit {
           this.detallePrivadoService.getBusinessDetails(this.businessId)
         );
         
-        console.log(`✅ Business reloaded successfully (attempt ${attempt}):`, business);
+        console.log(`[OK] Business reloaded successfully (attempt ${attempt}):`, business);
         console.log(`📊 Server response - Photos count: ${business.photos?.length || 0}`);
         console.log(`📊 Server response - Photos data:`, business.photos);
         
@@ -1037,14 +1037,14 @@ export class DetalleNegocioPage implements OnInit {
           
           // Si obtuvimos las imágenes esperadas, salir exitosamente
           if (newPhotoUrls.length > 0 || !hadNewFiles) {
-            console.log('✅ Photo update successful, breaking reload loop');
+            console.log('[OK] Photo update successful, breaking reload loop');
             break;
           }
         }
         
         // Si es el último intento, actualizar de todos modos
         if (attempt === maxRetries) {
-          console.log('⚠️ Final attempt: updating photos regardless');
+          console.log('[WARN] Final attempt: updating photos regardless');
           this.photoUrls = newPhotoUrls;
           this.currentCarrouselUrls = [...this.photoUrls];
           this.currentImageIndex = 0;
@@ -1053,7 +1053,7 @@ export class DetalleNegocioPage implements OnInit {
         
         // Si no había archivos nuevos, salir después del primer intento exitoso
         if (!hadNewFiles && attempt >= 2) {
-          console.log('ℹ️ No new files were uploaded, ending reload');
+          console.log('[INFO] No new files were uploaded, ending reload');
           break;
         }
         

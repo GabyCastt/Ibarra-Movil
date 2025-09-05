@@ -36,6 +36,32 @@
   }
 }
 
+/* --- Emoji cleanup and icon replacements --- */
+/* Neutralize emoji from pseudo-elements and hide legacy emoji containers */
+.error-message::before { content: ''; }
+.form-field.error-field::after,
+.form-field.success-field::after { content: ''; }
+.error-container .error-icon,
+.rejection-notice .rejection-icon,
+.no-images .no-images-icon,
+.whatsapp-orders .whatsapp-icon,
+.validation-warning .warning-icon { display: none !important; }
+
+/* Style for inline ionicons used in messages */
+.error-message ion-icon {
+  margin-right: 4px;
+  font-size: 14px;
+  color: #ef4444;
+}
+
+/* Sizes/colors for new inline ionicons */
+.error-container .error-icon-ic { font-size: 48px; margin-bottom: 20px; }
+.rejection-notice .rejection-icon-ic { font-size: 24px; color: #ef4444; }
+.whatsapp-orders .whatsapp-icon-ic { font-size: 28px; color: #16a34a; }
+.validation-warning .warning-icon-ic { font-size: 24px; color: #f59e0b; }
+.no-images .no-images-icon-ic { font-size: 64px; margin-bottom: 20px; opacity: 0.7; }
+.carousel-header .section-icon { font-size: 20px; vertical-align: middle; margin-right: 6px; }
+
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
@@ -997,7 +1023,7 @@
     align-items: center;
 
     &::before {
-      content: '⚠️';
+      content: '';
       margin-right: 4px;
       font-size: 10px;
     }

@@ -118,7 +118,7 @@
   align-items: center;
 
   &::before {
-    content: '⚠️';
+    content: '';
     margin-right: 4px;
     font-size: 10px;
   }
@@ -566,11 +566,22 @@
   }
 
   &.success-field::after {
-    content: '✅';
+    content: '';
     position: absolute;
     right: 12px;
     top: 50%;
     transform: translateY(-50%);
     font-size: 12px;
   }
+}
+
+/* --- Emoji cleanup and icon replacements --- */
+/* Override emoji pseudo-content with proper icons via markup */
+.form-field.error-field::after,
+.form-field.success-field::after { content: ''; }
+.error-message::before { content: ''; }
+.error-message ion-icon {
+  margin-right: 4px;
+  font-size: 14px;
+  color: #ef4444;
 }

@@ -5,6 +5,9 @@ import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalo
 import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
 import { provideHttpClient } from '@angular/common/http';
+import { setupIonicons } from './app/ionicons.setup';
+
+setupIonicons();
 
 bootstrapApplication(AppComponent, {
   providers: [

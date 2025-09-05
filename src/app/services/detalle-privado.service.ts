@@ -458,7 +458,7 @@ export class DetallePrivadoService {
           (url.startsWith('http://') || url.startsWith('https://'))) {
         
         urls.push(url.trim());
-        console.log(`✅ Valid URL found for photo ${i + 1}: ${url.substring(0, 50)}...`);
+        console.log(`[#] Valid URL found for photo ${i + 1}: ${url.substring(0, 50)}...`);
       } else {
         console.log(`❌ No valid URL found for photo ${i + 1}:`, photo);
       }
