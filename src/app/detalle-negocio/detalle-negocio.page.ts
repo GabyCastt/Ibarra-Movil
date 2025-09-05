@@ -170,7 +170,7 @@ export class DetalleNegocioPage implements OnInit {
         // MEJORAR EL PROCESAMIENTO DE IMÁGENES
         console.log('🖼️ Processing business photos:', business.photos);
         this.photoUrls = (business && business.photos && Array.isArray(business.photos)) 
-          ? this.detallePrivadoService.getPhotoUrls(business.photos) 
+          ? this.detallePrivadoService.getBusinessCarouselPhotoUrls(business.photos) 
           : [];
         
         console.log('📸 Final photoUrls array:', this.photoUrls);
@@ -187,7 +187,7 @@ export class DetalleNegocioPage implements OnInit {
         this.currentImageIndex = 0;
           
         this.loading = false;
-        console.log('✅ Business details loaded successfully');
+    console.log('[OK] Business details loaded successfully');
         console.log(`📊 Photo URLs count: ${this.photoUrls.length}`);
         console.log(`🏢 Business validation status: ${business.validationStatus}`);
       },
@@ -235,6 +235,11 @@ export class DetalleNegocioPage implements OnInit {
   // =================== GESTIÓN DE ARCHIVOS MEJORADA ===================
   
   async onFileChange(event: Event | DragEvent, tipo: 'logoFile' | 'carrouselPhotos') {
+    // Evitar carga de archivos cuando el negocio no está REJECTED
+    if (this.isValidatedBusiness) {
+      await this.showWarningToast('Las imágenes solo pueden cambiarse cuando el negocio está RECHAZADO.');
+      return;
+    }
     const input = event.target instanceof HTMLInputElement ? event.target : null;
     const files = input?.files?.length ? input.files : (event as DragEvent).dataTransfer?.files;
 
@@ -247,7 +252,7 @@ export class DetalleNegocioPage implements OnInit {
     const validFiles: File[] = [];
 
     for (const file of Array.from(files)) {
-      console.log(`📄 Validating file: ${file.name} (${file.size} bytes)`);
+      console.log(`[FILE] Validating file: ${file.name} (${file.size} bytes)`);
       
       const validation = await this.detallePrivadoService.validateFile(file, tipo === 'logoFile' ? 'logo' : 'carousel');
       
@@ -257,7 +262,7 @@ export class DetalleNegocioPage implements OnInit {
       }
 
       validFiles.push(file);
-      console.log(`✅ File validated: ${file.name}`);
+      console.log(`[OK] File validated: ${file.name}`);
     }
 
     if (validFiles.length === 0) {
@@ -270,7 +275,7 @@ export class DetalleNegocioPage implements OnInit {
       console.log('🖼️ New logo file selected:', this.newLogoFile.name);
     } else if (tipo === 'carrouselPhotos') {
       const totalImages = this.newCarrouselPhotos.length + validFiles.length;
-      if (totalImages > 5) {
+      if (totalImages > 6) {
         await this.showErrorToast('Máximo 5 imágenes permitidas en el carrusel');
         return;
       }
@@ -286,6 +291,11 @@ export class DetalleNegocioPage implements OnInit {
 
   onDrop(event: DragEvent, tipo: 'logoFile' | 'carrouselPhotos') {
     event.preventDefault();
+    // Evitar drag&drop cuando el negocio no está REJECTED
+    if (this.isValidatedBusiness) {
+      this.showWarningToast('Las imágenes solo pueden cambiarse cuando el negocio está RECHAZADO.');
+      return;
+    }
     this.onFileChange(event, tipo);
   }
 
@@ -502,8 +512,14 @@ export class DetalleNegocioPage implements OnInit {
 
     // Validar teléfono ecuatoriano si aplica
     const countryCode = this.editForm.get('countryCodePhone')?.value;
-    const phone = this.editForm.get('phone')?.value;
+    let phone = this.editForm.get('phone')?.value;
     if (countryCode === '+593' && phone) {
+      const digitsOnly = String(phone).replace(/\\D/g, '');
+      if (digitsOnly.length === 10 && digitsOnly.startsWith('0')) {
+        const normalized = digitsOnly.substring(1);
+        this.editForm.patchValue({ phone: normalized });
+        phone = normalized;
+      }
       if (!this.detallePrivadoService.validateEcuadorianPhone(phone)) {
         this.showErrorToast('Número de teléfono ecuatoriano inválido');
         return false;
@@ -581,6 +597,10 @@ export class DetalleNegocioPage implements OnInit {
       } else {
         phoneNumber = phone;
       }
+      // Normalizar Ecuador: si son 10 dígitos y empiezan con 0, quitar 0
+      if (phoneCode === '+593' && phoneNumber && phoneNumber.length === 10 && phoneNumber.startsWith('0')) {
+        phoneNumber = phoneNumber.substring(1);
+      }
     }
 
     let whatsappCode = '+593';
@@ -595,6 +615,10 @@ export class DetalleNegocioPage implements OnInit {
         whatsappNumber = whatsapp.substring(2);
       } else {
         whatsappNumber = whatsapp;
+      }
+      // Normalizar Ecuador: si son 10 dígitos y empiezan con 0, quitar 0
+      if (whatsappCode === '+593' && whatsappNumber && whatsappNumber.length === 10 && whatsappNumber.startsWith('0')) {
+        whatsappNumber = whatsappNumber.substring(1);
       }
     }
 
@@ -707,6 +731,7 @@ export class DetalleNegocioPage implements OnInit {
 
       // Mostrar mensaje específico según el estado
       if (this.business?.validationStatus === 'REJECTED') {
+        this.business.validationStatus = 'PENDING';
         setTimeout(() => {
           this.showInfoToast('Tu negocio se ha actualizado y ahora está en estado PENDIENTE para una nueva validación.');
         }, 2000);
@@ -747,13 +772,13 @@ export class DetalleNegocioPage implements OnInit {
     // Agregar logo si existe
     if (this.newLogoFile) {
       formData.append('logoFile', this.newLogoFile);
-      console.log('✅ Logo file added to FormData:', this.newLogoFile.name);
+      console.log('[OK] Logo file added to FormData:', this.newLogoFile.name);
     }
 
     // AGREGAR TODAS LAS FOTOS DEL CARRUSEL
     this.newCarrouselPhotos.forEach((file, index) => {
       formData.append('carrouselPhotos', file);
-      console.log(`✅ Carousel photo ${index + 1} added to FormData:`, file.name);
+      console.log(`[OK] Carousel photo ${index + 1} added to FormData:`, file.name);
     });
 
     // Preparar datos del negocio para REJECTED
@@ -766,7 +791,7 @@ export class DetalleNegocioPage implements OnInit {
       this.detallePrivadoService.updateRejectedBusinessWithFiles(this.businessId, formData)
     );
     
-    console.log('✅ Rejected update with files response:', result);
+    console.log('[OK] Rejected update with files response:', result);
   }
 
   // Guardar negocio rechazado sin archivos
@@ -784,7 +809,7 @@ export class DetalleNegocioPage implements OnInit {
       )
     );
     
-    console.log('✅ Rejected update without files response:', result);
+    console.log('[OK] Rejected update without files response:', result);
   }
 
   // Mostrar advertencia y guardar negocio validado sin archivos
@@ -816,15 +841,22 @@ export class DetalleNegocioPage implements OnInit {
       )
     );
     
-    console.log('✅ Validated update response:', result);
+    console.log('[OK] Validated update response:', result);
   }
 
   // Preparar datos de negocio para negocios rechazados (formato completo)
   private prepareBusinessDataForRejected(formValue: any): any {
-    const fullWhatsApp = formValue.acceptsWhatsappOrders
-      ? `${formValue.countryCode}${formValue.whatsappNumber}`
-      : '';
-    const fullPhone = `${formValue.countryCodePhone}${formValue.phone}`;
+    const waDigits = String(formValue.whatsappNumber || '').replace(/\D/g, '');
+    const waLocal = (formValue.countryCode === '+593' && waDigits.length === 10 && waDigits.startsWith('0'))
+      ? waDigits.substring(1)
+      : waDigits;
+    const fullWhatsApp = formValue.acceptsWhatsappOrders ? `${formValue.countryCode}${waLocal}` : '';
+
+    const phDigits = String(formValue.phone || '').replace(/\D/g, '');
+    const phLocal = (formValue.countryCodePhone === '+593' && phDigits.length === 10 && phDigits.startsWith('0'))
+      ? phDigits.substring(1)
+      : phDigits;
+    const fullPhone = `${formValue.countryCodePhone}${phLocal}`;
     const fullSchedules = `${formValue.schedules} - ${formValue.schedules1}`;
 
     return {
@@ -878,12 +910,20 @@ export class DetalleNegocioPage implements OnInit {
 
     // Agregar teléfono completo
     if (formValue.phone) {
-      updateData.phone = `${formValue.countryCodePhone}${formValue.phone}`;
+      const phDigits = String(formValue.phone || '').replace(/\D/g, '');
+      const phLocal = (formValue.countryCodePhone === '+593' && phDigits.length === 10 && phDigits.startsWith('0'))
+        ? phDigits.substring(1)
+        : phDigits;
+      updateData.phone = `${formValue.countryCodePhone}${phLocal}`;
     }
 
     // Agregar WhatsApp si está habilitado
     if (formValue.acceptsWhatsappOrders && formValue.whatsappNumber) {
-      updateData.whatsappNumber = `${formValue.countryCode}${formValue.whatsappNumber}`;
+      const waDigits = String(formValue.whatsappNumber || '').replace(/\D/g, '');
+      const waLocal = (formValue.countryCode === '+593' && waDigits.length === 10 && waDigits.startsWith('0'))
+        ? waDigits.substring(1)
+        : waDigits;
+      updateData.whatsappNumber = `${formValue.countryCode}${waLocal}`;
     }
 
     // Combinar horarios
@@ -959,7 +999,7 @@ export class DetalleNegocioPage implements OnInit {
           this.detallePrivadoService.getBusinessDetails(this.businessId)
         );
         
-        console.log(`✅ Business reloaded successfully (attempt ${attempt}):`, business);
+        console.log(`[OK] Business reloaded successfully (attempt ${attempt}):`, business);
         console.log(`📊 Server response - Photos count: ${business.photos?.length || 0}`);
         console.log(`📊 Server response - Photos data:`, business.photos);
         
@@ -970,7 +1010,7 @@ export class DetalleNegocioPage implements OnInit {
         // Procesar fotos con más detalle
         const previousPhotoCount = this.photoUrls.length;
         const newPhotoUrls = (business && business.photos && Array.isArray(business.photos)) 
-          ? this.detallePrivadoService.getPhotoUrls(business.photos) 
+          ? this.detallePrivadoService.getBusinessCarouselPhotoUrls(business.photos) 
           : [];
         
         console.log(`📸 Photo URLs processing:`);
@@ -997,14 +1037,14 @@ export class DetalleNegocioPage implements OnInit {
           
           // Si obtuvimos las imágenes esperadas, salir exitosamente
           if (newPhotoUrls.length > 0 || !hadNewFiles) {
-            console.log('✅ Photo update successful, breaking reload loop');
+            console.log('[OK] Photo update successful, breaking reload loop');
             break;
           }
         }
         
         // Si es el último intento, actualizar de todos modos
         if (attempt === maxRetries) {
-          console.log('⚠️ Final attempt: updating photos regardless');
+          console.log('[WARN] Final attempt: updating photos regardless');
           this.photoUrls = newPhotoUrls;
           this.currentCarrouselUrls = [...this.photoUrls];
           this.currentImageIndex = 0;
@@ -1013,7 +1053,7 @@ export class DetalleNegocioPage implements OnInit {
         
         // Si no había archivos nuevos, salir después del primer intento exitoso
         if (!hadNewFiles && attempt >= 2) {
-          console.log('ℹ️ No new files were uploaded, ending reload');
+          console.log('[INFO] No new files were uploaded, ending reload');
           break;
         }
         

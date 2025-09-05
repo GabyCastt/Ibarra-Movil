@@ -14,7 +14,8 @@
   </div>
 
   <div *ngIf="error" class="error-container">
-    <div class="error-icon">⚠️</div>
+    <ion-icon class="error-icon-ic" name="alert-circle-outline" aria-hidden="true"></ion-icon>
+    
     <p>{{ error }}</p>
     <button class="retry-button" (click)="loadBusinessDetails()">Reintentar</button>
   </div>
@@ -30,7 +31,7 @@
       <div class="header-info">
         <h1 class="business-title">{{ business.commercialName }}</h1>
         <p class="representative" *ngIf="business.representativeName">
-          <span class="rep-icon">👤</span>
+          <ion-icon class="rep-icon" name="person-circle" aria-hidden="true"></ion-icon>
           {{ business.representativeName }}
         </p>
         <div class="status-badge" 
@@ -44,7 +45,8 @@
     </div>
 
     <div *ngIf="business.validationStatus === 'REJECTED'" class="rejection-notice">
-      <div class="rejection-icon">⚠️</div>
+      <ion-icon class="rejection-icon-ic" name="alert-circle-outline" aria-hidden="true"></ion-icon>
+      
       <div class="rejection-text">
         <h4>Negocio Rechazado</h4>
         <p>Tu negocio fue rechazado durante la validación. Puedes editarlo para corregir los datos y será revisado nuevamente.</p>
@@ -52,9 +54,9 @@
     </div>
 
     <!-- Carrusel mejorado con flechas de navegación -->
-    <div class="carousel-container" *ngIf="business.photos && business.photos.length > 0">
+    <div class="carousel-container" *ngIf="photoUrls && photoUrls.length > 0">
       <div class="carousel-header">
-        <h3>📷 Imágenes del Negocio ({{ currentImageIndex + 1 }}/{{ photoUrls.length }})</h3>
+        <h3><ion-icon class="section-icon" name="images-outline" aria-hidden="true"></ion-icon> Imágenes del Negocio ({{ currentImageIndex + 1 }}/{{ photoUrls.length }})</h3>
       </div>
       
       <div class="carousel-wrapper">
@@ -84,7 +86,7 @@
         <!-- Indicadores de puntos -->
         <div class="carousel-indicators" *ngIf="hasMultipleImages">
           <button 
-            *ngFor="let photo of business.photos; let i = index" 
+            *ngFor="let url of photoUrls; let i = index" 
             class="indicator"
             [class.active]="i === currentImageIndex"
             (click)="selectImage(i)"
@@ -108,8 +110,8 @@
     </div>
 
     <!-- Vista de estado sin imágenes mejorada -->
-    <div class="no-images" *ngIf="!business.photos || business.photos.length === 0">
-      <div class="no-images-icon">📷</div>
+    <div class="no-images" *ngIf="!photoUrls || photoUrls.length === 0">
+      <ion-icon class="no-images-icon-ic" name="images-outline" aria-hidden="true"></ion-icon>
       <h4>No hay imágenes disponibles</h4>
       <p>Este negocio aún no ha subido imágenes de sus productos o servicios</p>
     </div>
@@ -135,22 +137,22 @@
         <label class="form-label">📱 Redes Sociales</label>
         <div class="social-media-container">
           <div class="social-item" *ngIf="business.instagram">
-            <span class="social-icon">📷</span>
+            <ion-icon class="social-icon" name="logo-instagram" aria-hidden="true"></ion-icon>
             <span class="social-label">Instagram</span>
             <button class="social-button" (click)="openSocialMedia('instagram')">Ver</button>
           </div>
           <div class="social-item" *ngIf="business.facebook">
-            <span class="social-icon">📘</span>
+            <ion-icon class="social-icon" name="logo-facebook" aria-hidden="true"></ion-icon>
             <span class="social-label">Facebook</span>
             <button class="social-button" (click)="openSocialMedia('facebook')">Ver</button>
           </div>
           <div class="social-item" *ngIf="business.tiktok">
-            <span class="social-icon">🎵</span>
+            <ion-icon class="social-icon" name="logo-tiktok" aria-hidden="true"></ion-icon>
             <span class="social-label">TikTok</span>
             <button class="social-button" (click)="openSocialMedia('tiktok')">Ver</button>
           </div>
           <div class="social-item" *ngIf="business.website">
-            <span class="social-icon">🌐</span>
+            <ion-icon class="social-icon" name="globe-outline" aria-hidden="true"></ion-icon>
             <span class="social-label">Sitio Web</span>
             <button class="social-button" (click)="openSocialMedia('website')">Visitar</button>
           </div>
@@ -159,10 +161,10 @@
     </div>
 
     <div class="form-group">
-      <label class="form-label">📞 Información de Contacto</label>
+      <label class="form-label"><ion-icon name="information-circle-outline" aria-hidden="true"></ion-icon> Información de Contacto</label>
       <div class="contact-container">
         <div class="contact-item" *ngIf="business.phone">
-          <div class="contact-icon">📞</div>
+          <ion-icon class="contact-icon" name="call-outline" aria-hidden="true"></ion-icon>
           <div class="contact-info">
             <span class="contact-label">Teléfono</span>
             <span class="contact-value">{{ business.phone }}</span>
@@ -171,7 +173,7 @@
         </div>
         
         <div class="contact-item" *ngIf="business.email">
-          <div class="contact-icon">📧</div>
+          <ion-icon class="contact-icon" name="mail-outline" aria-hidden="true"></ion-icon>
           <div class="contact-info">
             <span class="contact-label">Email</span>
             <span class="contact-value">{{ business.email }}</span>
@@ -180,7 +182,7 @@
         </div>
         
         <div class="contact-item" *ngIf="business.whatsappNumber">
-          <div class="contact-icon">💬</div>
+          <ion-icon class="contact-icon" name="logo-whatsapp" aria-hidden="true"></ion-icon>
           <div class="contact-info">
             <span class="contact-label">WhatsApp</span>
             <span class="contact-value">{{ business.whatsappNumber }}</span>
@@ -191,11 +193,11 @@
     </div>
 
     <div class="form-group">
-      <label class="form-label">📍 Ubicación</label>
+      <label class="form-label"><ion-icon name="location-outline" aria-hidden="true"></ion-icon> Ubicación</label>
       <div class="location-container">
         <div class="location-info">
           <div class="address">
-            <span class="location-icon">📍</span>
+            <ion-icon class="location-icon" name="location-outline" aria-hidden="true"></ion-icon>
             <span>{{ business.address || 'Dirección no especificada' }}</span>
           </div>
           <div class="sector" *ngIf="business.parishCommunitySector">
@@ -204,7 +206,7 @@
           </div>
         </div>
         <button class="map-button" (click)="openMaps()" *ngIf="business.googleMapsCoordinates">
-          <span class="map-icon">🗺️</span>
+          <ion-icon class="map-icon" name="map-outline" aria-hidden="true"></ion-icon>
           <span>Ver en Mapa</span>
         </button>
       </div>
@@ -212,7 +214,7 @@
 
     <div class="form-row">
       <div class="info-card">
-        <div class="info-icon">🏪</div>
+        <ion-icon class="info-icon" name="storefront-outline" aria-hidden="true"></ion-icon>
         <div class="info-content">
           <h4>Tipo de Venta</h4>
           <p>{{ salePlaceText }}</p>
@@ -220,7 +222,7 @@
       </div>
       
       <div class="info-card">
-        <div class="info-icon">🚚</div>
+        <ion-icon class="info-icon" name="bicycle-outline" aria-hidden="true"></ion-icon>
         <div class="info-content">
           <h4>Delivery</h4>
           <p>{{ deliveryText }}</p>
@@ -228,7 +230,7 @@
       </div>
       
       <div class="info-card" *ngIf="business.category">
-        <div class="info-icon">🏷️</div>
+        <ion-icon class="info-icon" name="pricetag-outline" aria-hidden="true"></ion-icon>
         <div class="info-content">
           <h4>Categoría</h4>
           <p>{{ business.category.name || 'Sin categoría' }}</p>
@@ -238,7 +240,8 @@
 
     <div class="form-group" *ngIf="business.acceptsWhatsappOrders">
       <div class="whatsapp-orders">
-        <div class="whatsapp-icon">✅</div>
+        <ion-icon class="whatsapp-icon-ic" name="logo-whatsapp" aria-hidden="true"></ion-icon>
+        
         <div class="whatsapp-text">
           <h4>Pedidos por WhatsApp</h4>
           <p>Este negocio acepta pedidos a través de WhatsApp</p>
@@ -291,7 +294,8 @@
         
         <!-- NUEVA SECCIÓN: Advertencia para negocios validados -->
         <div *ngIf="isValidatedBusiness && hasFilesSelected" class="validation-warning">
-          <div class="warning-icon">⚠️</div>
+          <ion-icon class="warning-icon-ic" name="alert-circle-outline" aria-hidden="true"></ion-icon>
+          
           <div class="warning-text">
             <h4>Advertencia: Negocio Validado</h4>
             <p>Los negocios validados no pueden cambiar sus imágenes. Solo se actualizarán los datos del formulario.</p>
@@ -316,7 +320,7 @@
                 </ion-select-option>
               </ion-select>
             </ion-item>
-            <div class="error-message" *ngIf="hasError('categoryId')">
+            <div class="error-message" *ngIf="hasError('categoryId')"><ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
               {{ getErrorMessage('categoryId') }}
             </div>
           </div>
@@ -329,7 +333,7 @@
               </ion-label>
               <ion-input formControlName="commercialName" type="text" maxlength="100"></ion-input>
             </ion-item>
-            <div class="error-message" *ngIf="hasError('commercialName')">
+            <div class="error-message" *ngIf="hasError('commercialName')"><ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
               {{ getErrorMessage('commercialName') }}
             </div>
           </div>
@@ -341,7 +345,7 @@
               <ion-input formControlName="productsServices" type="text" maxlength="50"
                 placeholder="Ej: Comida, Ropa, Servicios..."></ion-input>
             </ion-item>
-            <div class="error-message" *ngIf="hasError('productsServices')">
+            <div class="error-message" *ngIf="hasError('productsServices')"><ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
               {{ getErrorMessage('productsServices') }}
             </div>
           </div>
@@ -352,15 +356,15 @@
               <ion-label position="stacked">Teléfono <span class="required">*</span></ion-label>
               <div class="country">
                 <ion-select interface="popover" class="w-28" formControlName="countryCodePhone">
-                  <ion-select-option value="+593">🇪🇨 +593</ion-select-option>
-                  <ion-select-option value="+57">🇨🇴 +57</ion-select-option>
-                  <ion-select-option value="+52">🇲🇽 +52</ion-select-option>
-                  <ion-select-option value="+34">🇪🇸 +34</ion-select-option>
+                  <ion-select-option value="+593">Ecuador (+593)</ion-select-option>
+                  <ion-select-option value="+57">Colombia (+57)</ion-select-option>
+                  <ion-select-option value="+52">México (+52)</ion-select-option>
+                  <ion-select-option value="+34">España (+34)</ion-select-option>
                 </ion-select>
                 <ion-input formControlName="phone" type="tel" maxlength="9" placeholder="999999999"></ion-input>
               </div>
             </ion-item>
-            <div class="error-message" *ngIf="hasError('phone')">
+            <div class="error-message" *ngIf="hasError('phone')"><ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
               {{ getErrorMessage('phone') }}
             </div>
           </div>
@@ -371,7 +375,7 @@
               <ion-label position="stacked">Email (Opcional)</ion-label>
               <ion-input formControlName="email" type="email" maxlength="100" placeholder="correo@ejemplo.com"></ion-input>
             </ion-item>
-            <div class="error-message" *ngIf="hasError('email')">
+            <div class="error-message" *ngIf="hasError('email')"><ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
               {{ getErrorMessage('email') }}
             </div>
           </div>
@@ -462,10 +466,10 @@
               <ion-label position="stacked">WhatsApp <span class="required">*</span></ion-label>
               <div class="country">
                 <ion-select interface="popover" class="w-28" formControlName="countryCode">
-                  <ion-select-option value="+593">🇪🇨 +593</ion-select-option>
-                  <ion-select-option value="+57">🇨🇴 +57</ion-select-option>
-                  <ion-select-option value="+52">🇲🇽 +52</ion-select-option>
-                  <ion-select-option value="+34">🇪🇸 +34</ion-select-option>
+                  <ion-select-option value="+593">Ecuador (+593)</ion-select-option>
+                  <ion-select-option value="+57">Colombia (+57)</ion-select-option>
+                  <ion-select-option value="+52">México (+52)</ion-select-option>
+                  <ion-select-option value="+34">España (+34)</ion-select-option>
                 </ion-select>
                 <ion-input formControlName="whatsappNumber" type="tel" maxlength="9" placeholder="999999999"></ion-input>
               </div>
@@ -631,6 +635,9 @@
           <!-- Sección de archivos -->
           <div class="files-section">
             <h4 class="section-title">Imágenes del Negocio</h4>
+            <p *ngIf="isValidatedBusiness" class="files-hint">
+              Nota: Solo puedes cambiar imágenes cuando el negocio está RECHAZADO. En estados VALIDADOS o PENDIENTES, las imágenes no se pueden modificar.
+            </p>
             
             <!-- Logo actual y nuevo -->
             <div class="current-logo-section" *ngIf="currentLogoUrl">
@@ -647,6 +654,7 @@
                 <ion-icon name="folder-open" class="upload-icon"></ion-icon>
                 <p>Arrastra tu logo aquí o haz clic para seleccionar</p>
                 <input id="editLogoFileInput" type="file" accept=".jpg,.jpeg,.png"
+                  [disabled]="isValidatedBusiness"
                   title="Logo (JPG o PNG, máx. 2 MB, mín. 800x600 px)" (change)="onFileChange($event, 'logoFile')" />
               </div>
               <div class="file-name" *ngIf="newLogoFile">
@@ -683,6 +691,7 @@
                 <ion-icon name="folder-open" class="upload-icon"></ion-icon>
                 <p>Arrastra tus fotos aquí o haz clic para seleccionarlas</p>
                 <input id="editCarrouselPhotosInput" type="file" multiple accept=".jpg,.jpeg,.png"
+                  [disabled]="isValidatedBusiness"
                   title="Fotos de productos (JPG o PNG, máx. 2 MB cada una)"
                   (change)="onFileChange($event, 'carrouselPhotos')" />
               </div>

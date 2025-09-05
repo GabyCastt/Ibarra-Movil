@@ -711,3 +711,18 @@
     right: 10px;
   }
 }
+
+/* --- Emoji cleanup and icon replacements --- */
+.error-container .error-icon,
+.no-images .no-images-icon,
+.whatsapp-orders .whatsapp-icon { display: none !important; }
+.error-message ion-icon {
+  margin-right: 4px;
+  font-size: 14px;
+  color: #ef4444;
+}
+
+/* Sizes/colors for new inline ionicons */
+.error-container .error-icon-ic { font-size: 48px; margin-bottom: 20px; }
+.no-images .no-images-icon-ic { font-size: 28px; color: #9ca3af; }
+.whatsapp-orders .whatsapp-icon-ic { font-size: 28px; color: #16a34a; }

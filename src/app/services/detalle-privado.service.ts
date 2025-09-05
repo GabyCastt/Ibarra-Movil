@@ -458,7 +458,7 @@ export class DetallePrivadoService {
           (url.startsWith('http://') || url.startsWith('https://'))) {
         
         urls.push(url.trim());
-        console.log(`✅ Valid URL found for photo ${i + 1}: ${url.substring(0, 50)}...`);
+        console.log(`[#] Valid URL found for photo ${i + 1}: ${url.substring(0, 50)}...`);
       } else {
         console.log(`❌ No valid URL found for photo ${i + 1}:`, photo);
       }
@@ -467,6 +467,38 @@ export class DetallePrivadoService {
     console.log(`🎯 Total valid photo URLs extracted: ${urls.length}/${photos.length}`);
     console.log('📋 Final URLs:', urls.map((url, i) => `${i + 1}: ${url.substring(0, 50)}...`));
     
+    return urls;
+  }
+
+  // NUEVO: Obtener solo fotos del negocio para el carrusel (excluye LOGO y PROMOTION)
+  getBusinessCarouselPhotoUrls(photos: any[]): string[] {
+    if (!photos || !Array.isArray(photos)) return [];
+
+    const filtered = photos.filter((p: any) => {
+      const type = typeof p === 'object' && p ? String(p.photoType || '').toUpperCase() : '';
+      return type !== 'LOGO' && type !== 'PROMOTION';
+    });
+
+    const urls: string[] = [];
+    for (let i = 0; i < filtered.length; i++) {
+      const photo = filtered[i];
+      let url = '';
+      if (typeof photo === 'string' && photo.startsWith('http')) {
+        url = photo;
+      } else if (typeof photo === 'object' && photo !== null) {
+        url = photo.url || photo.photoUrl || photo.imageUrl || photo.src || photo.path || photo.link || photo.href || '';
+        if (!url && (photo as any).image) {
+          url = (photo as any).image.url || (photo as any).image.src || '';
+        }
+        if (!url && (photo as any).metadata) {
+          url = (photo as any).metadata.url || (photo as any).metadata.src || '';
+        }
+      }
+
+      if (url && typeof url === 'string' && url.trim() !== '' && (url.startsWith('http://') || url.startsWith('https://'))) {
+        urls.push(url.trim());
+      }
+    }
     return urls;
   }
 
@@ -564,7 +596,8 @@ export class DetallePrivadoService {
   // Método para validar horarios
   validateScheduleFormat(schedule: string): boolean {
     if (!schedule) return false;
-    const scheduleRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]\s*[-a]\s*([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+    // Formato 24h: HH:MM - HH:MM (permite espacios alrededor del guion)
+    const scheduleRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]\s*-\s*([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
     return scheduleRegex.test(schedule.trim());
   }
 
@@ -598,7 +631,7 @@ export class DetallePrivadoService {
         cleanedData.email = email;
       }
     }
-    
+     
     // Procesar campos de texto - CORREGIDO
     const textFields = ['facebook', 'instagram', 'tiktok', 'website', 'whatsappNumber', 'address', 'phone', 'parishCommunitySector', 'productsServices', 'deliveryService', 'salePlace', 'schedules', 'udelSupportDetails'];
     
