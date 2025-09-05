@@ -1290,6 +1290,10 @@ export class DetalleNegocioPage implements OnInit {
     this.router.navigate(['/mis-negocios']);
   }
 
+  goEditBusiness(): void {
+    this.router.navigate(['/editar-negocio', this.businessId]);
+  }
+
   canEditBusiness(): boolean {
     if (!this.business) return false;
     

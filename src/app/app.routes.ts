@@ -71,6 +71,10 @@ export const routes: Routes = [
   {
     path: 'editar-promocion',
     loadComponent: () => import('./editar-promocion/editar-promocion.page').then( m => m.EditarPromocionPage)
+  },
+  {
+    path: 'editar-negocio/:id',
+    loadComponent: () => import('./editar-negocio/editar-negocio.page').then( m => m.EditarNegocioPage)
   }
 
 ];
