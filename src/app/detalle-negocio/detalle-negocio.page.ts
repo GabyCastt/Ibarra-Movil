@@ -131,6 +131,7 @@ export class DetalleNegocioPage implements OnInit {
     }
   }
 
+  // =================== NAVEGACIÓN Y FUNCIONES DE BOTONES ===================
 
   /**
    * Función placeholder para el botón de editar (sin funcionalidad)
@@ -299,8 +300,10 @@ export class DetalleNegocioPage implements OnInit {
     toast.present();
   }
 
+  // =================== GETTERS PARA TEMPLATE ===================
 
   /**
+   * Determina si mostrar el botón de editar según el estado
    * Solo VALIDATED y REJECTED pueden editarse/corregirse
    * PENDING no se puede editar ni corregir
    */
@@ -313,6 +316,7 @@ export class DetalleNegocioPage implements OnInit {
   }
 
   /**
+   * Determina si mostrar el botón de administrar negocio
    * Solo VALIDATED puede administrar el negocio
    */
   get shouldShowAdminButton(): boolean {
@@ -323,13 +327,15 @@ export class DetalleNegocioPage implements OnInit {
   }
 
   /**
-   * Solo VALIDATED puede solicitar eliminación
+   * Determina si mostrar el botón de solicitar eliminación
+   * Todos los estados pueden solicitar eliminación
    */
   get shouldShowDeleteButton(): boolean {
     if (!this.business) return false;
     
-    // Solo mostrar para VALIDATED únicamente
-    return this.business.validationStatus === 'VALIDATED';
+    // Mostrar para todos los estados
+    const deleteStatuses = ['VALIDATED', 'REJECTED', 'PENDING'];
+    return deleteStatuses.includes(this.business.validationStatus);
   }
 
   /**
@@ -427,6 +433,7 @@ export class DetalleNegocioPage implements OnInit {
     return statusClasses[this.business.validationStatus] || '';
   }
 
+  // =================== MANEJO DE ERRORES EN IMÁGENES ===================
 
   handleImageError(event: any, imageType: string = 'carousel'): void {
     if (!event || !event.target) return;
