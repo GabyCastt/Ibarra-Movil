@@ -136,8 +136,15 @@ export class DetalleNegocioPage implements OnInit {
   /**
    * Función placeholder para el botón de editar (sin funcionalidad)
    */
-  editBusiness(): void {    
-      this.router.navigate(['/editar-negocio', this.businessId])
+  editBusiness(): void {
+    console.log('Edit business button clicked - No functionality implemented');
+    console.log('Business status:', this.business?.validationStatus);
+    
+    const message = this.business?.validationStatus === 'REJECTED' 
+      ? 'Funcionalidad de corrección no disponible' 
+      : 'Funcionalidad de edición no disponible';
+      
+    this.showInfoToast(message);
   }
 
   /**
