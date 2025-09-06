@@ -19,5 +19,282 @@
       </div>
     </div>
   </div>
+  <form [formGroup]="editBusiness" (ngSubmit)="onSubmit()">
+    <!-- Campo de categoría -->
+    <div class="form-field-wrapper">
+      <ion-item class="form-field" fill="outline" [class.error-field]="hasError('categoryId')">
+        <ion-label position="stacked">Categoría <span class="required">*</span></ion-label>
+        <ion-select placeholder="Selecciona una categoría" formControlName="categoryId" interface="popover">
+          <ion-select-option *ngFor="let category of categories" [value]="category.id">
+            {{ category.name }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+      <div class="error-message" *ngIf="hasError('categoryId')"><ion-icon name="alert-circle-outline"
+          aria-hidden="true"></ion-icon>
+        {{ getErrorMessage('categoryId') }}
+      </div>
+    </div>
+    <div class="form-field-wrapper">
+      <ion-item class="form-field" fill="outline" [class.error-field]="hasError('commercialName')">
+        <ion-label position="stacked">
+          Nombre Comercial (¿Cómo se llama su emprendimiento?) <span class="required">*</span>
+        </ion-label>
+        <ion-input formControlName="commercialName" type="text" maxlength="100"></ion-input>
+      </ion-item>
+      <div class="error-message" *ngIf="hasError('commercialName')"><ion-icon name="alert-circle-outline"
+          aria-hidden="true"></ion-icon>
+        {{ getErrorMessage('commercialName') }}
+      </div>
+    </div>
+    <!-- Teléfono -->
+    <div class="form-field-wrapper">
+      <ion-item class="form-field" fill="outline" [class.error-field]="hasError('phone')">
+        <ion-label position="stacked">Teléfono <span class="required">*</span></ion-label>
+        <div class="country">
+          <ion-select interface="popover" class="w-28" formControlName="countryCodePhone">
+            <ion-select-option value="+593">Ecuador (+593)</ion-select-option>
+            <ion-select-option value="+57">Colombia (+57)</ion-select-option>
+            <ion-select-option value="+52">México (+52)</ion-select-option>
+            <ion-select-option value="+34">España (+34)</ion-select-option>
+          </ion-select>
+          <ion-input formControlName="phone" type="tel" maxlength="9" placeholder="999999999"></ion-input>
+        </div>
+      </ion-item>
+      <div class="error-message" *ngIf="hasError('phone')"><ion-icon name="alert-circle-outline"
+          aria-hidden="true"></ion-icon>
+        {{ getErrorMessage('phone') }}
+      </div>
+    </div>
+    <!-- Descripción -->
+    <div class="form-field-wrapper">
+      <ion-item class="form-field" fill="outline" [class.error-field]="hasError('description')">
+        <ion-label position="stacked">Descripción <span class="required">*</span></ion-label>
+        <ion-textarea formControlName="description" placeholder="Escribe aquí..." autoGrow="true"
+          maxlength="200"></ion-textarea>
+      </ion-item>
+      <div class="error-message" *ngIf="hasError('description')"><ion-icon name="alert-circle-outline"
+          aria-hidden="true"></ion-icon>
+        {{ getErrorMessage('description') }}
+      </div>
+    </div>
+    <!-- Dirección -->
+    <div class="form-field-wrapper">
+      <ion-item class="form-field" fill="outline" [class.error-field]="hasError('address')">
+        <ion-label position="stacked">Dirección <span class="required">*</span></ion-label>
+        <ion-textarea formControlName="address" placeholder="Escribe aquí..." autoGrow="true"
+          maxlength="100"></ion-textarea>
+      </ion-item>
+      <div class="error-message" *ngIf="hasError('address')">
+        {{ getErrorMessage('address') }}
+      </div>
+    </div>
+    <!-- Sitio Web -->
+    <div class="form-field-wrapper">
+      <ion-item class="form-field" fill="outline" [class.error-field]="hasError('website')">
+        <ion-label position="stacked">Sitio Web (Opcional)</ion-label>
+        <ion-input formControlName="website" type="url" maxlength="100" placeholder="https://"></ion-input>
+      </ion-item>
+      <div class="error-message" *ngIf="hasError('website')">
+        {{ getErrorMessage('website') }}
+      </div>
+    </div>
+     <!-- Campo de coordenadas con mapa integrado -->
+    <div class="form-field-wrapper">
+      <ion-item class="form-field" fill="outline" [class.error-field]="hasError('googleMapsCoordinates')">
+        <ion-label position="stacked">Coordenadas de Google Maps <span class="required">*</span></ion-label>
+        <ion-input formControlName="googleMapsCoordinates" type="text" maxlength="100" readonly></ion-input>
+      </ion-item>
 
+      <!-- Botón para abrir el mapa -->
+      <ion-button fill="outline" color="primary" (click)="openMap()" class="map-button">
+        <ion-icon name="location-outline" slot="start"></ion-icon>
+        Seleccionar ubicación en el mapa
+      </ion-button>
+
+      <div class="error-message" *ngIf="hasError('googleMapsCoordinates')">
+        {{ getErrorMessage('googleMapsCoordinates') }}
+      </div>
+    </div>
+
+    <!-- Modal del mapa -->
+    <ion-modal [isOpen]="showMap" (didDismiss)="closeMap()">
+      <ng-template>
+        <ion-header>
+          <ion-toolbar>
+            <ion-title>Seleccionar Ubicación</ion-title>
+            <ion-buttons slot="end">
+              <ion-button (click)="closeMap()">
+                <ion-icon name="close"></ion-icon>
+              </ion-button>
+            </ion-buttons>
+          </ion-toolbar>
+        </ion-header>
+        <ion-content>
+          <div class="map-info">
+            <p>Toca en el mapa o arrastra el marcador para seleccionar tu ubicación exacta</p>
+            <ion-button fill="outline" size="small" (click)="centerOnCurrentLocation()">
+              <ion-icon name="locate-outline" slot="start"></ion-icon>
+              Mi ubicación actual
+            </ion-button>
+          </div>
+
+          <!-- Contenedor del mapa -->
+          <div #mapContainer class="map-container" id="map"></div>
+
+          <div class="map-actions">
+            <ion-button expand="block" (click)="confirmLocation()"
+              [disabled]="!editBusiness.get('googleMapsCoordinates')?.value">
+              <ion-icon name="checkmark-outline" slot="start"></ion-icon>
+              Confirmar Ubicación
+            </ion-button>
+          </div>
+        </ion-content>
+      </ng-template>
+    </ion-modal>
+
+    <!-- Servicio de delivery -->
+    <div class="form-field-wrapper">
+      <ion-item class="form-field" fill="outline" [class.error-field]="hasError('deliveryService')">
+        <ion-label position="stacked">Servicio de Delivery</ion-label>
+        <ion-select formControlName="deliveryService" placeholder="Seleccione una opción">
+          <ion-select-option value="NO">No</ion-select-option>
+          <ion-select-option value="SI">Sí</ion-select-option>
+          <ion-select-option value="BAJO_PEDIDO">Bajo Pedido</ion-select-option>
+        </ion-select>
+      </ion-item>
+      <div class="error-message" *ngIf="hasError('deliveryService')">
+        {{ getErrorMessage('deliveryService') }}
+      </div>
+    </div>
+    <!-- Campo WhatsApp condicional -->
+    <div *ngIf="editBusiness.get('acceptsWhatsappOrders')?.value" class="form-field-wrapper">
+      <ion-item class="form-field" fill="outline" [class.error-field]="hasError('whatsappNumber')">
+        <ion-label position="stacked">WhatsApp <span class="required">*</span></ion-label>
+        <div class="country">
+          <ion-select interface="popover" class="w-28" formControlName="countryCode">
+            <ion-select-option value="+593">Ecuador (+593)</ion-select-option>
+            <ion-select-option value="+57">Colombia (+57)</ion-select-option>
+            <ion-select-option value="+52">México (+52)</ion-select-option>
+            <ion-select-option value="+34">España (+34)</ion-select-option>
+          </ion-select>
+          <ion-input formControlName="whatsappNumber" type="tel" maxlength="9" placeholder="999999999"></ion-input>
+        </div>
+      </ion-item>
+      <div class="error-message" *ngIf="hasError('whatsappNumber')">
+        {{ getErrorMessage('whatsappNumber') }}
+      </div>
+    </div>
+    <!-- Servicio de delivery -->
+    <div class="form-field-wrapper">
+      <ion-item class="form-field" fill="outline" [class.error-field]="hasError('deliveryService')">
+        <ion-label position="stacked">Servicio de Delivery</ion-label>
+        <ion-select formControlName="deliveryService" placeholder="Seleccione una opción">
+          <ion-select-option value="NO">No</ion-select-option>
+          <ion-select-option value="SI">Sí</ion-select-option>
+          <ion-select-option value="BAJO_PEDIDO">Bajo Pedido</ion-select-option>
+        </ion-select>
+      </ion-item>
+      <div class="error-message" *ngIf="hasError('deliveryService')">
+        {{ getErrorMessage('deliveryService') }}
+      </div>
+    </div>
+
+      <!-- Horarios -->
+    <div class="form-field-wrapper">
+      <ion-item class="form-field" fill="outline" [class.error-field]="hasError('schedules')">
+        <ion-label position="stacked">Horarios <span class="required">*</span></ion-label>
+        <ion-textarea formControlName="schedules" placeholder="Escribe aquí..." autoGrow="true"
+          maxlength="200"></ion-textarea>
+      </ion-item>
+      <div class="error-message" *ngIf="hasError('schedules')">
+        {{ getErrorMessage('schedules') }}
+      </div>
+    </div>
+
+     <!-- Redes sociales -->
+    <div class="form-field-wrapper">
+      <ion-item class="form-field" fill="outline">
+        <ion-label position="stacked">Facebook (opcional)</ion-label>
+        <ion-input formControlName="facebook" type="text" maxlength="100"
+          placeholder="https://facebook.com/"></ion-input>
+      </ion-item>
+    </div>
+
+    <div class="form-field-wrapper">
+      <ion-item class="form-field" fill="outline">
+        <ion-label position="stacked">Instagram (opcional)</ion-label>
+        <ion-input formControlName="instagram" type="text" maxlength="100" placeholder="@usuario"></ion-input>
+      </ion-item>
+    </div>
+
+    <div class="form-field-wrapper">
+      <ion-item class="form-field" fill="outline">
+        <ion-label position="stacked">TikTok (opcional)</ion-label>
+        <ion-input formControlName="tiktok" type="text" maxlength="100" placeholder="@usuario"></ion-input>
+      </ion-item>
+    </div>
+     <!-- Upload de logo -->
+    <div class="form-field-wrapper">
+      <label class="upload-label" for="logoFileInput">Logo del Negocio (opcional)</label>
+      <div class="upload-box" (dragover)="onDragOver($event)" (drop)="onDrop($event, 'logoFile')">
+        <ion-icon name="folder-open" class="upload-icon"></ion-icon>
+        <p>Arrastra tu logo aquí o haz clic para seleccionar</p>
+        <input id="logoFileInput" type="file" accept=".jpg,.jpeg,.png"
+          title="Logo (JPG o PNG, máx. 2 MB, mín. 800x600 px)" (change)="onFileChange($event, 'logoFile')" />
+      </div>
+      <div class="file-name" *ngIf="logoFile">
+        <ion-icon name="document-outline"></ion-icon>
+        <span>{{ logoFile.name }}</span>
+        <ion-button fill="clear" size="small" (click)="removeFile('logoFile')">
+          <ion-icon name="close-circle" color="danger"></ion-icon>
+        </ion-button>
+      </div>
+      <div class="upload-info">
+        <div><ion-icon name="document-text-outline"></ion-icon><span>JPG, PNG</span></div>
+        <div><ion-icon name="cloud-upload-outline"></ion-icon><span>2 MB máx.</span></div>
+        <div><ion-icon name="resize-outline"></ion-icon><span>Mín. 800x600 px</span></div>
+      </div>
+    </div>
+
+     <!-- Upload de carrusel -->
+    <div class="form-field-wrapper">
+      <label class="upload-label" for="carrouselPhotosInput">
+        Carrusel de Imágenes (opcional) - Máximo 5 fotos
+      </label>
+      <div class="upload-box" (dragover)="onDragOver($event)" (drop)="onDrop($event, 'carrouselPhotos')">
+        <ion-icon name="folder-open" class="upload-icon"></ion-icon>
+        <p>Arrastra tus fotos aquí o haz clic para seleccionarlas</p>
+        <input id="carrouselPhotosInput" type="file" multiple accept=".jpg,.jpeg,.png"
+          title="Fotos de productos (JPG o PNG, máx. 2 MB cada una)"
+          (change)="onFileChange($event, 'carrouselPhotos')" />
+      </div>
+      <div class="file-list" *ngIf="carrouselPhotos?.length">
+        <div class="file-item" *ngFor="let photo of carrouselPhotos; let i = index">
+          <ion-icon name="image-outline"></ion-icon>
+          <span>{{ photo.name }}</span>
+          <ion-button fill="clear" size="small" (click)="removeCarrouselPhoto(i)">
+            <ion-icon name="close-circle" color="danger"></ion-icon>
+          </ion-button>
+        </div>
+      </div>
+      <div class="upload-info">
+        <div><ion-icon name="document-text-outline"></ion-icon><span>JPG, PNG</span></div>
+        <div><ion-icon name="cloud-upload-outline"></ion-icon><span>2 MB por archivo</span></div>
+        <div><ion-icon name="images-outline"></ion-icon><span>Máximo 5 fotos</span></div>
+      </div>
+    </div>
+
+    <!-- Botón de envío -->
+    <ion-button expand="block" type="submit" [disabled]="editBusiness.invalid || isLoading" class="submit-button">
+      <ng-container *ngIf="!isLoading">
+        <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+        Editar Negocio
+      </ng-container>
+      <ng-container *ngIf="isLoading">
+        <ion-spinner name="crescent"></ion-spinner>
+        <span style="margin-left: 8px;">Procesando...</span>
+      </ng-container>
+    </ion-button>
+  </form>
 </ion-content>

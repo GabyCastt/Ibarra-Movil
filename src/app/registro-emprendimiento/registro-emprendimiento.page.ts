@@ -574,8 +574,6 @@ private loadParish(type?: string) {
       return;
     }
 
-    console.log(this.registerBusiness.value)
-
     if (!this.validateFormBeforeSubmit()) {
       return;
     }

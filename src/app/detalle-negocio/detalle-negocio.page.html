@@ -23,14 +23,14 @@
 
   <!-- Business Content -->
   <div *ngIf="!loading && !error && business" class="business-content">
-    
+
     <!-- Business Header -->
     <div class="business-header">
       <div class="logo-container" *ngIf="business.logoUrl">
         <img [src]="business.logoUrl" [alt]="business.commercialName" class="business-logo"
-             (error)="handleImageError($event, 'logo')"/>
+          (error)="handleImageError($event, 'logo')" />
       </div>
-      
+
       <div class="header-info">
         <h1 class="business-title">{{ business.commercialName }}</h1>
         <p class="representative" *ngIf="business.representativeName">
@@ -48,7 +48,8 @@
       <ion-icon class="rejection-icon-ic" name="alert-circle-outline" aria-hidden="true"></ion-icon>
       <div class="rejection-text">
         <h4>Negocio Rechazado</h4>
-        <p>Tu negocio fue rechazado durante la validación. Para corregir los datos y enviar a nueva revisión, contacta al administrador.</p>
+        <p>Tu negocio fue rechazado durante la validación. Para corregir los datos y enviar a nueva revisión, contacta
+          al administrador.</p>
         <p *ngIf="business.rejectionReason"><strong>Razón:</strong> {{ business.rejectionReason }}</p>
       </div>
     </div>
@@ -57,54 +58,47 @@
     <div class="carousel-container" *ngIf="photoUrls && photoUrls.length > 0">
       <div class="carousel-header">
         <h3>
-          <ion-icon class="section-icon" name="images-outline" aria-hidden="true"></ion-icon> 
+          <ion-icon class="section-icon" name="images-outline" aria-hidden="true"></ion-icon>
           Imágenes del Negocio ({{ currentImageIndex + 1 }}/{{ photoUrls.length }})
         </h3>
       </div>
-      
+
       <div class="carousel-wrapper">
         <div class="carousel-main">
           <!-- Previous Arrow -->
           <button class="carousel-button prev" (click)="prevImage()" *ngIf="hasMultipleImages">
             <ion-icon name="chevron-back-outline"></ion-icon>
           </button>
-          
+
           <!-- Image Container -->
           <div class="image-container">
-            <img [src]="currentImage" [alt]="business.commercialName" class="carousel-image" 
-                 (error)="handleImageError($event, 'carousel')">
+            <img [src]="currentImage" [alt]="business.commercialName" class="carousel-image"
+              (error)="handleImageError($event, 'carousel')">
           </div>
-          
+
           <!-- Next Arrow -->
           <button class="carousel-button next" (click)="nextImage()" *ngIf="hasMultipleImages">
             <ion-icon name="chevron-forward-outline"></ion-icon>
           </button>
-          
+
           <!-- Image Counter (overlay) -->
           <div class="image-counter" *ngIf="hasMultipleImages">
             {{ currentImageIndex + 1 }} / {{ photoUrls.length }}
           </div>
         </div>
-        
+
         <!-- Dot Indicators -->
         <div class="carousel-indicators" *ngIf="hasMultipleImages">
-          <button 
-            *ngFor="let url of photoUrls; let i = index" 
-            class="indicator"
-            [class.active]="i === currentImageIndex"
-            (click)="selectImage(i)"
-            [title]="'Imagen ' + (i + 1)">
+          <button *ngFor="let url of photoUrls; let i = index" class="indicator"
+            [class.active]="i === currentImageIndex" (click)="selectImage(i)" [title]="'Imagen ' + (i + 1)">
           </button>
         </div>
-        
+
         <!-- Thumbnail View (for more than 3 images) -->
         <div class="carousel-thumbnails" *ngIf="photoUrls.length > 3">
           <div class="thumbnail-scroll">
-            <div 
-              *ngFor="let url of photoUrls; let i = index" 
-              class="thumbnail-item"
-              [class.active]="i === currentImageIndex"
-              (click)="selectImage(i)">
+            <div *ngFor="let url of photoUrls; let i = index" class="thumbnail-item"
+              [class.active]="i === currentImageIndex" (click)="selectImage(i)">
               <img [src]="url" [alt]="'Miniatura ' + (i + 1)" class="thumbnail-image">
             </div>
           </div>
@@ -139,8 +133,8 @@
       </div>
 
       <!-- Social Media -->
-      <div class="form-group half-width" 
-           *ngIf="business.facebook || business.instagram || business.tiktok || business.website">
+      <div class="form-group half-width"
+        *ngIf="business.facebook || business.instagram || business.tiktok || business.website">
         <label class="form-label">Redes Sociales</label>
         <div class="social-media-container">
           <div class="social-item" *ngIf="business.instagram">
@@ -170,7 +164,7 @@
     <!-- Contact Information -->
     <div class="form-group">
       <label class="form-label">
-        <ion-icon name="information-circle-outline" aria-hidden="true"></ion-icon> 
+        <ion-icon name="information-circle-outline" aria-hidden="true"></ion-icon>
         Información de Contacto
       </label>
       <div class="contact-container">
@@ -182,7 +176,7 @@
           </div>
           <button class="contact-button" (click)="callPhone()">Llamar</button>
         </div>
-        
+
         <div class="contact-item" *ngIf="business.email">
           <ion-icon class="contact-icon" name="mail-outline" aria-hidden="true"></ion-icon>
           <div class="contact-info">
@@ -191,7 +185,7 @@
           </div>
           <button class="contact-button" (click)="sendEmail()">Escribir</button>
         </div>
-        
+
         <div class="contact-item" *ngIf="business.whatsappNumber">
           <ion-icon class="contact-icon" name="logo-whatsapp" aria-hidden="true"></ion-icon>
           <div class="contact-info">
@@ -206,7 +200,7 @@
     <!-- Location -->
     <div class="form-group">
       <label class="form-label">
-        <ion-icon name="location-outline" aria-hidden="true"></ion-icon> 
+        <ion-icon name="location-outline" aria-hidden="true"></ion-icon>
         Ubicación
       </label>
       <div class="location-container">
@@ -236,7 +230,7 @@
           <p>{{ salePlaceText }}</p>
         </div>
       </div>
-      
+
       <div class="info-card">
         <ion-icon class="info-icon" name="bicycle-outline" aria-hidden="true"></ion-icon>
         <div class="info-content">
@@ -244,7 +238,7 @@
           <p>{{ deliveryText }}</p>
         </div>
       </div>
-      
+
       <div class="info-card" *ngIf="business.category">
         <ion-icon class="info-icon" name="pricetag-outline" aria-hidden="true"></ion-icon>
         <div class="info-content">
@@ -281,7 +275,7 @@
     <div class="action-section">
       <h3 class="action-title">Opciones del Negocio</h3>
       <div class="action-buttons-grid">
-        
+
         <!-- Botón Volver - Siempre visible -->
         <button class="action-btn cancel-btn" (click)="goBack()">
           <ion-icon class="btn-icon" name="arrow-back-outline"></ion-icon>
@@ -295,21 +289,26 @@
           <span>{{ editButtonText }}</span>
           <small class="btn-subtitle">{{ editButtonSubtitle }}</small>
         </button>
+<<<<<<< HEAD
         
         <!-- Botón Solicitar Eliminación - Para todos los estados -->
+=======
+
+        <!-- Botón Solicitar Eliminación - Solo para VALIDATED -->
+>>>>>>> 44e7252 (feat: add edit business)
         <button class="action-btn delete-btn" (click)="openDeleteFunctionality()" *ngIf="shouldShowDeleteButton">
           <ion-icon class="btn-icon" name="trash-outline"></ion-icon>
           <span>Solicitar Eliminación</span>
           <small class="btn-subtitle">Enviar solicitud de eliminación</small>
         </button>
-        
+
         <!-- Botón Administrar Negocio - Solo para VALIDATED -->
         <button class="action-btn admin-btn" (click)="openAdministrationPanel()" *ngIf="shouldShowAdminButton">
           <ion-icon class="btn-icon" name="settings-outline"></ion-icon>
           <span>Administrar Negocio</span>
           <small class="btn-subtitle">Gestionar promociones</small>
         </button>
-        
+
       </div>
     </div>
 
