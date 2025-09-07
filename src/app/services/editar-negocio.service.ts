@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { AuthService } from './auth.service';
 import { catchError, throwError } from 'rxjs';
+import { Business } from './detalle-privado.service';
 
 @Injectable({
   providedIn: 'root'
@@ -28,6 +29,17 @@ export class EditarNegocioService {
     const headers = this.getAuthHeaders();
     return this.http
       .put(`${this.businessUrl}/update-rejected/${businessId}`, formData, { headers })
+      .pipe(
+        catchError((error) => {
+          return throwError(() => new Error(`Error updating business: ${error.message}`));
+        })
+      );
+  }
+   // negocio aceptado usando la interfaz Business existente
+  updateBusinessAccepted(businessId: number, businessData: Partial<Business>) {
+    const headers = this.getAuthHeaders();
+    return this.http
+      .put(`${this.businessUrl}/${businessId}`, businessData, { headers })
       .pipe(
         catchError((error) => {
           return throwError(() => new Error(`Error updating business: ${error.message}`));

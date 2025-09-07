@@ -20,8 +20,8 @@
     </div>
   </div>
   <form [formGroup]="editBusiness" (ngSubmit)="onSubmit()">
-    <!-- Campo de categoría -->
-    <div class="form-field-wrapper">
+    <!-- Campo de categoría - Solo editable si es REJECTED -->
+    <div class="form-field-wrapper" *ngIf="isFieldEditable('categoryId')">
       <ion-item class="form-field" fill="outline" [class.error-field]="hasError('categoryId')">
         <ion-label position="stacked">Categoría <span class="required">*</span></ion-label>
         <ion-select placeholder="Selecciona una categoría" formControlName="categoryId" interface="popover">
@@ -35,6 +35,8 @@
         {{ getErrorMessage('categoryId') }}
       </div>
     </div>
+
+    <!-- Nombre comercial - Siempre editable -->
     <div class="form-field-wrapper">
       <ion-item class="form-field" fill="outline" [class.error-field]="hasError('commercialName')">
         <ion-label position="stacked">
@@ -47,7 +49,8 @@
         {{ getErrorMessage('commercialName') }}
       </div>
     </div>
-    <!-- Teléfono -->
+
+    <!-- Teléfono - Siempre editable -->
     <div class="form-field-wrapper">
       <ion-item class="form-field" fill="outline" [class.error-field]="hasError('phone')">
         <ion-label position="stacked">Teléfono <span class="required">*</span></ion-label>
@@ -66,7 +69,8 @@
         {{ getErrorMessage('phone') }}
       </div>
     </div>
-    <!-- Descripción -->
+
+    <!-- Descripción - Siempre editable -->
     <div class="form-field-wrapper">
       <ion-item class="form-field" fill="outline" [class.error-field]="hasError('description')">
         <ion-label position="stacked">Descripción <span class="required">*</span></ion-label>
@@ -78,7 +82,8 @@
         {{ getErrorMessage('description') }}
       </div>
     </div>
-    <!-- Dirección -->
+
+    <!-- Dirección - Siempre editable -->
     <div class="form-field-wrapper">
       <ion-item class="form-field" fill="outline" [class.error-field]="hasError('address')">
         <ion-label position="stacked">Dirección <span class="required">*</span></ion-label>
@@ -89,7 +94,8 @@
         {{ getErrorMessage('address') }}
       </div>
     </div>
-    <!-- Sitio Web -->
+
+    <!-- Sitio Web - Siempre editable -->
     <div class="form-field-wrapper">
       <ion-item class="form-field" fill="outline" [class.error-field]="hasError('website')">
         <ion-label position="stacked">Sitio Web (Opcional)</ion-label>
@@ -99,7 +105,19 @@
         {{ getErrorMessage('website') }}
       </div>
     </div>
-    <!-- Campo de coordenadas con mapa integrado -->
+
+    <!-- Email - Siempre editable -->
+    <div class="form-field-wrapper">
+      <ion-item class="form-field" fill="outline" [class.error-field]="hasError('email')">
+        <ion-label position="stacked">Email (Opcional)</ion-label>
+        <ion-input formControlName="email" type="email" maxlength="100" placeholder="correo@ejemplo.com"></ion-input>
+      </ion-item>
+      <div class="error-message" *ngIf="hasError('email')">
+        {{ getErrorMessage('email') }}
+      </div>
+    </div>
+
+    <!-- Campo de coordenadas con mapa integrado - Siempre editable -->
     <div class="form-field-wrapper">
       <ion-item class="form-field" fill="outline" [class.error-field]="hasError('googleMapsCoordinates')">
         <ion-label position="stacked">Coordenadas de Google Maps <span class="required">*</span></ion-label>
@@ -153,8 +171,8 @@
       </ng-template>
     </ion-modal>
 
-    <!-- Servicio de delivery -->
-    <div class="form-field-wrapper">
+    <!-- Servicio de delivery - Solo editable si es REJECTED -->
+    <div class="form-field-wrapper" *ngIf="isFieldEditable('deliveryService')">
       <ion-item class="form-field" fill="outline" [class.error-field]="hasError('deliveryService')">
         <ion-label position="stacked">Servicio de Delivery</ion-label>
         <ion-select formControlName="deliveryService" placeholder="Seleccione una opción">
@@ -167,7 +185,31 @@
         {{ getErrorMessage('deliveryService') }}
       </div>
     </div>
-    <!-- Campo WhatsApp condicional -->
+
+    <!-- Lugar de venta - Solo editable si es REJECTED -->
+    <div class="form-field-wrapper" *ngIf="isFieldEditable('salePlace')">
+      <ion-item class="form-field" fill="outline" [class.error-field]="hasError('salePlace')">
+        <ion-label position="stacked">Lugar de Venta</ion-label>
+        <ion-select formControlName="salePlace" placeholder="Seleccione una opción">
+          <ion-select-option value="NO">No</ion-select-option>
+          <ion-select-option value="FERIAS">Ferias</ion-select-option>
+          <ion-select-option value="LOCAL_FIJO">Local Fijo</ion-select-option>
+        </ion-select>
+      </ion-item>
+      <div class="error-message" *ngIf="hasError('salePlace')">
+        {{ getErrorMessage('salePlace') }}
+      </div>
+    </div>
+
+    <!-- Checkbox WhatsApp - Siempre editable -->
+    <div class="form-field-wrapper">
+      <ion-item class="form-field" fill="outline">
+        <ion-checkbox formControlName="acceptsWhatsappOrders"></ion-checkbox>
+        <ion-label class="ion-margin-start">¿Acepta pedidos por WhatsApp?</ion-label>
+      </ion-item>
+    </div>
+
+    <!-- Campo WhatsApp condicional - Siempre editable si el checkbox está marcado -->
     <div *ngIf="editBusiness.get('acceptsWhatsappOrders')?.value" class="form-field-wrapper">
       <ion-item class="form-field" fill="outline" [class.error-field]="hasError('whatsappNumber')">
         <ion-label position="stacked">WhatsApp <span class="required">*</span></ion-label>
@@ -185,22 +227,8 @@
         {{ getErrorMessage('whatsappNumber') }}
       </div>
     </div>
-    <!-- Servicio de delivery -->
-    <div class="form-field-wrapper">
-      <ion-item class="form-field" fill="outline" [class.error-field]="hasError('deliveryService')">
-        <ion-label position="stacked">Servicio de Delivery</ion-label>
-        <ion-select formControlName="deliveryService" placeholder="Seleccione una opción">
-          <ion-select-option value="NO">No</ion-select-option>
-          <ion-select-option value="SI">Sí</ion-select-option>
-          <ion-select-option value="BAJO_PEDIDO">Bajo Pedido</ion-select-option>
-        </ion-select>
-      </ion-item>
-      <div class="error-message" *ngIf="hasError('deliveryService')">
-        {{ getErrorMessage('deliveryService') }}
-      </div>
-    </div>
 
-    <!-- Horarios -->
+    <!-- Horarios - Siempre editable -->
     <div class="form-field-wrapper">
       <ion-item class="form-field" fill="outline" [class.error-field]="hasError('schedules')">
         <ion-label position="stacked">Horarios <span class="required">*</span></ion-label>
@@ -212,7 +240,7 @@
       </div>
     </div>
 
-    <!-- Redes sociales -->
+    <!-- Redes sociales - Siempre editables -->
     <div class="form-field-wrapper">
       <ion-item class="form-field" fill="outline">
         <ion-label position="stacked">Facebook (opcional)</ion-label>
@@ -234,17 +262,15 @@
         <ion-input formControlName="tiktok" type="text" maxlength="100" placeholder="@usuario"></ion-input>
       </ion-item>
     </div>
-    <!-- Upload de logo -->
-    <div class="form-field-wrapper">
+
+    <!-- Upload de logo - Solo visible si validationStatus es REJECTED -->
+    <div class="form-field-wrapper" *ngIf="validationStatus === 'REJECTED'">
       <label class="upload-label" for="logoFileInput">Logo del Negocio (opcional)</label>
       <div class="upload-box" (dragover)="onDragOver($event)" (drop)="onDrop($event, 'logoFile')">
         <ion-icon name="folder-open" class="upload-icon"></ion-icon>
         <p>Arrastra tu logo aquí o haz clic para seleccionar</p>
         <input id="logoFileInput" type="file" accept=".jpg,.jpeg,.png"
-          title="Logo (JPG o PNG, máx. 2 MB, mín. 800x600 px)" (change)="onFileChange($event, 'logoFile')"
-          [disabled]="validationStatus != 'REJECTED'" />
-
-        />
+          title="Logo (JPG o PNG, máx. 2 MB, mín. 800x600 px)" (change)="onFileChange($event, 'logoFile')" />
       </div>
       <div class="file-name" *ngIf="logoFile">
         <ion-icon name="document-outline"></ion-icon>
@@ -260,8 +286,8 @@
       </div>
     </div>
 
-    <!-- Upload de carrusel -->
-    <div class="form-field-wrapper">
+    <!-- Upload de carrusel - Solo visible si validationStatus es REJECTED -->
+    <div class="form-field-wrapper" *ngIf="validationStatus === 'REJECTED'">
       <label class="upload-label" for="carrouselPhotosInput">
         Carrusel de Imágenes (opcional) - Máximo 5 fotos
       </label>
@@ -269,9 +295,7 @@
         <ion-icon name="folder-open" class="upload-icon"></ion-icon>
         <p>Arrastra tus fotos aquí o haz clic para seleccionarlas</p>
         <input id="carrouselPhotosInput" type="file" multiple accept=".jpg,.jpeg,.png"
-          title="Fotos de productos (JPG o PNG, máx. 2 MB cada una)" (change)="onFileChange($event, 'carrouselPhotos')"
-          [disabled]="validationStatus != 'REJECTED'" />
-        />
+          title="Fotos de productos (JPG o PNG, máx. 2 MB cada una)" (change)="onFileChange($event, 'carrouselPhotos')" />
       </div>
       <div class="file-list" *ngIf="carrouselPhotos?.length">
         <div class="file-item" *ngFor="let photo of carrouselPhotos; let i = index">
@@ -289,11 +313,29 @@
       </div>
     </div>
 
+    <!-- Mensaje informativo para negocios PENDING/APPROVED -->
+    <div *ngIf="isAcceptedOrPendingBusiness()" class="info-message">
+      <ion-card color="light">
+        <ion-card-content>
+          <ion-icon name="information-circle-outline" color="primary"></ion-icon>
+          <p>
+            <strong>Información:</strong> Para negocios en estado 
+            <span [class]="validationStatus === 'PENDING' ? 'status-pending' : 'status-approved'">
+              {{ validationStatus === 'PENDING' ? 'PENDIENTE' : 'APROBADO' }}
+            </span>, 
+            solo se pueden editar ciertos campos como información de contacto, redes sociales y descripción.
+            Para cambiar la categoría, servicio de delivery o subir nuevas imágenes, 
+            contacte al administrador del sistema.
+          </p>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
     <!-- Botón de envío -->
     <ion-button expand="block" type="submit" [disabled]="editBusiness.invalid || isLoading" class="submit-button">
       <ng-container *ngIf="!isLoading">
         <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
-        Editar Negocio
+        Actualizar Negocio
       </ng-container>
       <ng-container *ngIf="isLoading">
         <ion-spinner name="crescent"></ion-spinner>

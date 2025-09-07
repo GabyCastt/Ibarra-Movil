@@ -69,12 +69,12 @@ export class DetalleNegocioPage implements OnInit {
         this.business = business;
         
         // Procesar imágenes del carrusel
-        console.log('🖼️ Processing business photos:', business.photos);
+        console.log('Processing business photos:', business.photos);
         this.photoUrls = (business && business.photos && Array.isArray(business.photos)) 
           ? this.detallePrivadoService.getBusinessCarouselPhotoUrls(business.photos) 
           : [];
         
-        console.log('📸 Final photoUrls array:', this.photoUrls);
+        console.log(' Final photoUrls array:', this.photoUrls);
         
         // Procesar horarios
         this.formattedSchedules = (business && business.schedules && Array.isArray(business.schedules)) 
@@ -86,8 +86,8 @@ export class DetalleNegocioPage implements OnInit {
           
         this.loading = false;
         console.log('[OK] Business details loaded successfully');
-        console.log(`📊 Photo URLs count: ${this.photoUrls.length}`);
-        console.log(`🏢 Business validation status: ${business.validationStatus}`);
+        console.log(`Photo URLs count: ${this.photoUrls.length}`);
+        console.log(` Business validation status: ${business.validationStatus}`);
       },
       error: (error: any) => {
         console.error('Error loading business details:', error);
@@ -102,7 +102,7 @@ export class DetalleNegocioPage implements OnInit {
     });
   }
 
-  // =================== CARRUSEL DE IMÁGENES ===================
+  // CARRUSEL DE IMÁGENES 
 
   nextImage(): void {
     if (this.photoUrls && Array.isArray(this.photoUrls) && this.photoUrls.length > 0) {

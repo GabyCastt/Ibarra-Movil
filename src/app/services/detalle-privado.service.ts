@@ -203,10 +203,10 @@ export class DetallePrivadoService {
    * Extrae URLs de fotos del negocio
    */
   getPhotoUrls(photos: any[]): string[] {
-    console.log('🖼️ Processing photos for URLs:', photos);
+    console.log('Processing photos for URLs:', photos);
     
     if (!photos || !Array.isArray(photos)) {
-      console.log('❌ No photos available or photos is not an array');
+      console.log(' No photos available or photos is not an array');
       return [];
     }
     
@@ -245,13 +245,13 @@ export class DetallePrivadoService {
           (url.startsWith('http://') || url.startsWith('https://'))) {
         
         urls.push(url.trim());
-        console.log(`✅ Valid URL found for photo ${i + 1}: ${url.substring(0, 50)}...`);
+        console.log(` Valid URL found for photo ${i + 1}: ${url.substring(0, 50)}...`);
       } else {
-        console.log(`❌ No valid URL found for photo ${i + 1}:`, photo);
+        console.log(` No valid URL found for photo ${i + 1}:`, photo);
       }
     }
     
-    console.log(`🎯 Total valid photo URLs extracted: ${urls.length}/${photos.length}`);
+    console.log(` Total valid photo URLs extracted: ${urls.length}/${photos.length}`);
     return urls;
   }
 
