@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-back-button [defaultHref]="backUrl"></ion-back-button>
     </ion-buttons>
-    <ion-title>Editar Promoción</ion-title>
+    <ion-title>Editar Negocio</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -99,7 +99,7 @@
         {{ getErrorMessage('website') }}
       </div>
     </div>
-     <!-- Campo de coordenadas con mapa integrado -->
+    <!-- Campo de coordenadas con mapa integrado -->
     <div class="form-field-wrapper">
       <ion-item class="form-field" fill="outline" [class.error-field]="hasError('googleMapsCoordinates')">
         <ion-label position="stacked">Coordenadas de Google Maps <span class="required">*</span></ion-label>
@@ -200,7 +200,7 @@
       </div>
     </div>
 
-      <!-- Horarios -->
+    <!-- Horarios -->
     <div class="form-field-wrapper">
       <ion-item class="form-field" fill="outline" [class.error-field]="hasError('schedules')">
         <ion-label position="stacked">Horarios <span class="required">*</span></ion-label>
@@ -212,7 +212,7 @@
       </div>
     </div>
 
-     <!-- Redes sociales -->
+    <!-- Redes sociales -->
     <div class="form-field-wrapper">
       <ion-item class="form-field" fill="outline">
         <ion-label position="stacked">Facebook (opcional)</ion-label>
@@ -234,14 +234,17 @@
         <ion-input formControlName="tiktok" type="text" maxlength="100" placeholder="@usuario"></ion-input>
       </ion-item>
     </div>
-     <!-- Upload de logo -->
+    <!-- Upload de logo -->
     <div class="form-field-wrapper">
       <label class="upload-label" for="logoFileInput">Logo del Negocio (opcional)</label>
       <div class="upload-box" (dragover)="onDragOver($event)" (drop)="onDrop($event, 'logoFile')">
         <ion-icon name="folder-open" class="upload-icon"></ion-icon>
         <p>Arrastra tu logo aquí o haz clic para seleccionar</p>
         <input id="logoFileInput" type="file" accept=".jpg,.jpeg,.png"
-          title="Logo (JPG o PNG, máx. 2 MB, mín. 800x600 px)" (change)="onFileChange($event, 'logoFile')" />
+          title="Logo (JPG o PNG, máx. 2 MB, mín. 800x600 px)" (change)="onFileChange($event, 'logoFile')"
+          [disabled]="validationStatus != 'REJECTED'" />
+
+        />
       </div>
       <div class="file-name" *ngIf="logoFile">
         <ion-icon name="document-outline"></ion-icon>
@@ -257,7 +260,7 @@
       </div>
     </div>
 
-     <!-- Upload de carrusel -->
+    <!-- Upload de carrusel -->
     <div class="form-field-wrapper">
       <label class="upload-label" for="carrouselPhotosInput">
         Carrusel de Imágenes (opcional) - Máximo 5 fotos
@@ -266,8 +269,9 @@
         <ion-icon name="folder-open" class="upload-icon"></ion-icon>
         <p>Arrastra tus fotos aquí o haz clic para seleccionarlas</p>
         <input id="carrouselPhotosInput" type="file" multiple accept=".jpg,.jpeg,.png"
-          title="Fotos de productos (JPG o PNG, máx. 2 MB cada una)"
-          (change)="onFileChange($event, 'carrouselPhotos')" />
+          title="Fotos de productos (JPG o PNG, máx. 2 MB cada una)" (change)="onFileChange($event, 'carrouselPhotos')"
+          [disabled]="validationStatus != 'REJECTED'" />
+        />
       </div>
       <div class="file-list" *ngIf="carrouselPhotos?.length">
         <div class="file-item" *ngFor="let photo of carrouselPhotos; let i = index">

@@ -1,8 +1,8 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Form, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Business, DetallePrivadoService } from '../services/detalle-privado.service';
 import { NegociosService } from '../services/negocios.service';
 import { EditarNegocioService } from '../services/editar-negocio.service';
@@ -24,10 +24,10 @@ export class EditarNegocioPage implements OnInit {
   logoFile!: File;
 
   businessId!: string;
+  validationStatus!: string;
   backUrl!: string;
   business: Business | null = null;
   carrouselPhotos: File[] = [];
-
   categories: any[] = [];
   selectedCategoryId: number | undefined = undefined;
   isLoading = false;
@@ -43,19 +43,23 @@ export class EditarNegocioPage implements OnInit {
     private detallePrivadoService: DetallePrivadoService,
     private negociosService: NegociosService,
     private eeditarNegocioService: EditarNegocioService
+    , private router: Router
   ) {
     this.initializeForm();
   }
 
   async ngOnInit() {
     this.businessId = this.route.snapshot.paramMap.get('id')!;
+    this.validationStatus = this.route.snapshot.paramMap.get('validationStatus')!;
+    console.log('ValidationStatus:', this.validationStatus);
     this.backUrl = `/detalle-negocio/${this.businessId}`;
     this.loadBusinessDetails();
+
     this.loadCategories();
+
 
     await this.loadLeafletScript();
   }
-
 
 
   private async loadLeafletScript() {
@@ -208,7 +212,7 @@ export class EditarNegocioPage implements OnInit {
       if (this.logoFile) {
         formData.append('logoFile', this.logoFile);
       }
-       if (this.carrouselPhotos && this.carrouselPhotos.length > 0) {
+      if (this.carrouselPhotos && this.carrouselPhotos.length > 0) {
         this.carrouselPhotos.forEach((file, index) => {
           formData.append('carouselFiles', file);
           console.log(`Foto ${index + 1} agregada:`, file.name);
@@ -406,7 +410,7 @@ export class EditarNegocioPage implements OnInit {
     );
   }
 
-    private validateImageDimensions(file: File): Promise<boolean> {
+  private validateImageDimensions(file: File): Promise<boolean> {
     return new Promise((resolve) => {
       const img = new Image();
       const url = URL.createObjectURL(file);

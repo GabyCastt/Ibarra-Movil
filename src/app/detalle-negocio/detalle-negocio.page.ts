@@ -137,7 +137,7 @@ export class DetalleNegocioPage implements OnInit {
    * Función placeholder para el botón de editar (sin funcionalidad)
    */
   editBusiness(): void {    
-      this.router.navigate(['/editar-negocio', this.businessId])
+      this.router.navigate(['/editar-negocio', this.businessId, this.business?.validationStatus]);
   }
 
   /**
