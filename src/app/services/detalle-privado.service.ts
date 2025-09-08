@@ -214,7 +214,7 @@ export class DetallePrivadoService {
     
     for (let i = 0; i < photos.length; i++) {
       const photo = photos[i];
-      console.log(`📸 Processing photo ${i + 1}:`, photo);
+      console.log(`Processing photo ${i + 1}:`, photo);
       
       let url = '';
       

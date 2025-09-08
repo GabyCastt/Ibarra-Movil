@@ -107,7 +107,7 @@ export class DetalleNegocioPage implements OnInit {
   nextImage(): void {
     if (this.photoUrls && Array.isArray(this.photoUrls) && this.photoUrls.length > 0) {
       this.currentImageIndex = (this.currentImageIndex + 1) % this.photoUrls.length;
-      console.log(`🎠 Next image: ${this.currentImageIndex + 1}/${this.photoUrls.length}`);
+      console.log(`Next image: ${this.currentImageIndex + 1}/${this.photoUrls.length}`);
     }
   }
 
@@ -116,7 +116,7 @@ export class DetalleNegocioPage implements OnInit {
       this.currentImageIndex = this.currentImageIndex === 0 
         ? this.photoUrls.length - 1 
         : this.currentImageIndex - 1;
-      console.log(`🎠 Previous image: ${this.currentImageIndex + 1}/${this.photoUrls.length}`);
+      console.log(`Previous image: ${this.currentImageIndex + 1}/${this.photoUrls.length}`);
     }
   }
 
@@ -127,7 +127,7 @@ export class DetalleNegocioPage implements OnInit {
         Array.isArray(this.photoUrls) && 
         index < this.photoUrls.length) {
       this.currentImageIndex = index;
-      console.log(`🎠 Selected image: ${this.currentImageIndex + 1}/${this.photoUrls.length}`);
+      console.log(`Selected image: ${this.currentImageIndex + 1}/${this.photoUrls.length}`);
     }
   }
 
