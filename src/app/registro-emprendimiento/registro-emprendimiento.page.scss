@@ -557,7 +557,7 @@
   position: relative;
 
   &.error-field::after {
-    content: '❌';
+    content: 'x';
     position: absolute;
     right: 12px;
     top: 50%;
