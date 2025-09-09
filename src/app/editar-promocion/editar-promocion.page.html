@@ -54,9 +54,9 @@
         [(ngModel)]="promocionEditada.fechaPromoInicio"
         name="fechaPromoInicio"
         type="date"
+        [min]="hoy"
         required
-      >
-      </ion-input>
+      ></ion-input>
     </ion-item>
 
     <ion-item>
@@ -65,9 +65,9 @@
         [(ngModel)]="promocionEditada.fechaPromoFin"
         name="fechaPromoFin"
         type="date"
+        [min]="promocionEditada.fechaPromoInicio"
         required
-      >
-      </ion-input>
+      ></ion-input>
     </ion-item>
 
     <ion-item>
@@ -81,7 +81,7 @@
       >
       </ion-textarea>
     </ion-item>
-    <!-- En editar-promocion.page.html -->
+
     <ion-item style="display: none">
       <ion-input
         [(ngModel)]="promocionEditada.businessId"

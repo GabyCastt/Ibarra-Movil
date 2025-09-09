@@ -58,6 +58,8 @@ export class EditarPromocionPage {
   currentImageUrl: string = '';
   isSubmitting = false;
 
+  hoy: string = this.getFechaHoyEcuador(); // Fecha mínima en Ecuador
+
   tiposPromocion = [
     { value: 'DESCUENTO_PORCENTAJE', label: 'Descuento Porcentaje' },
     { value: 'DOSXUNO', label: 'Dos por Uno' },
@@ -72,25 +74,48 @@ export class EditarPromocionPage {
     addIcons({ close, camera });
   }
 
+  private parseDateForDisplay(dateString: string): string {
+    if (!dateString) return dateString;
+    const date = new Date(dateString);
+    return date.toISOString().split('T')[0];
+  }
+
   ngOnInit() {
-    // Copiar los datos de la promoción para editar
-    this.promocionEditada = { ...this.promocion,
-      bussinessId: this.promocion.businessId
-     };
+    this.promocionEditada = {
+      ...this.promocion,
+      fechaPromoInicio: this.parseDateForDisplay(
+        this.promocion.fechaPromoInicio
+      ),
+      fechaPromoFin: this.parseDateForDisplay(this.promocion.fechaPromoFin),
+      bussinessId: this.promocion.businessId,
+    };
     this.currentImageUrl = this.promocion.businessImageUrl || '';
+  }
+
+  getFechaHoyEcuador(): string {
+    const ahora = new Date();
+    const ecuadorOffset = -5 * 60; // UTC-5
+    const fechaUtc = new Date(
+      ahora.getTime() + ahora.getTimezoneOffset() * 60000
+    );
+    const fechaEcuador = new Date(fechaUtc.getTime() + ecuadorOffset * 60000);
+
+    const year = fechaEcuador.getFullYear();
+    const month = (fechaEcuador.getMonth() + 1).toString().padStart(2, '0');
+    const day = fechaEcuador.getDate().toString().padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
   }
 
   onFileSelected(event: any) {
     const file = event.target.files[0];
     if (file) {
-      // Validar tamaño máximo (2MB)
       if (file.size > 2 * 1024 * 1024) {
         this.mostrarAlerta('Error', 'La imagen no debe superar los 2MB');
         event.target.value = '';
         return;
       }
 
-      // Validar tipo de archivo
       const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
       if (!validTypes.includes(file.type)) {
         this.mostrarAlerta('Error', 'Solo se permiten imágenes JPG o PNG');
@@ -99,8 +124,7 @@ export class EditarPromocionPage {
       }
 
       this.selectedFile = file;
-      
-      // Mostrar vista previa de la nueva imagen
+
       const reader = new FileReader();
       reader.onload = (e: any) => {
         this.currentImageUrl = e.target.result;
@@ -115,7 +139,6 @@ export class EditarPromocionPage {
       message: mensaje,
       buttons: ['OK'],
     });
-
     await alert.present();
   }
 
@@ -123,42 +146,49 @@ export class EditarPromocionPage {
     this.modalCtrl.dismiss(null, 'cancel');
   }
 
-// En editar-promocion.page.ts - modifica el método confirm()
-confirm() {
-  if (
-    !this.promocionEditada.tituloPromocion ||
-    !this.promocionEditada.fechaPromoInicio ||
-    !this.promocionEditada.fechaPromoFin ||
-    !this.promocionEditada.condiciones
-  ) {
-    this.mostrarAlerta('Error', 'Todos los campos son obligatorios');
-    return;
-  }
+  confirm() {
+    if (
+      !this.promocionEditada.tituloPromocion ||
+      !this.promocionEditada.fechaPromoInicio ||
+      !this.promocionEditada.fechaPromoFin ||
+      !this.promocionEditada.condiciones
+    ) {
+      this.mostrarAlerta('Error', 'Todos los campos son obligatorios');
+      return;
+    }
 
-  // Valida que la fecha fin sea posterior a la fecha inicio
-  if (
-    new Date(this.promocionEditada.fechaPromoFin) <=
-    new Date(this.promocionEditada.fechaPromoInicio)
-  ) {
-    this.mostrarAlerta(
-      'Error',
-      'La fecha de fin debe ser posterior a la fecha de inicio'
+    // Valida que la fecha inicio no sea menor a hoy
+    if (this.promocionEditada.fechaPromoInicio < this.hoy) {
+      this.mostrarAlerta(
+        'Error',
+        'La fecha de inicio no puede ser en el pasado'
+      );
+      return;
+    }
+
+    // Valida que la fecha fin sea posterior a la fecha inicio
+    if (
+      this.promocionEditada.fechaPromoFin <=
+      this.promocionEditada.fechaPromoInicio
+    ) {
+      this.mostrarAlerta(
+        'Error',
+        'La fecha de fin debe ser posterior a la fecha de inicio'
+      );
+      return;
+    }
+
+    const promocionCompleta = {
+      ...this.promocionEditada,
+      businessId: this.promocion.businessId,
+    };
+
+    this.modalCtrl.dismiss(
+      {
+        promocion: promocionCompleta,
+        archivo: this.selectedFile,
+      },
+      'confirm'
     );
-    return;
   }
-
-  // Asegúrate de incluir el businessId en el DTO
-  const promocionCompleta = {
-    ...this.promocionEditada,
-    businessId: this.promocion.businessId // Añade el businessId
-  };
-
-  this.modalCtrl.dismiss(
-    {
-      promocion: promocionCompleta, // Usa el objeto completo
-      archivo: this.selectedFile,
-    },
-    'confirm'
-  );
-}
 }

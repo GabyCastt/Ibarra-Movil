@@ -49,11 +49,13 @@ import {
 export class CrearPromocionPage {
   @Input() businessId!: number;
 
+  hoy: string = this.getFechaHoyEcuador();
+
   nuevaPromocion: any = {
     tipoPromocion: 'DESCUENTO_PORCENTAJE',
     tituloPromocion: '',
-    fechaPromoInicio: new Date().toISOString().split('T')[0],
-    fechaPromoFin: '',
+    fechaPromoInicio: this.getFechaHoyEcuador(),
+    fechaPromoFin: this.getFechaHoyEcuador(),
     condiciones: '',
   };
 
@@ -72,24 +74,36 @@ export class CrearPromocionPage {
     private alertController: AlertController
   ) {}
 
+  getFechaHoyEcuador(): string {
+    const ahora = new Date();
+
+    const ecuadorOffset = -5 * 60; // Ecuador UTC-5
+    const fechaUtc = new Date(
+      ahora.getTime() + ahora.getTimezoneOffset() * 60000
+    );
+    const fechaEcuador = new Date(fechaUtc.getTime() + ecuadorOffset * 60000);
+
+    const year = fechaEcuador.getFullYear();
+    const month = (fechaEcuador.getMonth() + 1).toString().padStart(2, '0');
+    const day = fechaEcuador.getDate().toString().padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+  }
+
   onFileSelected(event: any) {
     const file = event.target.files[0];
     if (file) {
-      // Validar tamaño máximo (2MB)
       if (file.size > 2 * 1024 * 1024) {
         this.mostrarAlerta('Error', 'La imagen no debe superar los 2MB');
         event.target.value = '';
         return;
       }
-
-      // Validar tipo de archivo
       const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
       if (!validTypes.includes(file.type)) {
         this.mostrarAlerta('Error', 'Solo se permiten imágenes JPG o PNG');
         event.target.value = '';
         return;
       }
-
       this.selectedFile = file;
     }
   }
@@ -100,7 +114,6 @@ export class CrearPromocionPage {
       message: mensaje,
       buttons: ['OK'],
     });
-
     await alert.present();
   }
 
@@ -127,11 +140,19 @@ export class CrearPromocionPage {
       return;
     }
 
-    // Valida que la fecha fin sea posterior a la fecha inicio
-    if (
-      new Date(this.nuevaPromocion.fechaPromoFin) <=
-      new Date(this.nuevaPromocion.fechaPromoInicio)
-    ) {
+    const hoyStr = this.getFechaHoyEcuador();
+    const inicioStr = this.nuevaPromocion.fechaPromoInicio;
+    const finStr = this.nuevaPromocion.fechaPromoFin;
+
+    if (inicioStr < hoyStr) {
+      this.mostrarAlerta(
+        'Error',
+        'La fecha de inicio no puede ser en el pasado'
+      );
+      return;
+    }
+
+    if (finStr <= inicioStr) {
       this.mostrarAlerta(
         'Error',
         'La fecha de fin debe ser posterior a la fecha de inicio'

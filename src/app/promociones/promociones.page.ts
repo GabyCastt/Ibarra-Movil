@@ -79,10 +79,8 @@ export class PromocionesPage implements OnInit {
   }
 
   ngOnInit() {
-    // Obtiene el ID de los parámetros de la ruta
     this.route.paramMap.subscribe((params) => {
       this.businessId = +params.get('id')!;
-      console.log('Business ID from route:', this.businessId);
       this.cargarPromociones();
     });
   }
@@ -119,7 +117,6 @@ export class PromocionesPage implements OnInit {
   }
 
   async abrirModalCrear() {
-    // Verifica si el usuario está autenticado
     if (!this.authService.isAuthenticated()) {
       this.mostrarAlerta(
         'Error',
@@ -145,7 +142,6 @@ export class PromocionesPage implements OnInit {
   }
 
   crearPromocion(promocion: any, archivo: File) {
-    // Verifica que tenemos todos los campos requeridos
     if (
       !promocion.businessId ||
       !promocion.tipoPromocion ||
@@ -158,23 +154,13 @@ export class PromocionesPage implements OnInit {
       return;
     }
 
-    // Verifica que el archivo sea válido
     if (!archivo || archivo.size === 0) {
       this.mostrarAlerta('Error', 'El archivo de imagen no es válido');
       return;
     }
 
-    console.log('Creando promoción con datos:', promocion);
-    console.log(
-      'Archivo seleccionado:',
-      archivo.name,
-      archivo.type,
-      archivo.size
-    );
-
     this.promocionesService.crearPromocion(promocion, archivo).subscribe({
       next: (response) => {
-        console.log('Respuesta del servidor:', response);
         if (response.success) {
           this.mostrarAlerta('Éxito', 'Promoción creada correctamente');
           this.cargarPromociones();
@@ -187,9 +173,6 @@ export class PromocionesPage implements OnInit {
       },
       error: (error) => {
         console.error('Error completo:', error);
-        console.error('Error status:', error.status);
-        console.error('Error message:', error.message);
-        console.error('Error response:', error.error);
 
         if (error.status === 401) {
           this.mostrarAlerta(
@@ -204,7 +187,6 @@ export class PromocionesPage implements OnInit {
               (error.error?.message || 'Verifica la información')
           );
         } else if (error.status === 500) {
-          // Maneja específicamente el error 500 del Content-Type
           if (error.error?.message?.includes('Content-Type')) {
             this.mostrarAlerta(
               'Error',
@@ -227,6 +209,7 @@ export class PromocionesPage implements OnInit {
       },
     });
   }
+
   async abrirModalEditar(promocion: Promocion) {
     if (!this.authService.isAuthenticated()) {
       this.mostrarAlerta(
@@ -299,7 +282,7 @@ export class PromocionesPage implements OnInit {
   async confirmarEliminacion(promocion: Promocion) {
     const alert = await this.alertController.create({
       header: 'Confirmar eliminación',
-      message: `¿Estás seguro de que quieres eliminar la promoción "${promocion.tituloPromocion}"? Esta acción no se puede deshacer.`,
+      message: `¿Estás seguro de que quieres eliminar la promoción "${promocion.tituloPromocion}"?`,
       buttons: [
         {
           text: 'Cancelar',
@@ -340,6 +323,7 @@ export class PromocionesPage implements OnInit {
       },
     });
   }
+
   doRefresh(event: any) {
     this.cargarPromociones();
     setTimeout(() => {
@@ -357,25 +341,36 @@ export class PromocionesPage implements OnInit {
     await alert.present();
   }
 
-  // Método para formatear fechas
   formatDate(dateString: string): string {
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    });
+    if (!dateString) return '';
+
+    const datePart = dateString.split('T')[0];
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(datePart)) {
+      return dateString;
+    }
+
+    const [year, month, day] = datePart.split('-');
+    return `${day}/${month}/${year}`;
   }
 
-  // Verifica si una promoción está activa
+  private parseDate(dateStr: string): Date {
+    const [year, month, day] = dateStr.split('T')[0].split('-').map(Number);
+    return new Date(year, month - 1, day);
+  }
+
   isPromocionActive(promocion: Promocion): boolean {
+    if (!promocion.fechaPromoInicio || !promocion.fechaPromoFin) return false;
+
     const today = new Date();
-    const startDate = new Date(promocion.fechaPromoInicio);
-    const endDate = new Date(promocion.fechaPromoFin);
+    today.setHours(0, 0, 0, 0);
+
+    const startDate = this.parseDate(promocion.fechaPromoInicio);
+    const endDate = this.parseDate(promocion.fechaPromoFin);
+    endDate.setHours(23, 59, 59, 999);
 
     return today >= startDate && today <= endDate;
   }
 
-  // Método para obtener el color del chip según el tipo de promoción
   getChipColor(tipoPromocion: string): string {
     const colors: { [key: string]: string } = {
       DESCUENTO_PORCENTAJE: 'success',
@@ -387,7 +382,6 @@ export class PromocionesPage implements OnInit {
     return colors[tipoPromocion] || 'medium';
   }
 
-  // Método para obtener el texto del tipo de promoción
   getTipoPromocionText(tipoPromocion: string): string {
     const textos: { [key: string]: string } = {
       DESCUENTO_PORCENTAJE: 'Descuento %',
@@ -398,8 +392,8 @@ export class PromocionesPage implements OnInit {
 
     return textos[tipoPromocion] || tipoPromocion;
   }
+
   goBack(): void {
-    console.log('Going back to mis-negocios');
     this.router.navigate(['/detalle-negocio', this.businessId]);
   }
 }

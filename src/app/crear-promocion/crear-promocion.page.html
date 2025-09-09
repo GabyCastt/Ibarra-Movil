@@ -44,6 +44,7 @@
         [(ngModel)]="nuevaPromocion.fechaPromoInicio"
         name="fechaPromoInicio"
         type="date"
+        [min]="hoy"
         required
       >
       </ion-input>
@@ -55,6 +56,7 @@
         [(ngModel)]="nuevaPromocion.fechaPromoFin"
         name="fechaPromoFin"
         type="date"
+        [min]="nuevaPromocion.fechaPromoInicio"
         required
       >
       </ion-input>

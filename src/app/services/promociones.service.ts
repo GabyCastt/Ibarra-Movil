@@ -42,14 +42,14 @@ export class PromocionesService {
 
     return this.http.get<ApiResponse>(
       `${this.apiUrl}/promotions/business/private`,
-      {
-        params,
-        headers,
-      }
+      { params, headers }
     );
   }
 
-  getPromotionPublic(promotionType?: string, categoryId?: number): Observable<ApiResponse> {
+  getPromotionPublic(
+    promotionType?: string,
+    categoryId?: number
+  ): Observable<ApiResponse> {
     let params = new HttpParams();
 
     if (promotionType) {
@@ -73,16 +73,14 @@ export class PromocionesService {
       businessId: dto.businessId,
       tipoPromocion: dto.tipoPromocion,
       tituloPromocion: dto.tituloPromocion,
-      fechaPromoInicio: dto.fechaPromoInicio,
-      fechaPromoFin: dto.fechaPromoFin,
+      fechaPromoInicio: this.formatDateForServer(dto.fechaPromoInicio),
+      fechaPromoFin: this.formatDateForServer(dto.fechaPromoFin),
       condiciones: dto.condiciones,
     };
 
     formData.append(
       'dto',
-      new Blob([JSON.stringify(promocionDto)], {
-        type: 'application/json',
-      })
+      new Blob([JSON.stringify(promocionDto)], { type: 'application/json' })
     );
 
     formData.append('photo', photo);
@@ -103,19 +101,17 @@ export class PromocionesService {
     const formData = new FormData();
 
     const promocionDto = {
-      titlePromotion: dto.tituloPromocion,
-      promoType: dto.tipoPromocion,
-      conditions: dto.condiciones,
-      datePromoStart: dto.fechaPromoInicio,
-      datePromoEnd: dto.fechaPromoFin,
       businessId: dto.businessId,
+      promoType: dto.tipoPromocion,
+      titlePromotion: dto.tituloPromocion,
+      datePromoStart: this.formatDateForServer(dto.fechaPromoInicio),
+      datePromoEnd: this.formatDateForServer(dto.fechaPromoFin),
+      conditions: dto.condiciones,
     };
 
     formData.append(
       'dto',
-      new Blob([JSON.stringify(promocionDto)], {
-        type: 'application/json',
-      })
+      new Blob([JSON.stringify(promocionDto)], { type: 'application/json' })
     );
 
     if (photo) {
@@ -137,10 +133,32 @@ export class PromocionesService {
 
     return this.http.delete<ApiResponse>(
       `${this.apiUrl}/promotions/business/delete`,
-      {
-        headers,
-        params,
-      }
+      { headers, params }
     );
+  }
+
+  // Métodos para manejar fechas
+  private formatDateForServer(dateString: string): string {
+    if (!dateString) return dateString;
+
+    // Si ya está en formato YYYY-MM-DD, devolver directamente
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+      return dateString;
+    }
+
+    // tomar solo la fecha
+    return dateString.split('T')[0];
+  }
+
+  private parseDateFromServer(dateString: string): string {
+    if (!dateString) return dateString;
+
+    // Si ya viene en YYYY-MM-DD, devolver directamente
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+      return dateString;
+    }
+
+    // Si viene con hora, extraer solo la fecha
+    return dateString.split('T')[0];
   }
 }
