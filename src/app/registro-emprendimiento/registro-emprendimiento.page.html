@@ -37,6 +37,7 @@
             {{ category.name }}
           </ion-select-option>
         </ion-select>
+        <ion-icon slot="end" name="alert-circle-outline" color="danger" *ngIf="hasError('categoryId')"></ion-icon>
       </ion-item>
       <div class="error-message" *ngIf="hasError('categoryId')"><ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
         {{ getErrorMessage('categoryId') }}
@@ -50,6 +51,7 @@
           Nombre Comercial (¿Cómo se llama su emprendimiento?) <span class="required">*</span>
         </ion-label>
         <ion-input formControlName="commercialName" type="text" maxlength="100"></ion-input>
+        <ion-icon slot="end" name="alert-circle-outline" color="danger" *ngIf="hasError('commercialName')"></ion-icon>
       </ion-item>
       <div class="error-message" *ngIf="hasError('commercialName')"><ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
         {{ getErrorMessage('commercialName') }}
@@ -62,6 +64,7 @@
         <ion-label position="stacked">Productos/Servicios <span class="required">*</span></ion-label>
         <ion-input formControlName="productsServices" type="text" maxlength="50"
           placeholder="Ej: Comida, Ropa, Servicios..."></ion-input>
+        <ion-icon slot="end" name="alert-circle-outline" color="danger" *ngIf="hasError('productsServices')"></ion-icon>
       </ion-item>
       <div class="error-message" *ngIf="hasError('productsServices')"><ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
         {{ getErrorMessage('productsServices') }}
@@ -81,6 +84,7 @@
           </ion-select>
           <ion-input formControlName="phone" type="tel" maxlength="9" placeholder="999999999"></ion-input>
         </div>
+        <ion-icon slot="end" name="alert-circle-outline" color="danger" *ngIf="hasError('phone')"></ion-icon>
       </ion-item>
       <div class="error-message" *ngIf="hasError('phone')"><ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
         {{ getErrorMessage('phone') }}
@@ -106,6 +110,7 @@
             {{ parish.name }}
           </ion-select-option>
         </ion-select>
+        <ion-icon slot="end" name="alert-circle-outline" color="danger" *ngIf="hasError('parishId')"></ion-icon>
       </ion-item>
       <div class="error-message" *ngIf="hasError('parishId')"><ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
         {{ getErrorMessage('parishId') }}
@@ -118,6 +123,7 @@
         <ion-label position="stacked">Descripción <span class="required">*</span></ion-label>
         <ion-textarea formControlName="description" placeholder="Escribe aquí..." autoGrow="true"
           maxlength="200"></ion-textarea>
+        <ion-icon slot="end" name="alert-circle-outline" color="danger" *ngIf="hasError('description')"></ion-icon>
       </ion-item>
       <div class="error-message" *ngIf="hasError('description')"><ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
         {{ getErrorMessage('description') }}
@@ -130,6 +136,7 @@
         <ion-label position="stacked">Dirección <span class="required">*</span></ion-label>
         <ion-textarea formControlName="address" placeholder="Escribe aquí..." autoGrow="true"
           maxlength="100"></ion-textarea>
+        <ion-icon slot="end" name="alert-circle-outline" color="danger" *ngIf="hasError('address')"></ion-icon>
       </ion-item>
       <div class="error-message" *ngIf="hasError('address')">
         {{ getErrorMessage('address') }}
@@ -141,6 +148,7 @@
       <ion-item class="form-field" fill="outline" [class.error-field]="hasError('website')">
         <ion-label position="stacked">Sitio Web (Opcional)</ion-label>
         <ion-input formControlName="website" type="url" maxlength="100" placeholder="https://"></ion-input>
+        <ion-icon slot="end" name="alert-circle-outline" color="danger" *ngIf="hasError('website')"></ion-icon>
       </ion-item>
       <div class="error-message" *ngIf="hasError('website')">
         {{ getErrorMessage('website') }}
@@ -168,6 +176,7 @@
           </ion-select>
           <ion-input formControlName="whatsappNumber" type="tel" maxlength="9" placeholder="999999999"></ion-input>
         </div>
+        <ion-icon slot="end" name="alert-circle-outline" color="danger" *ngIf="hasError('whatsappNumber')"></ion-icon>
       </ion-item>
       <div class="error-message" *ngIf="hasError('whatsappNumber')">
         {{ getErrorMessage('whatsappNumber') }}
@@ -179,6 +188,7 @@
       <ion-item class="form-field" fill="outline" [class.error-field]="hasError('googleMapsCoordinates')">
         <ion-label position="stacked">Coordenadas de Google Maps <span class="required">*</span></ion-label>
         <ion-input formControlName="googleMapsCoordinates" type="text" maxlength="100" readonly></ion-input>
+        <ion-icon slot="end" name="alert-circle-outline" color="danger" *ngIf="hasError('googleMapsCoordinates')"></ion-icon>
       </ion-item>
 
       <!-- Botón para abrir el mapa -->
@@ -237,6 +247,7 @@
           <ion-select-option value="SI">Sí</ion-select-option>
           <ion-select-option value="BAJO_PEDIDO">Bajo Pedido</ion-select-option>
         </ion-select>
+        <ion-icon slot="end" name="alert-circle-outline" color="danger" *ngIf="hasError('deliveryService')"></ion-icon>
       </ion-item>
       <div class="error-message" *ngIf="hasError('deliveryService')">
         {{ getErrorMessage('deliveryService') }}
@@ -249,6 +260,7 @@
         <ion-label position="stacked">Horarios <span class="required">*</span></ion-label>
         <ion-textarea formControlName="schedules" placeholder="Escribe aquí..." autoGrow="true"
           maxlength="200"></ion-textarea>
+        <ion-icon slot="end" name="alert-circle-outline" color="danger" *ngIf="hasError('schedules')"></ion-icon>
       </ion-item>
       <div class="error-message" *ngIf="hasError('schedules')">
         {{ getErrorMessage('schedules') }}
@@ -269,6 +281,7 @@
         <ion-label position="stacked">Detalles del Apoyo UDEL (opcional)</ion-label>
         <ion-textarea formControlName="udelSupportDetails" placeholder="Escribe aquí..." autoGrow="true"
           maxlength="200"></ion-textarea>
+        <ion-icon slot="end" name="alert-circle-outline" color="danger" *ngIf="hasError('udelSupportDetails')"></ion-icon>
       </ion-item>
       <div class="error-message" *ngIf="hasError('udelSupportDetails')"><ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
         {{ getErrorMessage('udelSupportDetails') }}
