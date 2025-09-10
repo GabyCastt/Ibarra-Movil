@@ -70,6 +70,10 @@ export class HomePage implements OnInit {
   };
 
   selectedCategoryId: number | undefined = undefined;
+  
+  //Sección de Eventos
+  mostrarEventos = false;
+
 
   getTipoPromocionLabel(tipo: string): string {
     return this.tipoPromocionMap[tipo] || 'Promoción';

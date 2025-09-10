@@ -77,7 +77,7 @@ export class PerfilPage implements OnInit {
       this.profileForm.get('email')?.enable();
       this.profileForm.get('phone')?.enable();
       this.profileForm.get('address')?.enable();
-      this.profileForm.get('username')?.enable();
+      this.profileForm.get('username')?.disable();
     } else {
       // Cancelar edición - restaurar valores originales
       this.profileForm.patchValue(this.originalData);

@@ -44,7 +44,7 @@
       class="banner-image"
     />
     <div class="banner-text">
-      <h1>Orgullo Ecuatoriano</h1>
+      <h1>Ibarra en tus Manos</h1>
       <p>Descubre los emprendimientos de nuestra ciudad</p>
     </div>
   </div>
@@ -221,44 +221,34 @@
       </ion-row>
     </ion-grid>
   </div>
+  <div *ngIf="mostrarEventos">
+    <!-- Próximos eventos -->
+    <div class="section-header">
+      <h2>Eventos</h2>
+      <ion-button fill="clear" size="small" (click)="seeAll('events')">
+        Ver todos
+        <ion-icon slot="end" name="chevron-forward-outline"></ion-icon>
+      </ion-button>
+    </div>
 
-  <!-- Próximos eventos -->
-  <div class="section-header">
-    <h2>Eventos</h2>
-    <ion-button fill="clear" size="small" (click)="seeAll('events')">
-      Ver todos
-      <ion-icon slot="end" name="chevron-forward-outline"></ion-icon>
-    </ion-button>
+    <div class="events-container">
+      <ion-card *ngFor="let event of upcomingEvents" class="event-card">
+        <img src="assets/icon/Eventoss.png" [alt]="event.title" />
+        <ion-card-header>
+          <ion-card-title>{{event.title}}</ion-card-title>
+          <ion-card-subtitle>
+            <ion-icon name="calendar-outline"></ion-icon>
+            {{event.date}}
+          </ion-card-subtitle>
+        </ion-card-header>
+      </ion-card>
+    </div>
   </div>
-
-  <div class="events-container">
-    <ion-card *ngFor="let event of upcomingEvents" class="event-card">
-      <img src="assets/icon/Eventoss.png" [alt]="event.title" />
-      <ion-card-header>
-        <ion-card-title>{{event.title}}</ion-card-title>
-        <ion-card-subtitle>
-          <ion-icon name="calendar-outline"></ion-icon>
-          {{event.date}}
-        </ion-card-subtitle>
-      </ion-card-header>
-    </ion-card>
-  </div>
-
-  <!-- Acceso rápido -->
-  <div class="quick-access">
-    <ion-button expand="block" fill="outline" (click)="navigateTo('map')">
-      <ion-icon slot="start" name="map-outline"></ion-icon>
-      Mapa de emprendimientos
-    </ion-button>
-
-    <ion-button
-      expand="block"
-      fill="outline"
-      (click)="navigateTo('registro-emprendimiento')"
-      [disabled]="!isAuthenticated"
-    >
-      <ion-icon slot="start" name="business-outline"></ion-icon>
-      Registrar mi emprendimiento
-    </ion-button>
-  </div>
+  <ion-footer>
+    <ion-toolbar color="light" class="footer-toolbar">
+      <ion-title size="small">
+        © 2025 Municipalidad de Ibarra - Todos los derechos reservados
+      </ion-title>
+    </ion-toolbar>
+  </ion-footer>
 </ion-content>
