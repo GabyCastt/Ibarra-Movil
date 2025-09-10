@@ -46,7 +46,10 @@ export class MisNegociosPage implements OnInit {
       await this.loadBusinesses(true);
     } catch (error) {
       console.error('Error loading initial data:', error);
-      if (error instanceof Error && error.message === 'No authentication token available') {
+      if (
+        error instanceof Error &&
+        error.message === 'No authentication token available'
+      ) {
         this.authService.logout();
       }
     }
@@ -79,7 +82,7 @@ export class MisNegociosPage implements OnInit {
           ? newBusinesses
           : [...this.businesses, ...newBusinesses];
 
-        this.hasMoreData = this.currentPage < (response.totalPages - 1);
+        this.hasMoreData = this.currentPage < response.totalPages - 1;
         if (this.hasMoreData) this.currentPage++;
       } else {
         console.warn('Unexpected response format:', response);
@@ -111,7 +114,8 @@ export class MisNegociosPage implements OnInit {
   }
 
   getCategoryName(categoryId: string): string {
-    if (!categoryId || !this.categories || !Array.isArray(this.categories)) return '';
+    if (!categoryId || !this.categories || !Array.isArray(this.categories))
+      return '';
     const category = this.categories.find((cat) => cat?.id === categoryId);
     return category?.name || '';
   }
@@ -133,7 +137,7 @@ export class MisNegociosPage implements OnInit {
 
   openSocial(url: string, platform: string) {
     if (!url || !platform) return;
-    
+
     let socialUrl = url;
     if (!url.startsWith('http')) {
       socialUrl = `https://${platform}.com/${url}`;
@@ -154,5 +158,26 @@ export class MisNegociosPage implements OnInit {
       return;
     }
     this.viewBusinessDetails(businessId);
+  }
+  getStatusColor(status: string): string {
+    const statusMap: { [key: string]: string } = {
+      VALIDATED: 'success',
+      APPROVED: 'success',
+      PENDING: 'warning',
+      REJECTED: 'danger',
+    };
+
+    return statusMap[status?.toUpperCase()] || 'medium';
+  }
+
+  getStatusText(status: string): string {
+    const statusTextMap: { [key: string]: string } = {
+      VALIDATED: 'VALIDADO',
+      APPROVED: 'APROBADO',
+      PENDING: 'PENDIENTE',
+      REJECTED: 'RECHAZADO',
+    };
+
+    return statusTextMap[status?.toUpperCase()] || status || 'DESCONOCIDO';
   }
 }
