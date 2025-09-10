@@ -30,19 +30,19 @@ export class EliminarNegocioPage {
   loading: boolean = false;
 
   motivos = [
-    { value: 'BUSINESS_CLOSURE', label: 'Cierre definitivo del negocio' },
-    { value: 'CHANGE_BUSINESS_MODEL', label: 'Cambio de modelo de negocio' },
-    { value: 'FINANCIAL_DIFFICULTIES', label: 'Dificultades financieras' },
-    { value: 'RELOCATION', label: 'Reubicación o mudanza' },
-    { value: 'PERSONAL_REASONS', label: 'Motivos personales/familiares' },
-    { value: 'CAREER_CHANGE', label: 'Cambio de carrera profesional' },
-    { value: 'MARKET_CONDITIONS', label: 'Condiciones desfavorables del mercado' },
-    { value: 'HEALTH_ISSUES', label: 'Problemas de salud' },
-    { value: 'PARTNERSHIP_DISSOLUTION', label: 'Disolución de sociedad' },
-    { value: 'RETIREMENT', label: 'Jubilación o retiro' },
-    { value: 'LEGAL_COMPLIANCE', label: 'Problemas de cumplimiento legal' },
-    { value: 'OTHER', label: 'Otro motivo' }
-  ];
+  { value: 'CIERRE_DEFINITIVO_NEGOCIO', label: 'Cierre definitivo del negocio' },
+  { value: 'CAMBIO_MODELO_NEGOCIO', label: 'Cambio de modelo de negocio' },
+  { value: 'DIFICULTADES_FINANCIERAS', label: 'Dificultades financieras' },
+  { value: 'REUBICACION', label: 'Reubicación o mudanza' },
+  { value: 'MOTIVOS_PERSONALES', label: 'Motivos personales/familiares' },
+  { value: 'CAMBIO_CARRERA', label: 'Cambio de carrera profesional' },
+  { value: 'CONDICIONES_MERCADO', label: 'Condiciones desfavorables del mercado' },
+  { value: 'PROBLEMAS_SALUD', label: 'Problemas de salud' },
+  { value: 'DISOLUCION_SOCIEDAD', label: 'Disolución de sociedad' },
+  { value: 'JUBILACION', label: 'Jubilación o retiro' },
+  { value: 'PROBLEMAS_LEGALES', label: 'Problemas de cumplimiento legal' },
+  { value: 'OTRO', label: 'Otro motivo' }
+];
 
   constructor(
     private modalCtrl: ModalController,
