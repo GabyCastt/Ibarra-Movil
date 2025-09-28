@@ -13,7 +13,7 @@ import { IonicModule } from '@ionic/angular';
 export class SoportePage {
 
   enviarCorreo(problema: string) {
-    const destinatario = "soporte@tusistema.com"; // cámbialo por el real
+    const destinatario = "soporte@tusistema.com"; // Debe ser cambiado por el gmail a usar el Municipio 
     const asunto = `Soporte - ${problema}`;
     const cuerpo = `Hola, estoy teniendo un problema relacionado con: ${problema}\n\nDetalles: `;
 
