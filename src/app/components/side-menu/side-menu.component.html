@@ -28,8 +28,16 @@
           <ion-icon name="document" slot="start"></ion-icon>
           <ion-label>Mis Documentos</ion-label>
         </ion-item>
-
-
+        <!-- Este es un comentario en HTML 
+        <ion-item button (click)="enviarSoporte()" lines="none">
+          <ion-icon name="help-circle" slot="start" color="medium"></ion-icon>
+          <ion-label>Soporte</ion-label>
+        </ion-item>
+      -->
+        <ion-item button (click)="navigateTo('/soporte')">
+          <ion-icon name="help-circle" slot="start" color="medium"></ion-icon>
+          <ion-label>Soporte</ion-label>
+        </ion-item>
       </ion-menu-toggle>
 
       <ion-item button (click)="logout()" lines="none">

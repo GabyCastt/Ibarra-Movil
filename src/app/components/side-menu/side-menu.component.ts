@@ -80,6 +80,17 @@ export class SideMenuComponent {
     await this.showLogoutAlert();
     this.router.navigate(['/home']);
   }
+  
+  /*enviarSoporte() {
+    const destinatario = 'gabykim928@gmail.com';
+    const asunto = 'Consulta/Problema en la aplicación';
+    const cuerpo = 'Hola, estoy teniendo un problema con...';
+
+    const mailto = `mailto:${destinatario}?subject=${encodeURIComponent(
+      asunto
+    )}&body=${encodeURIComponent(cuerpo)}`;
+    window.location.href = mailto;
+  }*/
 
   private async showLogoutAlert() {
     const alert = await this.alertController.create({

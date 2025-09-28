@@ -69,7 +69,7 @@ import {
   arrowBack, 
   closeCircle,
   searchOutline,
-  create, trash
+  create, trash, logIn, helpBuoy,helpCircle
 
 
 } from 'ionicons/icons';
@@ -145,7 +145,7 @@ export class AppComponent {
       settingsOutline,
       imagesOutline,
       checkmarkCircleOutline,
-      arrowBack, closeCircle, searchOutline, create, trash
+      arrowBack, closeCircle, searchOutline, create, trash, logIn, helpBuoy,helpCircle
  
     });
   }
