@@ -414,6 +414,52 @@
             </div>
           </div>
         </div>
+
+        <div class="form-field-wrapper">
+          <label
+            id="paymentProofLabel"
+            class="upload-label"
+            for="paymentProofInput"
+            >Comprobante de Pago <span class="required">*</span></label
+          >
+          <div
+            class="upload-box"
+            (dragover)="onDragOver($event)"
+            (drop)="onDrop($event, 'paymentProof')"
+          >
+            <ion-icon name="folder-open" class="upload-icon"></ion-icon>
+            <p>
+              Arrastra tus archivos aquí o haz clic para seleccionar archivos
+            </p>
+            <input
+              id="paymentProofInput"
+              type="file"
+              accept=".pdf,.jpg,.jpeg,.png"
+              title="Comprobante de pago (PDF, JPG o PNG, máx. 2 MB)"
+              aria-labelledby="paymentProofLabel paymentProofHelp"
+              aria-describedby="paymentProofHelp"
+              (change)="onFileChange($event, 'paymentProof')"
+            />
+          </div>
+          <div class="file-name" *ngIf="paymentProofFile">
+            <ion-icon name="document-outline"></ion-icon>
+            <span>{{ paymentProofFile.name }}</span>
+          </div>
+          <div class="upload-info" id="paymentProofHelp">
+            <div>
+              <ion-icon name="document-text-outline"></ion-icon
+              ><span>PDF, JPG, PNG</span>
+            </div>
+            <div>
+              <ion-icon name="cloud-upload-outline"></ion-icon
+              ><span>2 MB por archivo</span>
+            </div>
+            <div>
+              <ion-icon name="resize-outline"></ion-icon
+              ><span>Mínimo 800x600 px</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Botones -->
