@@ -42,7 +42,7 @@ export class RegistroAppPage implements OnInit {
   identityDocumentFile!: File;
   certificateFile!: File;
   signedDocumentFile!: File;
-  paymentProofFile!: File;
+  paymentReceiptFile!: File;
 
   constructor(
     private fb: FormBuilder,
@@ -163,7 +163,7 @@ export class RegistroAppPage implements OnInit {
     formData.append('identityDocument', this.identityDocumentFile);
     formData.append('certificate', this.certificateFile);
     formData.append('signedDocument', this.signedDocumentFile);
-    formData.append('paymentProof', this.paymentProofFile);
+    formData.append('paymentReceipt', this.paymentReceiptFile);
     formData.append(
       'data',
       new Blob([JSON.stringify(dataJson)], { type: 'application/json' })
@@ -285,7 +285,7 @@ export class RegistroAppPage implements OnInit {
 
   async onFileChange(
     event: Event | DragEvent,
-    tipo: 'identityDocument' | 'certificate' | 'signedDocument' | 'paymentProof'
+    tipo: 'identityDocument' | 'certificate' | 'signedDocument' | 'paymentReceipt'
   ) {
     const input =
       event.target instanceof HTMLInputElement ? event.target : null;
@@ -330,8 +330,8 @@ export class RegistroAppPage implements OnInit {
       this.identityDocumentFile = file;
     } else if (tipo === 'certificate') {
       this.certificateFile = file;
-    } else if (tipo === 'paymentProof') {
-      this.paymentProofFile = file;
+    } else if (tipo === 'paymentReceipt') {
+      this.paymentReceiptFile = file;
     } else {
       this.signedDocumentFile = file;
     }
@@ -345,7 +345,7 @@ export class RegistroAppPage implements OnInit {
 
   onDrop(
       event: DragEvent,
-      tipo: 'identityDocument' | 'certificate' | 'signedDocument' | 'paymentProof'
+      tipo: 'identityDocument' | 'certificate' | 'signedDocument' | 'paymentReceipt'
   ) {
     event.preventDefault();
     this.onFileChange(event, tipo);
@@ -364,7 +364,7 @@ export class RegistroAppPage implements OnInit {
       { file: this.identityDocumentFile, name: 'Documento de Identidad' },
       { file: this.certificateFile, name: 'Patente Municipal' },
       { file: this.signedDocumentFile, name: 'Acuerdo de Comercialización' },
-      { file: this.paymentProofFile, name: 'Comprobante de Pago' },
+      { file: this.paymentReceiptFile, name: 'Comprobante de Pago' },
     ];
 
     for (const item of files) {
@@ -395,14 +395,14 @@ export class RegistroAppPage implements OnInit {
   }
 
   private clearFile(
-    tipo: 'identityDocument' | 'certificate' | 'signedDocument' | 'paymentProof'
+    tipo: 'identityDocument' | 'certificate' | 'signedDocument' | 'paymentReceipt'
   ) {
     if (tipo === 'identityDocument') {
       this.identityDocumentFile = undefined as any;
     } else if (tipo === 'certificate') {
       this.certificateFile = undefined as any;
-    } else if (tipo === 'paymentProof') {
-      this.paymentProofFile = undefined as any;
+    } else if (tipo === 'paymentReceipt') {
+      this.paymentReceiptFile = undefined as any;
     } else {
       this.signedDocumentFile = undefined as any;
     }

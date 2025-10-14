@@ -70,10 +70,9 @@ export class HomePage implements OnInit {
   };
 
   selectedCategoryId: number | undefined = undefined;
-  
+
   //Sección de Eventos
   mostrarEventos = false;
-
 
   getTipoPromocionLabel(tipo: string): string {
     return this.tipoPromocionMap[tipo] || 'Promoción';
@@ -173,18 +172,20 @@ export class HomePage implements OnInit {
   }
 
   private loadPromotions(promotionType?: string, categoryId?: number) {
-    this.promocionesService.getPromotionPublic(promotionType, categoryId).subscribe({
-      next: (response) => {
-        if (response.success) {
-          this.promociones = response.data;
-        } else {
-          console.error('Error loading promotions:', response.message);
-        }
-      },
-      error: (error) => {
-        console.error('Error loading promotions:', error);
-      },
-    });
+    this.promocionesService
+      .getPromotionPublic(promotionType, categoryId)
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.promociones = response.data;
+          } else {
+            console.error('Error loading promotions:', response.message);
+          }
+        },
+        error: (error) => {
+          console.error('Error loading promotions:', error);
+        },
+      });
   }
 
   onPromotionTypeChange() {
