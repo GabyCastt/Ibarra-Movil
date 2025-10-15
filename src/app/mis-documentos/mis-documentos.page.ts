@@ -34,6 +34,35 @@ export class MisDocumentosPage implements OnInit {
     });
   }
 
+verComprobante() {
+  this.loading = true;
+  this.documentosService.getDocumentoPdf('comprobante').subscribe({
+    next: async (response: Blob) => {
+      try {
+        const text = await response.text();
+        const data = JSON.parse(text);
+
+        const url = data.paymentReceiptUrl;
+        if (url) {
+          window.open(url, '_blank');
+        } else {
+        }
+      } catch (error) {
+        console.error('Error al procesar el comprobante', error);
+      }
+    },
+    error: (err) => {
+      console.error('Error al obtener el comprobante de pago', err);
+    },
+    complete: () => {
+      this.loading = false;
+    },
+  });
+}
+
+
+
+
   verCertificado() {
     this.loading = true;
     this.documentosService.getDocumentoPdf('certificado').subscribe({

@@ -12,7 +12,8 @@ export class DocumentosService {
   private readonly endpoints = {
     cedula: 'get-identity-document',
     certificado: 'get-certificate',
-    firmado: 'get-signed-document'
+    firmado: 'get-signed-document',
+    comprobante: 'get-payment-receipt'
   };
 
   constructor(private http: HttpClient, private authService: AuthService) {}
@@ -24,7 +25,7 @@ export class DocumentosService {
     });
   }
 
-  getDocumentoPdf(tipoDocumento: 'cedula' | 'certificado' | 'firmado') {
+  getDocumentoPdf(tipoDocumento: 'cedula' | 'certificado' | 'firmado' | 'comprobante') {
     const endpoint = this.endpoints[tipoDocumento];
     const url = `${this.baseUrl}/${endpoint}`;
 
