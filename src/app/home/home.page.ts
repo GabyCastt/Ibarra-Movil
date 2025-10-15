@@ -211,16 +211,16 @@ export class HomePage implements OnInit {
 
   private getCategoryIcon(categoryName: string): string {
     const iconMap: { [key: string]: string } = {
-      'Alimentos y Bebidas': 'fast-food-outline',
+      Alimentos: 'fast-food-outline',
       Gastronomía: 'restaurant-outline',
       Artesanías: 'color-palette-outline',
-      'Manualidades y Bisutería': 'construct-outline',
-      'Salud y Cosmética Natural': 'medkit-outline',
-      'Textiles y Moda': 'shirt-outline',
+      Manualidades: 'construct-outline',
+      Salud: 'medkit-outline',
+      Textiles: 'shirt-outline',
       Tecnología: 'hardware-chip-outline',
-      'Decoración, Hogar y Jardinería': 'home-outline',
+      Decoración: 'home-outline',
       Servicios: 'build-outline',
-      Otro: 'ellipsis-horizontal-outline',
+      Otros: 'ellipsis-horizontal-outline',
     };
     return iconMap[categoryName] || 'help-outline';
   }
